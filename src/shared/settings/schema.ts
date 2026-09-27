@@ -1,0 +1,133 @@
+import { z } from 'zod'
+import { DEFAULT_CITY_ID } from '../prayer/cities'
+import { PRESET_DISTRACTION_SITES } from '../tracking/detect'
+
+export const SETTINGS_VERSION = 1
+
+const int = (min: number, max: number, fallback: number) =>
+  z.number().int().min(min).max(max).catch(fallback)
+const bool = (fallback: boolean) => z.boolean().catch(fallback)
+
+/** An object whose missing or malformed value becomes `{}`, so every field takes its default. */
+const section = <T extends z.ZodRawShape>(shape: T) =>
+  z.preprocess(
+    (v) => (typeof v === 'object' && v !== null && !Array.isArray(v) ? v : {}),
+    z.object(shape)
+  )
+
+const prayerSettings = (lockMinutes: number) =>
+  section({
+    lock: bool(true),
+    lockMinutes: int(5, 60, lockMinutes),
+    adjust: int(-15, 15, 0)
+  })
+
+const locationSchema = z
+  .discriminatedUnion('kind', [
+    z.object({ kind: z.literal('city'), cityId: z.string().min(1) }),
+    z.object({
+      kind: z.literal('custom'),
+      lat: z.number().min(-65).max(65),
+      lng: z.number().min(-180).max(180),
+      label: z.string().max(40).optional()
+    })
+  ])
+  .catch({ kind: 'city', cityId: DEFAULT_CITY_ID })
+
+export const settingsSchema = section({
+  version: z.number().int().catch(SETTINGS_VERSION),
+  onboarded: bool(false),
+  location: locationSchema,
+  prayers: section({
+    fajr: prayerSettings(15),
+    dhuhr: prayerSettings(15),
+    asr: prayerSettings(15),
+    maghrib: prayerSettings(10),
+    isha: prayerSettings(15)
+  }),
+  /** Minutes before each prayer for the toast; 0 disables. */
+  reminderMinutes: int(0, 60, 10),
+  friday: section({
+    lock: bool(true),
+    reminderMinutes: int(0, 120, 45),
+    lockMinutes: int(5, 60, 40)
+  }),
+  chime: bool(true),
+  /** Minutes before "صلّيت" becomes available. */
+  minUnlockMinutes: int(0, 15, 5),
+  smart: section({
+    skipWhenAway: bool(true),
+    deferInMeetings: bool(true)
+  }),
+  distractions: section({
+    apps: z.array(z.string().min(1).max(200)).max(200).catch([]),
+    sites: z
+      .array(z.string().min(1).max(100))
+      .max(100)
+      .catch([...PRESET_DISTRACTION_SITES]),
+    keywords: z.array(z.string().min(1).max(60)).max(100).catch([])
+  }),
+  focus: section({
+    lastMinutes: int(1, 240, 25),
+    breakReminder: bool(true),
+    breakMinutes: int(1, 60, 5)
+  }),
+  tracking: section({
+    paused: bool(false),
+    idleMinutes: int(1, 30, 3),
+    storeTitles: bool(true),
+    excludedApps: z.array(z.string().min(1).max(200)).max(200).catch([]),
+    /** 0 = keep forever. */
+    retentionDays: z.union([z.literal(30), z.literal(90), z.literal(365), z.literal(0)]).catch(365)
+  }),
+  general: section({
+    launchAtStartup: bool(true),
+    closeToTray: bool(true),
+    closeHintShown: bool(false),
+    digits: z.enum(['arab', 'latn']).catch('arab'),
+    clock: z.enum(['12h', '24h']).catch('12h')
+  }),
+  appearance: section({
+    theme: z.enum(['sky', 'light', 'dark']).catch('sky'),
+    reduceMotion: bool(false)
+  })
+})
+
+export type Settings = z.infer<typeof settingsSchema>
+export type ThemeSetting = Settings['appearance']['theme']
+export type LocationSetting = Settings['location']
+
+export function defaultSettings(): Settings {
+  return settingsSchema.parse({ version: SETTINGS_VERSION })
+}
+
+/** Deep partial used for settings updates over IPC. */
+export type SettingsPatch = {
+  [K in keyof Settings]?: Settings[K] extends unknown[]
+    ? Settings[K]
+    : Settings[K] extends object
+      ? {
+          [P in keyof Settings[K]]?: Settings[K][P] extends object
+            ? Partial<Settings[K][P]>
+            : Settings[K][P]
+        }
+      : Settings[K]
+}
+
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === 'object' && v !== null && !Array.isArray(v)
+}
+
+/** Deep-merges a patch (arrays replace) and re-validates. Invalid fields fall back to defaults. */
+export function applyPatch(current: Settings, patch: unknown): Settings {
+  const merge = (a: unknown, b: unknown): unknown => {
+    if (!isPlainObject(a) || !isPlainObject(b)) return b === undefined ? a : b
+    const out: Record<string, unknown> = { ...a }
+    for (const [k, v] of Object.entries(b)) {
+      // The location union is replaced as a whole.
+      out[k] = k === 'location' ? v : merge(a[k], v)
+    }
+    return out
+  }
+  return settingsSchema.parse({ ...(merge(current, patch) as object), version: SETTINGS_VERSION })
+}
