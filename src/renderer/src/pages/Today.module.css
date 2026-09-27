@@ -1,0 +1,197 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  max-inline-size: 1180px;
+  margin-inline: auto;
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+.greeting {
+  font-size: 30px;
+  color: var(--text-on-sky);
+}
+
+.dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  color: var(--text-on-sky-2);
+}
+
+/* Hero sits directly on the sky: no card. */
+.hero {
+  position: relative;
+  margin-block: calc(var(--sp-3) * -1) 0;
+}
+
+.countdown {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 21%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+  color: var(--text-on-sky);
+}
+
+.nextLabel {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 17px;
+  color: var(--text-on-sky-2);
+}
+
+.odometer {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-display);
+  line-height: 1.25;
+  color: var(--text-on-sky);
+}
+
+.nextAt {
+  font-size: var(--fs-body);
+  color: var(--text-on-sky-2);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-4);
+}
+
+@media (max-width: 1180px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.total {
+  display: flex;
+  flex-direction: column;
+}
+
+.totalValue {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-1);
+  line-height: 1.4;
+}
+
+.totalLabel {
+  color: var(--text-3);
+  font-size: var(--fs-small);
+}
+
+.top {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Rows are bare until hovered: a soft band and a 1 px raise. */
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding-block: 6px;
+  padding-inline: var(--sp-2);
+  margin-inline: calc(var(--sp-2) * -1);
+  border-radius: var(--r-md);
+  transition:
+    background-color var(--dur-fast),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.row:hover {
+  background: var(--surface-hover);
+  transform: translateY(-1px);
+}
+
+.rowText {
+  flex: 1;
+  min-inline-size: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rowName {
+  color: var(--text-1);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+.rowSub {
+  color: var(--text-3);
+  font-size: var(--fs-micro);
+  line-height: 1.4;
+}
+
+.rowBar {
+  display: block;
+  block-size: 4px;
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.rowFill {
+  display: block;
+  block-size: 100%;
+  border-radius: inherit;
+  transform-origin: right center;
+}
+
+.rowValue {
+  color: var(--text-2);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.focusCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-4);
+}
+
+.focusLine {
+  color: var(--text-2);
+}
+
+.focusTimer {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--text-1);
+  line-height: 1.3;
+}
+
+.hint {
+  color: var(--text-3);
+  font-size: var(--fs-small);
+}

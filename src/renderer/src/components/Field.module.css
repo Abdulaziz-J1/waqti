@@ -1,0 +1,155 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding-block: var(--sp-2);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+
+.label {
+  color: var(--text-1);
+}
+
+.hint {
+  color: var(--text-3);
+  font-size: var(--fs-small);
+  line-height: 1.6;
+}
+
+.control {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-inline-size: 0;
+}
+
+.fieldLabel {
+  color: var(--text-2);
+  font-size: var(--fs-small);
+}
+
+.inputWrap {
+  position: relative;
+  display: block;
+}
+
+.inputWrap::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: calc(var(--r-md) + 4px);
+  border: 2px solid var(--focus);
+  opacity: 0;
+  transform: scale(0.98);
+  transition:
+    opacity var(--dur-fast),
+    transform var(--dur-base) var(--ease-out);
+  pointer-events: none;
+}
+
+.inputWrap:focus-within::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.inputWrap[data-error]::after {
+  border-color: var(--danger);
+  opacity: 1;
+  transform: scale(1);
+}
+
+.input {
+  inline-size: 100%;
+  padding-block: 9px;
+  padding-inline: 12px;
+  border: none;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+  color: var(--text-1);
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--text-3);
+}
+
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-block: 6px;
+  padding-inline: 12px 10px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+  color: var(--text-2);
+  font-weight: 500;
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    color var(--dur-base),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.chip:hover {
+  transform: translateY(-1px);
+  color: var(--text-1);
+}
+
+.chip:active {
+  transform: scale(0.97);
+}
+
+.chip[data-selected] {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+  color: var(--text-1);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.chipLabel {
+  white-space: nowrap;
+}
+
+.chip::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: 10px;
+  inline-size: 18px;
+  block-size: 18px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px var(--border-strong);
+  pointer-events: none;
+}
+
+.chip[data-selected]::after {
+  box-shadow: none;
+}
+
+.check {
+  display: grid;
+  place-items: center;
+  inline-size: 18px;
+  block-size: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--c-ink);
+}

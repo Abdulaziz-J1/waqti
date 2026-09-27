@@ -1,0 +1,104 @@
+.root {
+  position: relative;
+  padding-inline: var(--sp-3);
+}
+
+.strip {
+  position: relative;
+  block-size: 40px;
+  border-radius: var(--r-sm);
+  background: var(--surface-sunken);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.gridline {
+  position: absolute;
+  inset-block: 0;
+  inline-size: 1px;
+  background: var(--border);
+}
+
+.segment {
+  position: absolute;
+  inset-block: 6px;
+  border-radius: 3px;
+  opacity: 0.9;
+  transform-origin: center;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast);
+}
+
+.segment[data-hover] {
+  opacity: 1;
+  transform: scaleY(1.28);
+}
+
+.prayer {
+  position: absolute;
+  inset-block: -4px;
+  inline-size: 2px;
+  margin-inline-start: -1px;
+  border-radius: 1px;
+  background: var(--accent);
+  opacity: 0.8;
+}
+
+.now {
+  position: absolute;
+  inset-block: -8px;
+  inline-size: 2px;
+  margin-inline-start: -1px;
+  background: var(--text-1);
+  border-radius: 1px;
+}
+
+.axis {
+  position: relative;
+  block-size: 24px;
+  margin-block-start: 6px;
+}
+
+.hour {
+  position: absolute;
+  translate: 50% 0;
+  font-size: var(--fs-micro);
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+.tip {
+  position: absolute;
+  inset-block-end: calc(100% + 10px);
+  translate: 50% 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-block: 8px;
+  padding-inline: 12px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-2);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.tipTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+.swatch {
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: 2px;
+}
+
+.tipMeta {
+  color: var(--text-2);
+  font-size: var(--fs-small);
+}

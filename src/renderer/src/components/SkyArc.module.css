@@ -1,0 +1,142 @@
+.wrap {
+  position: relative;
+  inline-size: 100%;
+  aspect-ratio: 1000 / 300;
+  max-block-size: 340px;
+}
+
+.svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+}
+
+.horizon {
+  stroke: var(--text-on-sky);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  opacity: 0.22;
+}
+
+.night {
+  fill: none;
+  stroke: var(--text-on-sky);
+  stroke-width: 1.6;
+  stroke-dasharray: 2 9;
+  stroke-linecap: round;
+  opacity: 0.35;
+}
+
+.track {
+  fill: none;
+  stroke: var(--text-on-sky);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.28;
+}
+
+.progress {
+  fill: none;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+}
+
+.sun {
+  fill: #ffd98a;
+  stroke: #fff4d6;
+  stroke-width: 2;
+}
+
+.moon {
+  fill: #eef1fb;
+  stroke: #ffffff;
+  stroke-width: 1.5;
+}
+
+.markerHit {
+  cursor: pointer;
+  outline: none;
+}
+
+.hit {
+  fill: transparent;
+}
+
+.marker {
+  fill: var(--text-on-sky);
+  stroke: var(--sky-mid);
+  stroke-width: 3;
+}
+
+.markerNext {
+  fill: var(--accent);
+  stroke: var(--sky-mid);
+  stroke-width: 3;
+}
+
+.markerSunrise {
+  fill: none;
+  stroke: var(--text-on-sky);
+  stroke-width: 2;
+  opacity: 0.7;
+}
+
+.markerHit:focus-visible .hit {
+  stroke: var(--focus);
+  stroke-width: 2.5;
+}
+
+/* Soft pulse on the next prayer (transform + opacity only). */
+.pulse {
+  fill: var(--accent);
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pulse 2.8s var(--ease-in-out) infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  70% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+.tip {
+  position: absolute;
+  z-index: 5;
+  translate: 50% calc(-100% - 22px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block: 6px;
+  padding-inline: 12px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-2);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.tipName {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--fs-small);
+  color: var(--text-1);
+  line-height: 1.5;
+}
+
+.tipTime {
+  font-size: var(--fs-small);
+  color: var(--text-2);
+  line-height: 1.4;
+}

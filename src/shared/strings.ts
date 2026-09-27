@@ -217,7 +217,9 @@ export const today = {
   scheduleError: 'ما قدرنا نحسب أوقات الصلاة لموقعك. راجع المدينة أو الإحداثيات من صفحة الصلاة.',
   arcLabel: 'مسار الشمس اليوم ومواقيت الصلاة',
   via: (browser: string) => `عبر ${browser}`,
-  focusToday: (n: string, d: string) => `${n} اليوم، ${d} تركيز`
+  focusToday: (n: string, d: string) => `${n} اليوم، ${d} تركيز`,
+  focusPitch: (d: string) => `${d} بدون مشتتات، ووقتي يحرس تركيزك`,
+  fixLocation: 'راجع الموقع'
 } as const
 
 export const focusPage = {
@@ -334,7 +336,7 @@ export const prayerPage = {
     superseded: 'دخلت الصلاة اللي بعدها'
   },
   snoozedTag: 'بعد تأجيل',
-  hijriToday: 'التاريخ الهجري'
+  nextTag: 'القادمة'
 } as const
 
 export const settingsPage = {
@@ -428,8 +430,10 @@ export const onboarding = {
   presetSites: 'مواقع',
   startupTitle: 'آخر خطوة',
   startupBody: 'خل وقتي يشتغل مع ويندوز عشان ما تفوتك صلاة ولا يضيع يومك بدون تقرير',
-  finish: 'ابدأ استخدام وقتي',
-  skip: 'تخطي'
+  startupToggle: 'شغّل وقتي مع ويندوز',
+  startupHint: 'يبدأ مخفي عند الساعة، بدون ما يزعجك',
+  noApps: 'ما فيه تطبيقات مفتوحة الحين. تقدر تضيفها بعدين من صفحة التركيز',
+  finish: 'ابدأ استخدام وقتي'
 } as const
 
 export const debug = {

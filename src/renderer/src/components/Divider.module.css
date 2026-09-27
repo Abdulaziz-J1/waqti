@@ -1,0 +1,9 @@
+.divider {
+  display: inline-block;
+  inline-size: 1px;
+  block-size: 0.9em;
+  margin-inline: 0.55em;
+  vertical-align: -0.1em;
+  background: currentColor;
+  opacity: 0.35;
+}

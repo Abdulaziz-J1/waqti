@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import { app } from 'electron'
 import type { RunningApp } from '../../shared/ipc'
 import { friendlyAppName, processNameOf } from '../../shared/tracking/apps'
@@ -36,6 +37,11 @@ export class AppsService {
     const todo = [...new Set(paths)].filter((p) => p && /\.exe$/i.test(p) && !this.icons.has(p))
     await Promise.all(
       todo.map(async (p) => {
+        // A missing file would give Windows' generic document icon; use the lettered disc instead.
+        if (!fs.existsSync(p)) {
+          this.icons.set(p, null)
+          return
+        }
         try {
           const img = await app.getFileIcon(p, { size: 'normal' })
           this.icons.set(p, img.isEmpty() ? null : img.toDataURL())
