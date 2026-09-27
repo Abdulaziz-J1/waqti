@@ -49,11 +49,11 @@ export class AppsService {
   }
 
   async prefetch(paths: Iterable<string>): Promise<void> {
-    const todo = [...new Set(paths)].filter((p) => p && /\.exe$/i.test(p) && !this.icons.has(p))
-    if (!todo.length) return
+    const missing = [...new Set(paths)].filter((p) => p && /\.exe$/i.test(p) && !this.icons.has(p))
+    if (!missing.length) return
     const generic = await this.genericIcon()
     await Promise.all(
-      todo.map(async (p) => {
+      missing.map(async (p) => {
         // A missing file would give Windows' generic document icon; use the lettered disc instead.
         if (!fs.existsSync(p)) {
           this.icons.set(p, null)

@@ -68,11 +68,12 @@ export function registerIpc(core: WaqtiCore): void {
       await shell.openPath(which === 'logs' ? paths.logs : paths.userData)
       return null
     },
-    'settings:update': (patch) => {
-      const next = core.settings.update(patch)
-      if (core.notice) core.notice = null
-      return next
+    'app:dismissNotice': () => {
+      core.notice = null
+      core.markDirty()
+      return null
     },
+    'settings:update': (patch) => core.settings.update(patch),
     'onboarding:complete': ({ launchAtStartup }) => {
       core.settings.update({ onboarded: true, general: { launchAtStartup } })
       return null

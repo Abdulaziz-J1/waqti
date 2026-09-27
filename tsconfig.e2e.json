@@ -6,6 +6,11 @@
     "types": ["node"],
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.e2e.tsbuildinfo"
   },
-  "include": ["tests/**/*", "playwright.config.ts", "src/shared/**/*"],
+  "include": [
+    "tests/**/*",
+    "playwright.config.ts",
+    "playwright.shots.config.ts",
+    "src/shared/**/*"
+  ],
   "exclude": ["src/shared/**/*.test.ts", "src/shared/test-setup.ts"]
 }

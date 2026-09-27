@@ -265,12 +265,16 @@ describe('performance budget', () => {
     const analytics = new Analytics(repo)
     // Warm-up (statement caches), then measure.
     analytics.report('month', day, now)
+    const timings: Record<string, number> = {}
     for (const kind of ['day', 'week', 'month'] as const) {
       const r = analytics.report(kind, day, now)
+      timings[kind] = Math.round(r.queryMs * 10) / 10
       expect(r.queryMs).toBeLessThan(100)
     }
     const t0 = performance.now()
     analytics.today(now)
-    expect(performance.now() - t0).toBeLessThan(100)
+    timings['today'] = Math.round((performance.now() - t0) * 10) / 10
+    expect(timings['today']).toBeLessThan(100)
+    console.info(`query budget on ${repo.intervalCount()} intervals (1 year), ms:`, timings)
   })
 })

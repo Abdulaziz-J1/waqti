@@ -23,6 +23,16 @@
   pointer-events: none;
 }
 
+/* Light daytime skies get a deeper veil, strongest at the bottom where the buttons are (AA for white text). */
+.lock[data-tone='light']::before {
+  background: linear-gradient(
+    180deg,
+    rgba(16, 26, 51, 0.34) 0%,
+    rgba(16, 26, 51, 0.5) 55%,
+    rgba(16, 26, 51, 0.62) 100%
+  );
+}
+
 .horizon {
   position: absolute;
   inset-inline: -10%;

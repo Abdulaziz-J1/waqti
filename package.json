@@ -22,7 +22,9 @@
     "test:watch": "vitest",
     "test:e2e": "electron-vite build && playwright test",
     "icons": "node scripts/make-icons.mjs",
-    "bench": "node scripts/bench-queries.mjs",
+    "bench": "vitest run src/main/services/db/repo.test.ts -t \"performance budget\" --silent=false",
+    "perf": "node scripts/perf.mjs",
+    "screenshots": "electron-vite build && playwright test -c playwright.shots.config.ts",
     "dist": "electron-vite build && electron-builder --win --x64 --publish never"
   },
   "dependencies": {

@@ -5,6 +5,7 @@ import { SkyBackground } from './components/SkyBackground'
 import { Sidebar } from './components/Sidebar'
 import { FocusSummary } from './components/FocusSummary'
 import { DebugPanel } from './components/DebugPanel'
+import { Toaster } from './components/Toaster'
 import { useNav } from './lib/nav'
 import { useReducedMotion, useSkyTheme } from './lib/sky'
 import { useSnapshot } from './lib/store'
@@ -57,6 +58,7 @@ function Shell(): React.JSX.Element {
       </main>
       <FocusSummary />
       <DebugPanel />
+      <Toaster />
     </div>
   )
 }

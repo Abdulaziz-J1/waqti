@@ -45,7 +45,7 @@ export default tseslint.config(
     }
   },
   {
-    files: ['scripts/**/*.{js,mjs}', 'tests/**/*.ts'],
+    files: ['scripts/**/*.{js,mjs}', 'tests/**/*.ts', 'src/**/*.test.ts'],
     rules: { 'no-console': 'off' }
   },
   prettier

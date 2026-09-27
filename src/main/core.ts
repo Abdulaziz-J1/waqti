@@ -596,6 +596,10 @@ export class WaqtiCore {
         this.quit()
       }
     })
+    w.webContents.on('render-process-gone', (_e, details) => {
+      log.error('main window renderer gone, reloading', details)
+      if (!w.isDestroyed()) w.webContents.reload()
+    })
     w.on('closed', () => {
       if (this.mainWindow === w) this.mainWindow = null
     })

@@ -160,6 +160,7 @@ export const requestSchemas = {
   'app:info': z.undefined(),
   'app:ready': z.object({ at: z.number() }),
   'app:openFolder': z.object({ which: z.enum(['data', 'logs']) }),
+  'app:dismissNotice': z.undefined(),
   'settings:update': z.record(z.string(), z.unknown()),
   'onboarding:complete': z.object({ launchAtStartup: z.boolean() }),
   'prayer:preview': z.object({ location: locationSchema }),
@@ -218,6 +219,7 @@ export interface ResponseMap {
   'app:info': AppInfo
   'app:ready': null
   'app:openFolder': null
+  'app:dismissNotice': null
   'settings:update': Settings
   'onboarding:complete': null
   'prayer:preview': { schedule: DaySchedule | null; error: string | null }

@@ -50,6 +50,7 @@ export function LockOverlay({ state }: { state: OverlayState }): React.JSX.Eleme
     <motion.div
       className={s.lock}
       data-reduce={state.reduceMotion || undefined}
+      data-tone={state.sky.tone}
       style={{
         background: `linear-gradient(180deg, ${state.sky.top} 0%, ${state.sky.mid} 60%, ${state.sky.horizon} 100%)`
       }}
