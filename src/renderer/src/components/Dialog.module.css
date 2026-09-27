@@ -1,0 +1,83 @@
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-6);
+  background: var(--scrim);
+  -webkit-app-region: no-drag;
+}
+
+.box {
+  inline-size: 100%;
+  max-block-size: calc(100vh - 96px);
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-xl);
+  background: var(--surface-2);
+  box-shadow:
+    var(--shadow-2),
+    inset 0 0 0 1px var(--border);
+  overflow: hidden;
+}
+
+.sm {
+  max-inline-size: 420px;
+}
+.md {
+  max-inline-size: 560px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding-block: var(--sp-5) var(--sp-3);
+  padding-inline: var(--sp-6);
+}
+
+.title {
+  font-size: var(--fs-h2);
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  inline-size: 34px;
+  block-size: 34px;
+  border-radius: 50%;
+  color: var(--text-3);
+  transition:
+    background-color var(--dur-fast),
+    color var(--dur-fast),
+    transform var(--dur-fast);
+}
+.close:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+.close:active {
+  transform: scale(0.92);
+}
+.close:focus-visible {
+  box-shadow: 0 0 0 2px var(--focus);
+}
+
+.body {
+  padding-inline: var(--sp-6);
+  padding-block-end: var(--sp-5);
+  overflow-y: auto;
+  color: var(--text-2);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-2);
+  padding-block: var(--sp-4);
+  padding-inline: var(--sp-6);
+  border-block-start: 1px solid var(--border);
+  background: var(--surface-sunken);
+}

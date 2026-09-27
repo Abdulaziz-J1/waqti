@@ -1,0 +1,32 @@
+.shell {
+  position: relative;
+  z-index: 1;
+  block-size: 100%;
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+}
+
+.main {
+  position: relative;
+  min-inline-size: 0;
+  block-size: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Window drag strip under the native caption buttons. */
+.titlebar {
+  flex-shrink: 0;
+  block-size: var(--titlebar-h);
+  -webkit-app-region: drag;
+}
+
+.page {
+  flex: 1;
+  min-block-size: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-inline: var(--sp-7);
+  padding-block-end: var(--sp-7);
+}

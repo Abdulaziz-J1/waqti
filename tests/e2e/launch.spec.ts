@@ -1,25 +1,12 @@
-import fs from 'node:fs'
-import os from 'node:os'
-import path from 'node:path'
-import { _electron as electron, expect, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
+import { invoke, launch, readLog } from './helpers'
 
-test('app launches', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'waqti-e2e-'))
-  const app = await electron.launch({ args: ['.'], env: { ...process.env, WAQTI_USER_DATA: dir } })
-  const win = await app.firstWindow()
-  await expect(win.locator('h1')).toHaveText('وقتي')
-  await win.waitForTimeout(4000)
-  const snap = await win.evaluate(() => window.waqti.invoke('app:snapshot'))
-  console.log(
-    JSON.stringify({
-      machine: snap.machine,
-      tracking: snap.tracking,
-      sched: snap.schedule?.today.day,
-      err: snap.scheduleError
-    })
-  )
-  const readout = await win.evaluate(() => window.waqti.invoke('debug:readout'))
-  console.log(JSON.stringify(readout))
+test('app launches with a working main process', async () => {
+  const { app, win, dataDir } = await launch()
+  await expect(win.locator('h1').first()).toBeVisible()
+  const snap = await invoke(win, 'app:snapshot')
+  expect(snap.schedule?.today.times.fajr).toBeGreaterThan(0)
+  expect(snap.machine.prayer.kind).toBe('idle')
   await app.close()
-  console.log(fs.readFileSync(path.join(dir, 'logs', 'waqti.log'), 'utf8'))
+  expect(readLog(dataDir)).not.toContain('[error]')
 })

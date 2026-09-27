@@ -1,0 +1,31 @@
+.odo {
+  display: inline-flex;
+  direction: ltr;
+  unicode-bidi: isolate;
+  align-items: baseline;
+}
+
+.cell {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  /* Room for Kufi ascenders so digits are never clipped. */
+  padding-block: 0.08em;
+  margin-block: -0.08em;
+}
+
+.sizer {
+  visibility: hidden;
+}
+
+.digit {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 0.08em;
+  text-align: center;
+}
+
+.sep {
+  display: inline-block;
+  padding-inline: 0.04em;
+}

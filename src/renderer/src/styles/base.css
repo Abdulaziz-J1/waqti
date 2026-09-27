@@ -1,0 +1,163 @@
+/* Reset and RTL base. Layout uses logical properties only. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  block-size: 100%;
+  margin: 0;
+}
+
+html {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-1);
+  background: var(--sky-mid);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Arabic joining breaks with letter-spacing; italics are never used. */
+  letter-spacing: normal;
+  font-style: normal;
+  overflow: hidden;
+  user-select: none;
+}
+
+body {
+  background: var(--sky-mid);
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+.display {
+  font-family: var(--font-display);
+  line-height: var(--lh-display);
+  font-weight: 600;
+}
+
+h1 {
+  font-size: var(--fs-h1);
+}
+h2 {
+  font-size: var(--fs-h2);
+}
+h3 {
+  font-size: var(--fs-h3);
+}
+
+em,
+i {
+  font-style: normal;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  letter-spacing: normal;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+input,
+textarea {
+  user-select: text;
+}
+
+img {
+  display: block;
+}
+
+/* Numbers and times align in columns. */
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* App and site names, file paths: isolate bidi so mixed text never scrambles. */
+bdi,
+.ltr-isolate {
+  unicode-bidi: isolate;
+}
+
+/* Directional icons (arrows, chevrons) mirror in RTL. */
+[dir='rtl'] .icon-directional {
+  transform: scaleX(-1);
+}
+
+:focus {
+  outline: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Thin, quiet scrollbars */
+::-webkit-scrollbar {
+  inline-size: 10px;
+  block-size: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--r-pill);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Hidden window / tray: stop every CSS animation. */
+:root[data-paused] *,
+:root[data-paused] *::before,
+:root[data-paused] *::after {
+  animation-play-state: paused !important;
+}
+
+/* Reduced motion (OS setting or the in-app تقليل الحركة): keep state feedback, drop decoration. */
+:root[data-reduce-motion] *,
+:root[data-reduce-motion] *::before,
+:root[data-reduce-motion] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+}
+:root[data-reduce-motion] .motion-decor {
+  display: none !important;
+}
+
+/* A cursor-following highlight shared by buttons and panels (see lib/pointer.ts). */
+[data-glow] {
+  --mx: 50%;
+  --my: 50%;
+}

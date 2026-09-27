@@ -1,0 +1,53 @@
+.sky {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    var(--sky-top) 0%,
+    var(--sky-mid) 58%,
+    var(--sky-horizon) 100%
+  );
+}
+
+/* A warm band of light low on the horizon. */
+.horizonGlow {
+  position: absolute;
+  inset-inline: -10%;
+  inset-block-end: -30%;
+  block-size: 60%;
+  background: radial-gradient(ellipse at 50% 100%, var(--sky-horizon), transparent 65%);
+  opacity: 0.7;
+}
+
+/* Static, faint stars at night (no animation in the main window). */
+.stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 28% 8%, #fff, transparent 60%),
+    radial-gradient(1.4px 1.4px at 44% 22%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 63% 12%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 77% 28%, #fff, transparent 60%),
+    radial-gradient(1.4px 1.4px at 88% 9%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 18% 38%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 55% 34%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 93% 40%, #fff, transparent 60%),
+    radial-gradient(1px 1px at 36% 46%, #fff, transparent 60%);
+}
+
+/* Lantern: anchored at the inline start (right in RTL) and moved with transform by lib/pointer.ts. */
+.lantern {
+  position: absolute;
+  inset-block-start: -300px;
+  inset-inline-start: -300px;
+  inline-size: 600px;
+  block-size: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--glow), transparent 62%);
+  will-change: transform;
+}

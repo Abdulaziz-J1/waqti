@@ -1,0 +1,153 @@
+/*
+ * Design tokens for "سماء اليوم". Every colour, size and duration is a CSS
+ * variable. The sky colours are registered so gradients can cross-fade.
+ */
+
+@property --sky-top {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #5b9fd3;
+}
+@property --sky-mid {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #a7cdea;
+}
+@property --sky-horizon {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #eaf2f8;
+}
+
+:root {
+  /* Core palette */
+  --c-night: #101a33;
+  --c-dawn: #3e4a89;
+  --c-day: #eaf2f8;
+  --c-asr: #e9b872;
+  --c-dusk: #b5485d;
+  --c-sand: #d9b26f;
+  --c-ink: #1b2a41;
+
+  /* Category colours (validated on both tones) */
+  --cat-work: #3a78b5;
+  --cat-social: #2e9c87;
+  --cat-fun: #d9793f;
+  --cat-other: #8791a5;
+
+  /* Type */
+  --font-display: 'Noto Kufi Arabic', 'IBM Plex Sans Arabic', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans Arabic', 'Segoe UI', system-ui, sans-serif;
+  --fs-display: 56px;
+  --fs-h1: 28px;
+  --fs-h2: 20px;
+  --fs-h3: 16px;
+  --fs-body: 15px;
+  --fs-small: 13px;
+  --fs-micro: 12px;
+  --lh-body: 1.7;
+  --lh-display: 1.4;
+
+  /* Space, radius */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-7: 32px;
+  --sp-8: 48px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-xl: 28px;
+  --r-pill: 999px;
+
+  /* Motion */
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 600ms;
+  --dur-sky: 30s;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Layout */
+  --titlebar-h: 44px;
+  --sidebar-w: 236px;
+
+  color-scheme: light;
+}
+
+/* ---- Tones: surfaces and text sit on the sky with WCAG AA contrast ---- */
+
+:root[data-tone='light'] {
+  --surface-1: rgba(255, 255, 255, 0.86);
+  --surface-2: #ffffff;
+  --surface-sunken: rgba(27, 42, 65, 0.05);
+  --surface-hover: rgba(27, 42, 65, 0.06);
+  --text-1: #1b2a41;
+  --text-2: #3f4e66;
+  --text-3: #56647a;
+  --text-on-sky: #1b2a41;
+  --text-on-sky-2: #2c3b55;
+  --border: rgba(27, 42, 65, 0.1);
+  --border-strong: rgba(27, 42, 65, 0.2);
+  --accent: #d9b26f;
+  --accent-text: #7a5210;
+  --accent-soft: rgba(217, 178, 111, 0.22);
+  --btn-primary-bg: #1b2a41;
+  --btn-primary-fg: #ffffff;
+  --btn-primary-glow: rgba(255, 255, 255, 0.22);
+  --focus: #3e4a89;
+  --danger: #a8324a;
+  --danger-soft: rgba(168, 50, 74, 0.1);
+  --success: #2a7a54;
+  --glow: rgba(255, 244, 214, 0.55);
+  --edge-light: rgba(217, 178, 111, 0.75);
+  --shadow-1: 0 1px 2px rgba(27, 42, 65, 0.06), 0 8px 24px rgba(27, 42, 65, 0.06);
+  --shadow-2: 0 12px 40px rgba(27, 42, 65, 0.16);
+  --scrim: rgba(16, 26, 51, 0.36);
+  color-scheme: light;
+}
+
+:root[data-tone='dark'] {
+  --surface-1: rgba(14, 22, 46, 0.8);
+  --surface-2: #18244a;
+  --surface-sunken: rgba(255, 255, 255, 0.05);
+  --surface-hover: rgba(255, 255, 255, 0.07);
+  --text-1: #eef2f8;
+  --text-2: #c5cddc;
+  --text-3: #9da9bf;
+  --text-on-sky: #f4f6fb;
+  --text-on-sky-2: #d9dfeb;
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --accent: #d9b26f;
+  --accent-text: #e8c98c;
+  --accent-soft: rgba(217, 178, 111, 0.16);
+  --btn-primary-bg: #d9b26f;
+  --btn-primary-fg: #1b2a41;
+  --btn-primary-glow: rgba(255, 255, 255, 0.35);
+  --focus: #e8c98c;
+  --danger: #f08a9c;
+  --danger-soft: rgba(240, 138, 156, 0.12);
+  --success: #7fd3a6;
+  --glow: rgba(217, 178, 111, 0.22);
+  --edge-light: rgba(232, 201, 140, 0.7);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.18);
+  --shadow-2: 0 16px 48px rgba(0, 0, 0, 0.4);
+  --scrim: rgba(5, 9, 20, 0.55);
+  color-scheme: dark;
+}
+
+/* Static themes pin the sky */
+:root[data-theme='light'] {
+  --sky-top: #cfe2f1;
+  --sky-mid: #e3eef7;
+  --sky-horizon: #f4f8fb;
+}
+:root[data-theme='dark'] {
+  --sky-top: #0a1128;
+  --sky-mid: #101a33;
+  --sky-horizon: #1a2547;
+}

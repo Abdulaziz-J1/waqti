@@ -1,0 +1,30 @@
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding-block: var(--sp-2) var(--sp-5);
+}
+
+.titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-inline-size: 0;
+}
+
+.title {
+  font-size: var(--fs-h1);
+  color: var(--text-on-sky);
+}
+
+.sub {
+  color: var(--text-on-sky-2);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}

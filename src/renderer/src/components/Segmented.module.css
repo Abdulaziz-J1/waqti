@@ -1,0 +1,65 @@
+.group {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.option {
+  position: relative;
+  border-radius: calc(var(--r-md) - 3px);
+  color: var(--text-2);
+  font-weight: 500;
+  transition: color var(--dur-base) var(--ease-out);
+  -webkit-app-region: no-drag;
+}
+
+.md .option {
+  padding-block: 6px;
+  padding-inline: 16px;
+}
+.sm .option {
+  padding-block: 3px;
+  padding-inline: 12px;
+  font-size: var(--fs-small);
+}
+
+.option:hover {
+  color: var(--text-1);
+}
+
+.option[data-active] {
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+.indicator {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--surface-2);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    inset 0 0 0 1px var(--border);
+}
+
+.text {
+  position: relative;
+  white-space: nowrap;
+}
+
+.option::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  border: 2px solid var(--focus);
+  opacity: 0;
+  transition: opacity var(--dur-fast);
+  pointer-events: none;
+}
+.option:focus-visible::after {
+  opacity: 1;
+}

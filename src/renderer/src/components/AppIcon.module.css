@@ -1,0 +1,17 @@
+.img {
+  flex-shrink: 0;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+.disc {
+  flex-shrink: 0;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--text-3);
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1;
+}

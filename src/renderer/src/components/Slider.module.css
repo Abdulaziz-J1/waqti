@@ -1,0 +1,69 @@
+.slider {
+  position: relative;
+  inline-size: 100%;
+  min-inline-size: 160px;
+  block-size: 28px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.rail {
+  position: relative;
+  inline-size: 100%;
+  block-size: 6px;
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+  box-shadow: inset 0 0 0 1px var(--border);
+  overflow: hidden;
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  background: var(--btn-primary-bg);
+  /* RTL: grows from the right */
+  transform-origin: right center;
+}
+
+.lane {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.knob {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 0;
+  inline-size: 20px;
+  block-size: 20px;
+  margin-block-start: -10px;
+  margin-inline-start: -10px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.25),
+    inset 0 0 0 2px var(--btn-primary-bg);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.slider:hover .knob,
+.slider:focus-visible .knob {
+  transform: scale(1.12);
+}
+
+.slider::after {
+  content: '';
+  position: absolute;
+  inset: -2px -8px;
+  border-radius: var(--r-md);
+  border: 2px solid var(--focus);
+  opacity: 0;
+  transition: opacity var(--dur-fast);
+  pointer-events: none;
+}
+.slider:focus-visible::after {
+  opacity: 1;
+}
