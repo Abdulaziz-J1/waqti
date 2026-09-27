@@ -32,6 +32,12 @@ test('dev screenshots', async () => {
     await win.locator(`[data-testid="nav-${p}"]`).click()
     await win.waitForTimeout(1600)
     await win.screenshot({ path: path.join(OUT, `${p}.png`) })
+    if (process.env['SHOT_DEBUG'] === '1') {
+      await win.keyboard.press('Control+Shift+D')
+      await win.waitForTimeout(1800)
+      await win.screenshot({ path: path.join(OUT, `${p}-debug.png`) })
+      await win.keyboard.press('Escape')
+    }
     if (p === 'settings' && process.env['SHOT_SECTIONS']) {
       for (const name of process.env['SHOT_SECTIONS'].split(',')) {
         await win.getByRole('radio', { name }).click()

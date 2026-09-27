@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import path from 'node:path'
 import { type BrowserWindow, app, powerMonitor } from 'electron'
 import type { DB } from './services/db/database'
 import { dailyBackup } from './services/db/database'
@@ -522,7 +523,12 @@ export class WaqtiCore {
     if (!w || w.isDestroyed()) {
       const c = this.windowColors()
       this.lastTone = c.tone
-      w = createMainWindow({ show: true, background: c.background, symbolColor: c.symbol })
+      w = createMainWindow({
+        show: true,
+        background: c.background,
+        symbolColor: c.symbol,
+        icon: path.join(paths.resources, 'icon.png')
+      })
       this.attachMainWindow(w)
       this.mainWindow = w
     } else {

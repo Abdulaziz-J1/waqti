@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Tray glyph: simplified arc + sun, legible at 16 px on light and dark taskbars. -->
+  <rect x="1" y="1" width="30" height="30" rx="8" fill="#2B3570"/>
+  <path d="M6 23 A10 10 0 0 1 26 23" fill="none" stroke="#EAF2F8" stroke-width="2.6" stroke-linecap="round"/>
+  <circle cx="21" cy="14.5" r="4.2" fill="#F5D08A"/>
+</svg>

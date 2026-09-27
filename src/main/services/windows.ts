@@ -41,6 +41,7 @@ export function loadPage(
 
 export interface MainWindowOptions {
   show: boolean
+  icon?: string
   background: string
   symbolColor: string
 }
@@ -53,6 +54,7 @@ export function createMainWindow(opts: MainWindowOptions): BrowserWindow {
     minHeight: 640,
     show: false,
     title: 'وقتي',
+    icon: opts.icon,
     backgroundColor: opts.background,
     titleBarStyle: 'hidden',
     titleBarOverlay: { color: '#00000000', symbolColor: opts.symbolColor, height: 44 },

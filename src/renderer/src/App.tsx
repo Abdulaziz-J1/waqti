@@ -4,6 +4,7 @@ import type { Page } from '@shared/ipc'
 import { SkyBackground } from './components/SkyBackground'
 import { Sidebar } from './components/Sidebar'
 import { FocusSummary } from './components/FocusSummary'
+import { DebugPanel } from './components/DebugPanel'
 import { useNav } from './lib/nav'
 import { useReducedMotion, useSkyTheme } from './lib/sky'
 import { useSnapshot } from './lib/store'
@@ -49,6 +50,7 @@ function Shell(): React.JSX.Element {
         </AnimatePresence>
       </main>
       <FocusSummary />
+      <DebugPanel />
     </div>
   )
 }
