@@ -177,6 +177,42 @@ export function timelineSegments(
   return out.map(({ key: _k, lastEnd: _l, ...seg }) => seg)
 }
 
+export interface HourStack {
+  hour: number
+  total: number
+  byCategory: Record<string, number>
+}
+
+/** Usage per clock hour of one day, split by category (for the Day report tab). */
+export function hourlyStacks(
+  rows: readonly TimelineRow[],
+  categorize: Categorizer,
+  day: DayKey
+): HourStack[] {
+  const start = dayStartMs(day)
+  const out: HourStack[] = Array.from({ length: 24 }, (_, hour) => ({
+    hour,
+    total: 0,
+    byCategory: {}
+  }))
+  for (const r of rows) {
+    const cat = categorize(r)
+    let s = Math.max(r.start, start)
+    const e = Math.min(r.end, start + 24 * 60 * MINUTE)
+    while (s < e) {
+      const hour = Math.floor((s - start) / (60 * MINUTE))
+      const hourEnd = start + (hour + 1) * 60 * MINUTE
+      const piece = Math.min(e, hourEnd) - s
+      const bucket = out[hour]
+      if (!bucket) break
+      bucket.byCategory[cat] = (bucket.byCategory[cat] ?? 0) + piece
+      bucket.total += piece
+      s += piece
+    }
+  }
+  return out
+}
+
 // ---------------------------------------------------------------------------
 // Report windows
 // ---------------------------------------------------------------------------

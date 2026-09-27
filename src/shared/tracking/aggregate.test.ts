@@ -5,6 +5,7 @@ import {
   activityKey,
   activityLabel,
   focusStats,
+  hourlyStacks,
   reportWindow,
   stackByDay,
   sumMs,
@@ -107,6 +108,50 @@ describe('aggregation', () => {
     ])
     expect(segs[1]!.ms).toBe(49 * MINUTE)
     expect(segs[2]!.categoryId).toBe('fun')
+  })
+})
+
+describe('hourly stacks', () => {
+  it('splits intervals across hour boundaries by category', () => {
+    const day = '2026-09-27'
+    const base = dayStartMs(day)
+    const h = hourlyStacks(
+      [
+        {
+          start: base + 9 * HOUR + 30 * MINUTE,
+          end: base + 10 * HOUR + 15 * MINUTE,
+          process: 'code.exe',
+          appName: 'c',
+          exePath: '',
+          site: null
+        },
+        {
+          start: base + 10 * HOUR + 15 * MINUTE,
+          end: base + 10 * HOUR + 45 * MINUTE,
+          process: 'chrome.exe',
+          appName: 'g',
+          exePath: '',
+          site: 'youtube'
+        },
+        {
+          start: base - 10 * MINUTE,
+          end: base + 5 * MINUTE,
+          process: 'x.exe',
+          appName: 'x',
+          exePath: '',
+          site: null
+        }
+      ],
+      cat,
+      day
+    )
+    expect(h).toHaveLength(24)
+    expect(h[0]!.total).toBe(5 * MINUTE)
+    expect(h[9]!.byCategory['work']).toBe(30 * MINUTE)
+    expect(h[10]!.byCategory['work']).toBe(15 * MINUTE)
+    expect(h[10]!.byCategory['fun']).toBe(30 * MINUTE)
+    expect(h[10]!.total).toBe(45 * MINUTE)
+    expect(h[11]!.total).toBe(0)
   })
 })
 

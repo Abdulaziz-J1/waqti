@@ -32,6 +32,13 @@ test('dev screenshots', async () => {
     await win.locator(`[data-testid="nav-${p}"]`).click()
     await win.waitForTimeout(1600)
     await win.screenshot({ path: path.join(OUT, `${p}.png`) })
+    if (p === 'settings' && process.env['SHOT_SECTIONS']) {
+      for (const name of process.env['SHOT_SECTIONS'].split(',')) {
+        await win.getByRole('radio', { name }).click()
+        await win.waitForTimeout(700)
+        await win.screenshot({ path: path.join(OUT, `settings-${name}.png`) })
+      }
+    }
     if (process.env['SHOT_FULL'] === '1') {
       await win.evaluate(() => document.querySelector('main > div:last-child')?.scrollTo(0, 99999))
       await win.waitForTimeout(600)

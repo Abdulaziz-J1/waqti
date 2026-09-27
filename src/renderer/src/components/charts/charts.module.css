@@ -1,0 +1,162 @@
+.chart {
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+/* Recharts labels and tooltips */
+.chart :global(.recharts-text),
+.donut :global(.recharts-text) {
+  font-family: var(--font-body);
+}
+
+.chart :global(.recharts-tooltip-wrapper),
+.donut :global(.recharts-tooltip-wrapper) {
+  outline: none;
+  z-index: 10;
+}
+
+.tip {
+  min-inline-size: 180px;
+  padding-block: 10px;
+  padding-inline: 12px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  box-shadow:
+    var(--shadow-2),
+    inset 0 0 0 1px var(--border);
+  font-family: var(--font-body);
+}
+
+.tipHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  margin-block-end: 4px;
+}
+
+.tipTitle {
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.tipTotal {
+  color: var(--text-2);
+  font-size: var(--fs-small);
+  font-weight: 600;
+}
+
+.tipRows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tipRow {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-small);
+}
+
+.tipName {
+  color: var(--text-2);
+}
+
+.tipValue {
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+.swatch {
+  inline-size: 10px;
+  block-size: 10px;
+  border-radius: 3px;
+}
+
+.donutWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.donut {
+  position: relative;
+  inline-size: 100%;
+  max-inline-size: 230px;
+  aspect-ratio: 1;
+  margin-inline: auto;
+}
+
+.donutCenter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.donutValue {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--text-1);
+  line-height: 1.3;
+}
+
+.donutLabel {
+  color: var(--text-3);
+  font-size: var(--fs-micro);
+}
+
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.legendItem {
+  display: grid;
+  grid-template-columns: 10px 1fr auto 44px;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-block: 4px;
+  padding-inline: 6px;
+  border-radius: var(--r-sm);
+  transition:
+    opacity var(--dur-fast),
+    background-color var(--dur-fast);
+}
+
+.legendItem:hover {
+  background: var(--surface-hover);
+}
+
+.legendItem[data-dim] {
+  opacity: 0.5;
+}
+
+.legendName {
+  color: var(--text-1);
+}
+
+.legendValue {
+  color: var(--text-1);
+  font-weight: 600;
+  font-size: var(--fs-small);
+}
+
+.legendPct {
+  color: var(--text-3);
+  font-size: var(--fs-small);
+  text-align: end;
+}

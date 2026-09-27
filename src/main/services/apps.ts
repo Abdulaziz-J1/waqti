@@ -22,6 +22,7 @@ const SHELL_PROCESSES = new Set([
 /** App icons (cached data URLs) and the list of running apps. */
 export class AppsService {
   private icons = new Map<string, string | null>()
+  private generic: Promise<string | null> | null = null
 
   constructor(
     private readonly native: Native,
@@ -33,8 +34,24 @@ export class AppsService {
     return this.icons.get(exePath) ?? null
   }
 
+  /**
+   * Windows' default "application" icon. Some apps (Office click-to-run) return
+   * it instead of their real icon; those get the lettered disc instead.
+   */
+  private genericIcon(): Promise<string | null> {
+    if (!this.generic) {
+      this.generic = app
+        .getFileIcon('C:/waqti-no-such-app.exe', { size: 'normal' })
+        .then((img) => (img.isEmpty() ? null : img.toDataURL()))
+        .catch(() => null)
+    }
+    return this.generic
+  }
+
   async prefetch(paths: Iterable<string>): Promise<void> {
     const todo = [...new Set(paths)].filter((p) => p && /\.exe$/i.test(p) && !this.icons.has(p))
+    if (!todo.length) return
+    const generic = await this.genericIcon()
     await Promise.all(
       todo.map(async (p) => {
         // A missing file would give Windows' generic document icon; use the lettered disc instead.
@@ -44,7 +61,8 @@ export class AppsService {
         }
         try {
           const img = await app.getFileIcon(p, { size: 'normal' })
-          this.icons.set(p, img.isEmpty() ? null : img.toDataURL())
+          const url = img.isEmpty() ? null : img.toDataURL()
+          this.icons.set(p, url === generic ? null : url)
         } catch {
           this.icons.set(p, null)
         }

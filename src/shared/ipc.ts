@@ -8,6 +8,7 @@ import type {
   ActivityTotal,
   CategoryTotal,
   DayStack,
+  HourStack,
   FocusSessionRecord,
   FocusStats,
   RangeKind,
@@ -75,6 +76,8 @@ export interface ReportData {
   prevTotalMs: number
   totals: CategoryTotal[]
   stacks: DayStack[]
+  /** Per-hour stacks for the Day tab (null for week/month). */
+  hourly: HourStack[] | null
   activities: Array<ActivityTotal & { icon: string | null }>
   categories: Category[]
   focus: FocusStats

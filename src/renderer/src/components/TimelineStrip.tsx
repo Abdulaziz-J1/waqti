@@ -3,6 +3,7 @@ import { useRef, useState } from 'react'
 import type { Category } from '@shared/tracking/categorize'
 import type { TimelineSegment } from '@shared/tracking/aggregate'
 import { useFmt } from '../lib/fmt'
+import { useCatColor } from '../lib/tone'
 import s from './TimelineStrip.module.css'
 
 interface TimelineStripProps {
@@ -30,7 +31,8 @@ export function TimelineStrip({
   prayerMarks
 }: TimelineStripProps): React.JSX.Element {
   const fmt = useFmt()
-  const colors = new Map(categories.map((c) => [c.id, c.color]))
+  const tone = useCatColor()
+  const colors = new Map(categories.map((c) => [c.id, tone(c.color)]))
   const names = new Map(categories.map((c) => [c.id, c.name]))
   const [hover, setHover] = useState<number | null>(null)
   const strip = useRef<HTMLDivElement>(null)

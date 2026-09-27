@@ -1,3 +1,5 @@
+import { CATEGORY_SLOTS } from '../palette'
+
 export type BuiltinCategoryId = 'work' | 'social' | 'fun' | 'other'
 
 export interface Category {
@@ -8,20 +10,14 @@ export interface Category {
 }
 
 export const BUILTIN_CATEGORIES: readonly Category[] = [
-  { id: 'work', name: 'دراسة وعمل', color: '#3A78B5', builtin: true },
-  { id: 'social', name: 'تواصل', color: '#2E9C87', builtin: true },
-  { id: 'fun', name: 'ترفيه', color: '#D9793F', builtin: true },
-  { id: 'other', name: 'أخرى', color: '#8791A5', builtin: true }
+  { id: 'work', name: 'دراسة وعمل', color: CATEGORY_SLOTS[0]!.light, builtin: true },
+  { id: 'social', name: 'تواصل', color: CATEGORY_SLOTS[1]!.light, builtin: true },
+  { id: 'fun', name: 'ترفيه', color: CATEGORY_SLOTS[2]!.light, builtin: true },
+  { id: 'other', name: 'أخرى', color: CATEGORY_SLOTS[3]!.light, builtin: true }
 ]
 
-/** Colours offered for user-created categories. */
-export const CUSTOM_CATEGORY_COLORS = [
-  '#8E6CC4',
-  '#C4577A',
-  '#5E9E4A',
-  '#B8912E',
-  '#4B8FA6'
-] as const
+/** Colours offered for user-created categories (palette slots 5–8). */
+export const CUSTOM_CATEGORY_COLORS = CATEGORY_SLOTS.slice(4).map((s) => s.light)
 
 export const OTHER_CATEGORY = 'other'
 

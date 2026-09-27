@@ -7,6 +7,7 @@ import { FocusSummary } from './components/FocusSummary'
 import { useNav } from './lib/nav'
 import { useReducedMotion, useSkyTheme } from './lib/sky'
 import { useSnapshot } from './lib/store'
+import { ToneContext } from './lib/tone'
 import { api } from './lib/api'
 import { pageVariants } from './motion'
 import { TodayPage } from './pages/Today'
@@ -70,9 +71,11 @@ export function App(): React.JSX.Element {
     (sky.period === 'night' || sky.period === 'dawn')
 
   return (
-    <MotionConfig reducedMotion={reduced ? 'always' : 'never'}>
-      <SkyBackground night={night} />
-      {snap.settings.onboarded ? <Shell /> : <Onboarding />}
-    </MotionConfig>
+    <ToneContext.Provider value={sky.tone}>
+      <MotionConfig reducedMotion={reduced ? 'always' : 'never'}>
+        <SkyBackground night={night} />
+        {snap.settings.onboarded ? <Shell /> : <Onboarding />}
+      </MotionConfig>
+    </ToneContext.Provider>
   )
 }

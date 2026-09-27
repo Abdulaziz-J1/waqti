@@ -24,6 +24,7 @@ import { useNow } from '../lib/now'
 import { useSkyTheme } from '../lib/sky'
 import { useSnapshot } from '../lib/store'
 import { useData } from '../lib/useData'
+import { useCatColor } from '../lib/tone'
 import { fadeUp, stagger } from '../motion'
 import s from './Today.module.css'
 
@@ -32,6 +33,7 @@ export function TodayPage(): React.JSX.Element {
   const fmt = useFmt()
   const now = useNow(1000)
   const sky = useSkyTheme()
+  const catColor = useCatColor()
   const [entrance] = useState(takeEntrance)
   const today = useData(() => api.invoke('today:get'), [], 60_000)
   const bundle = snap.schedule
@@ -127,7 +129,8 @@ export function TodayPage(): React.JSX.Element {
           {data && data.top.length > 0 ? (
             <ol className={s.top}>
               {data.top.map((a, i) => {
-                const color = data.categories.find((c) => c.id === a.categoryId)?.color
+                const raw = data.categories.find((c) => c.id === a.categoryId)?.color
+                const color = raw ? catColor(raw) : undefined
                 return (
                   <motion.li
                     key={a.key}

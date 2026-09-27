@@ -3,6 +3,7 @@ import type { ReportData, TodayData } from '../../shared/ipc'
 import {
   type RangeKind,
   focusStats,
+  hourlyStacks,
   reportWindow,
   stackByDay,
   sumMs,
@@ -62,6 +63,8 @@ export class Analytics {
       prevTotalMs,
       totals: totalsByCategory(rows, categorize, categories),
       stacks: stackByDay(rows, w.days, categorize),
+      hourly:
+        kind === 'day' ? hourlyStacks(this.repo.timelineRows(anchor), categorize, anchor) : null,
       activities: activities.map((a) => ({ ...a, icon: null })),
       categories,
       focus: focusStats(sessions),

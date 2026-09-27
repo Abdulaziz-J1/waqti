@@ -29,11 +29,8 @@
   --c-sand: #d9b26f;
   --c-ink: #1b2a41;
 
-  /* Category colours (validated on both tones) */
-  --cat-work: #3a78b5;
-  --cat-social: #2e9c87;
-  --cat-fun: #d9793f;
-  --cat-other: #8791a5;
+  /* Category colours: src/shared/palette.ts (validated for both tones) */
+  --cat-other: #4a3aa7;
 
   /* Type */
   --font-display: 'Noto Kufi Arabic', 'IBM Plex Sans Arabic', 'Segoe UI', system-ui, sans-serif;
@@ -107,6 +104,8 @@
   --shadow-1: 0 1px 2px rgba(27, 42, 65, 0.06), 0 8px 24px rgba(27, 42, 65, 0.06);
   --shadow-2: 0 12px 40px rgba(27, 42, 65, 0.16);
   --scrim: rgba(16, 26, 51, 0.36);
+  --chart-surface: #f7fafc;
+  --chart-grid: rgba(27, 42, 65, 0.08);
   color-scheme: light;
 }
 
@@ -137,6 +136,8 @@
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.18);
   --shadow-2: 0 16px 48px rgba(0, 0, 0, 0.4);
   --scrim: rgba(5, 9, 20, 0.55);
+  --chart-surface: #16213f;
+  --chart-grid: rgba(255, 255, 255, 0.07);
   color-scheme: dark;
 }
 

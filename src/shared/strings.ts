@@ -267,7 +267,9 @@ export const reports = {
   total: 'المجموع',
   dailyAverage: 'المعدل اليومي',
   byDay: 'كل يوم حسب التصنيف',
-  byHourNote: 'الزمن يمشي من اليمين لليسار',
+  byHour: 'ساعات اليوم حسب التصنيف',
+  byHourNote: 'الوقت يمشي من اليمين لليسار',
+  compareTitle: 'مقارنة بالفترة السابقة',
   categories: 'التصنيفات',
   table: 'التطبيقات والمواقع',
   colName: 'التطبيق أو الموقع',
@@ -286,7 +288,10 @@ export const reports = {
   showMore: 'عرض الكل',
   showLess: 'عرض أقل',
   site: 'موقع',
-  app: 'تطبيق'
+  app: 'تطبيق',
+  siteVia: (b: string) => `موقع عبر ${b}`,
+  share: 'النسبة',
+  focusCompare: (text: string) => `التركيز: ${text}`
 } as const
 
 export const prayerPage = {
