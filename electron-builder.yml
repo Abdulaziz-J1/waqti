@@ -1,0 +1,58 @@
+appId: com.waqti.desktop
+productName: وقتي
+executableName: Waqti
+copyright: Copyright © 2026 Waqti contributors
+directories:
+  output: dist
+  buildResources: build
+files:
+  - out/**
+  - package.json
+  # Ship only what runs: five runtime packages, Windows x64 binaries, no build tooling
+  # (get-windows pulls node-gyp/node-pre-gyp for installs; Waqti loads its binary directly).
+  - '!node_modules/**'
+  - node_modules/adhan/{package.json,LICENSE,lib/cjs/**}
+  - node_modules/zod/**
+  - node_modules/better-sqlite3/{package.json,LICENSE,lib/**,prebuilds/win32-x64.node}
+  - node_modules/get-windows/{package.json,license,index.js,lib/binding/napi-9-win32-unknown-x64/**}
+  - node_modules/koffi/{package.json,LICENSE.txt,index.cjs,indirect.cjs,src/koffi/*.cjs,src/koffi/src/*.cjs}
+  - node_modules/@koromix/koffi-win32-x64/**
+  - '!node_modules/**/*.{d.ts,d.cts,d.mts,map,md}'
+extraResources:
+  - from: resources
+    to: resources
+    filter: ['**/*']
+  - from: THIRD_PARTY_LICENSES
+    to: resources/THIRD_PARTY_LICENSES.txt
+asar: true
+asarUnpack:
+  - '**/*.node'
+# All native modules ship N-API prebuilds; nothing needs compiling.
+npmRebuild: false
+nodeGypRebuild: false
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.ico
+  artifactName: Waqti-Setup-${version}.${ext}
+  signAndEditExecutable: true
+  verifyUpdateCodeSignature: false
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: وقتي
+  uninstallDisplayName: وقتي
+  runAfterFinish: true
+  deleteAppDataOnUninstall: false
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  include: build/installer.nsh
+  language: '1025'
+  installerLanguages: [ar_SA]
+  unicode: true
+publish: null

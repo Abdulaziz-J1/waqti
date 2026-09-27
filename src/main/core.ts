@@ -473,15 +473,26 @@ export class WaqtiCore {
       this.scheduler.reset(now)
     }
     if (next.tracking.paused && !prev.tracking.paused) this.tracker.stop(now)
-    if (next.general.launchAtStartup !== prev.general.launchAtStartup) this.applyLoginItem()
+    if (
+      next.general.launchAtStartup !== prev.general.launchAtStartup ||
+      next.onboarded !== prev.onboarded
+    ) {
+      this.applyLoginItem()
+    }
     if (next.appearance.theme !== prev.appearance.theme) this.updateTitleBar(true)
     this.tray.update(this.trayState())
     this.markDirty()
     if (this.overlays.lockVisible || this.overlays.guardVisible) this.overlays.push()
   }
 
+  /**
+   * Registers or removes the login item. Only packaged builds touch the
+   * registry, only after onboarding (where the user chose explicitly), and
+   * never for an isolated test profile (WAQTI_USER_DATA).
+   */
   applyLoginItem(): void {
-    if (!app.isPackaged || process.platform !== 'win32') return
+    if (!app.isPackaged || process.platform !== 'win32' || !this.s.onboarded) return
+    if (process.env['WAQTI_USER_DATA']) return
     try {
       app.setLoginItemSettings({ openAtLogin: this.s.general.launchAtStartup, args: ['--hidden'] })
     } catch (err) {

@@ -10,3 +10,6 @@ docs/screenshots
 build/*.ico
 build/*.png
 resources/*.png
+build/installer.nsh
+electron-builder.yml
+THIRD_PARTY_LICENSES

@@ -18,7 +18,10 @@ function prepareDataDir() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'waqti-perf-'))
   // Skip onboarding so the app opens straight on Today.
   const onboarded = process.env['PERF_ONBOARDING'] !== '1'
-  fs.writeFileSync(path.join(dir, 'settings.json'), JSON.stringify({ version: 1, onboarded }))
+  fs.writeFileSync(
+    path.join(dir, 'settings.json'),
+    JSON.stringify({ version: 1, onboarded, general: { launchAtStartup: false } })
+  )
   return dir
 }
 
