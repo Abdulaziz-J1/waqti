@@ -1,0 +1,268 @@
+.lock {
+  --lock-text: #f6f7fb;
+  --lock-text-2: rgba(246, 247, 251, 0.82);
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  color: var(--lock-text);
+  display: grid;
+  place-items: center;
+  user-select: none;
+}
+
+/* Day periods have light skies: a gentle veil keeps white text at AA contrast. */
+.lock::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    rgba(16, 26, 51, 0.38),
+    rgba(16, 26, 51, 0.18) 70%
+  );
+  pointer-events: none;
+}
+
+.horizon {
+  position: absolute;
+  inset-inline: -10%;
+  inset-block-end: -35%;
+  block-size: 70%;
+  background: radial-gradient(ellipse at 50% 100%, rgba(255, 214, 160, 0.35), transparent 60%);
+  pointer-events: none;
+}
+
+.stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.25;
+  animation-name: twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--sp-4);
+  padding: var(--sp-7);
+  max-inline-size: min(1200px, 92vw);
+}
+
+.headline {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 4.4vw, 58px);
+  font-weight: 700;
+  line-height: 1.45;
+  text-shadow: 0 2px 24px rgba(10, 17, 40, 0.35);
+  text-wrap: balance;
+}
+
+.sub {
+  font-size: 20px;
+  color: var(--lock-text-2);
+}
+
+/* Breathing circle: 4 s in, 4 s out (transform + opacity only). */
+.breath {
+  position: relative;
+  inline-size: 200px;
+  block-size: 200px;
+  margin-block: var(--sp-5);
+  display: grid;
+  place-items: center;
+}
+
+.circle,
+.circleCore {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.circle {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04) 70%);
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.35);
+  animation: breathe 8s ease-in-out infinite;
+}
+
+.circleCore {
+  inset: 38%;
+  background: rgba(255, 244, 214, 0.55);
+  filter: blur(6px);
+  animation: breatheCore 8s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(0.62);
+  }
+  50% {
+    transform: scale(1);
+  }
+}
+
+@keyframes breatheCore {
+  0%,
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.9;
+  }
+}
+
+.word {
+  position: relative;
+  grid-area: 1 / 1;
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--lock-text);
+}
+
+.inhale {
+  animation: inhale 8s ease-in-out infinite;
+}
+
+.exhale {
+  animation: exhale 8s ease-in-out infinite;
+}
+
+@keyframes inhale {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  95% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes exhale {
+  0%,
+  45% {
+    opacity: 0;
+  }
+  50%,
+  95% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Reduced motion: a still circle; the words stay readable. */
+.lock[data-reduce] .circle,
+.lock[data-reduce] .circleCore,
+.lock[data-reduce] .star {
+  animation: none;
+}
+.lock[data-reduce] .circle {
+  transform: scale(0.85);
+}
+.lock[data-reduce] .inhale {
+  animation: none;
+  opacity: 0;
+}
+.lock[data-reduce] .exhale {
+  animation: none;
+  opacity: 0;
+}
+
+.remaining {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  font-size: 20px;
+  color: var(--lock-text-2);
+}
+
+.remainingValue {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--lock-text);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-3);
+  margin-block-start: var(--sp-3);
+}
+
+.prayed,
+.snooze {
+  min-inline-size: 180px;
+  padding-block: 14px;
+  padding-inline: 28px;
+  border-radius: var(--r-lg);
+  font-size: 18px;
+  font-weight: 700;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    opacity var(--dur-base),
+    background-color var(--dur-base);
+}
+
+.prayed {
+  background: #f5d08a;
+  color: #1b2a41;
+}
+
+.snooze {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--lock-text);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+
+.prayed:not(:disabled):hover,
+.snooze:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+.prayed:not(:disabled):active,
+.snooze:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+.prayed:disabled,
+.snooze:disabled {
+  opacity: 0.55;
+}
+
+.prayed:focus-visible,
+.snooze:focus-visible {
+  outline: 2px solid var(--lock-text);
+  outline-offset: 3px;
+}

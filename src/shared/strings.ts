@@ -80,6 +80,7 @@ export const lock = {
   headline: (prayer: string) => `حان الآن وقت صلاة ${prayer}`,
   sub: 'شاشتك بانتظارك، خذ وقتك',
   remaining: (d: string) => `باقي ${d}`,
+  remainingLabel: 'باقي',
   prayed: 'صلّيت',
   prayedIn: (t: string) => `متاح بعد ${t}`,
   snooze: 'أجّل ٥ دقائق',
@@ -92,7 +93,8 @@ export const lock = {
 
 export const guard = {
   headline: (remaining: string) => `ارجع لتركيزك — باقي ${remaining}`,
-  sub: (target: string) => `فتحت ${target} وأنت في جلسة تركيز`,
+  subStart: 'فتحت ',
+  subEnd: ' وأنت في جلسة تركيز',
   back: 'رجوع للشغل',
   snooze: '٥ دقائق',
   snoozeHint: 'بنسجّلها تشتيت'
