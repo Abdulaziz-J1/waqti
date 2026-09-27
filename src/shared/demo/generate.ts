@@ -227,7 +227,7 @@ export function generateDemo(opts: DemoOptions): DemoData {
     while (t < end && t < opts.now) {
       const hour = new Date(t).getHours()
       // Offline stretches: meals, classes, outings.
-      if (r() < 0.12) {
+      if (r() < 0.12 / density) {
         t += (10 + Math.floor(r() * 80)) * MINUTE
         continue
       }
@@ -253,7 +253,7 @@ export function generateDemo(opts: DemoOptions): DemoData {
           day
         })
       }
-      t = iEnd + Math.floor(r() * 90) * 1000
+      t = iEnd + Math.floor((r() * 90) / density) * 1000
     }
 
     // Focus sessions on weekdays (and some weekends).

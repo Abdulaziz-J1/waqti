@@ -254,6 +254,13 @@ describe('lock exits', () => {
     expect(reduce(INITIAL_STATE, { type: 'EMERGENCY_EXIT', now: T0 }).effects).toEqual([])
   })
 
+  it('force-unlocks from the independent safety timer', () => {
+    const r = reduce(locked(), { type: 'FORCE_UNLOCK', now: T0 + 61 * MINUTE })
+    expect(r.state.prayer.kind).toBe('idle')
+    expect(logs(r.effects)[0]).toMatchObject({ outcome: 'ended', reason: 'safety' })
+    expect(reduce(INITIAL_STATE, { type: 'FORCE_UNLOCK', now: T0 }).effects).toEqual([])
+  })
+
   it('enforces the 60-minute hard maximum', () => {
     const long: LockPlan = { ...PLAN, lockMs: 90 * MINUTE }
     const s = reduce(INITIAL_STATE, due(T0, {}, long)).state

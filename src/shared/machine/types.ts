@@ -137,6 +137,8 @@ export type MachineEvent =
   | { type: 'PRAYED'; now: number }
   | { type: 'SNOOZE'; now: number }
   | { type: 'EMERGENCY_EXIT'; now: number }
+  /** The independent safety timer fired: end the lock whatever happened. */
+  | { type: 'FORCE_UNLOCK'; now: number }
   | { type: 'SUSPEND'; now: number }
   | { type: 'RESUME'; now: number; missed: PlannedPrayer[] }
   | { type: 'APP_STARTED'; now: number; recent: PlannedPrayer | null }

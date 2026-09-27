@@ -493,6 +493,12 @@ export function reduce(
       }
       break
 
+    case 'FORCE_UNLOCK':
+      if (s.prayer.kind === 'locked') {
+        state = endLock(s, s.prayer, e.now, 'ended', 'safety', effects)
+      }
+      break
+
     case 'SUSPEND':
       state = { ...s, asleep: true, focus: pauseFocus(s.focus, e.now, 'sleep', effects) }
       break

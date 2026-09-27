@@ -110,3 +110,21 @@ export const compare = {
   same: (prev: string) => `قريب من ${prev}`,
   noPrev: (prev: string) => `ما عندنا بيانات عن ${prev} للمقارنة`
 } as const
+
+/** Column headers of the CSV export. */
+export const csvHeaders = [
+  'اليوم',
+  'البداية',
+  'النهاية',
+  'المدة (دقائق)',
+  'التطبيق',
+  'العملية',
+  'الموقع',
+  'التصنيف',
+  'عنوان النافذة'
+] as const
+
+export const dialogs = {
+  exportTitle: 'حفظ نسخة من بياناتك',
+  importTitle: 'اختر ملف بيانات وقتي'
+} as const
