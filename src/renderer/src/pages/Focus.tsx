@@ -2,6 +2,7 @@ import { motion } from 'motion/react'
 import { Play, Square } from 'lucide-react'
 import { useState } from 'react'
 import { focusRemaining } from '@shared/machine/machine'
+import type { FocusState } from '@shared/machine/types'
 import { common, focusPage as t } from '@shared/strings'
 import { dayKey } from '@shared/time'
 import { Button } from '../components/Button'
@@ -26,10 +27,42 @@ import s from './Focus.module.css'
 type Choice = '25' | '50' | '90' | 'custom'
 const PRESETS = [25, 50, 90]
 
+/** The ring and countdown: the only part of the page that re-renders every second. */
+function FocusTimer({ focus, minutes }: { focus: FocusState; minutes: number }): React.JSX.Element {
+  const fmt = useFmt()
+  const now = useNow(1000)
+  const remaining = focusRemaining(focus, now)
+  const session = focus.kind === 'off' ? null : focus.session
+  const paused = focus.kind === 'focusPaused'
+  const progress = session && remaining !== null ? 1 - remaining / session.plannedMs : 0
+  return (
+    <TimerRing progress={progress} paused={paused}>
+      {session && remaining !== null ? (
+        <>
+          <span className={s.timerLabel}>{t.remaining}</span>
+          <Odometer value={fmt.countdown(remaining)} className={s.timer} />
+          <span className={s.timerSub}>
+            {focus.kind === 'focusPaused'
+              ? focus.reason === 'sleep'
+                ? t.pausedSleep
+                : t.pausedPrayer
+              : t.endsAt(fmt.clock(now + remaining))}
+          </span>
+        </>
+      ) : (
+        <>
+          <span className={`${s.timer} num`}>{fmt.countdown(minutes * 60_000)}</span>
+          <span className={s.timerSub}>{fmt.minutes(minutes)}</span>
+        </>
+      )}
+    </TimerRing>
+  )
+}
+
 export function FocusPage(): React.JSX.Element {
   const snap = useSnapshot()
   const fmt = useFmt()
-  const now = useNow(1000)
+  const now = useNow(60_000)
   const settings = snap.settings
   const last = settings.focus.lastMinutes
   const [choice, setChoice] = useState<Choice>(
@@ -39,13 +72,10 @@ export function FocusPage(): React.JSX.Element {
   const minutes = choice === 'custom' ? custom : Number(choice)
   const focus = snap.machine.focus
   const running = focus.kind !== 'off'
-  const remaining = focusRemaining(focus, now)
   const today = dayKey(now)
   const sessions = useData(() => api.invoke('focus:sessions', { from: today, to: today }), [today])
 
   const session = running ? focus.session : null
-  const progress = session && remaining !== null ? 1 - remaining / session.plannedMs : 0
-  const paused = focus.kind === 'focusPaused'
 
   return (
     <motion.div className={s.page} initial="hidden" animate="show" variants={stagger()}>
@@ -54,26 +84,7 @@ export function FocusPage(): React.JSX.Element {
       <div className={s.top}>
         <Panel className={s.timerPanel} id="focus-timer">
           <div className={s.timerWrap}>
-            <TimerRing progress={progress} paused={paused}>
-              {session && remaining !== null ? (
-                <>
-                  <span className={s.timerLabel}>{t.remaining}</span>
-                  <Odometer value={fmt.countdown(remaining)} className={s.timer} />
-                  <span className={s.timerSub}>
-                    {paused
-                      ? focus.reason === 'sleep'
-                        ? t.pausedSleep
-                        : t.pausedPrayer
-                      : t.endsAt(fmt.clock(now + remaining))}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span className={`${s.timer} num`}>{fmt.countdown(minutes * 60_000)}</span>
-                  <span className={s.timerSub}>{fmt.minutes(minutes)}</span>
-                </>
-              )}
-            </TimerRing>
+            <FocusTimer focus={focus} minutes={minutes} />
 
             {session ? (
               <div className={s.live}>

@@ -70,6 +70,7 @@ export interface CoreOptions {
 }
 
 const LOCK_MARKER = 'lock_active'
+const RELEASE_HIDDEN_WINDOW_MS = 60_000
 
 /**
  * Wires the services together: the 1 Hz tick (tracking, scheduling, focus
@@ -107,6 +108,7 @@ export class WaqtiCore {
   private tickCount = 0
   private suspendedAt: number | null = null
   private dirtyTimer: NodeJS.Timeout | null = null
+  private releaseTimer: NodeJS.Timeout | null = null
   private breakTimer: NodeJS.Timeout | null = null
   private lastTone: string | null = null
   private lastMaintenanceDay: string | null = null
@@ -544,11 +546,40 @@ export class WaqtiCore {
     }
   }
 
+  /**
+   * A window hidden in the tray for a minute is destroyed to give its memory
+   * back (the app then idles at ~140 MB). Opening it again recreates it in
+   * about half a second.
+   */
+  private scheduleRelease(w: BrowserWindow): void {
+    if (this.releaseTimer) clearTimeout(this.releaseTimer)
+    this.releaseTimer = setTimeout(() => {
+      this.releaseTimer = null
+      if (!w.isDestroyed() && !w.isVisible() && this.mainWindow === w) {
+        log.info('releasing the hidden window')
+        this.mainWindow = null
+        w.destroy()
+      }
+    }, RELEASE_HIDDEN_WINDOW_MS)
+    this.releaseTimer.unref()
+  }
+
+  private cancelRelease(): void {
+    if (this.releaseTimer) clearTimeout(this.releaseTimer)
+    this.releaseTimer = null
+  }
+
   private attachMainWindow(w: BrowserWindow): void {
     const vis = (visible: boolean) => () => this.send('window:visibility', { visible })
-    w.on('show', vis(true))
+    w.on('show', () => {
+      this.cancelRelease()
+      vis(true)()
+    })
     w.on('restore', vis(true))
-    w.on('hide', vis(false))
+    w.on('hide', () => {
+      vis(false)()
+      this.scheduleRelease(w)
+    })
     w.on('minimize', vis(false))
     w.on('close', (e) => {
       if (this.quitting) return

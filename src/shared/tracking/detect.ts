@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import type { ForegroundInfo } from './apps'
 import { KNOWN_SITES, deriveSite, isBrowser } from './sites'
 
@@ -6,22 +5,20 @@ import { KNOWN_SITES, deriveSite, isBrowser } from './sites'
 // Meetings and presentations (the smart rules)
 // ---------------------------------------------------------------------------
 
-export const meetingConfigSchema = z.object({
-  version: z.literal(1),
+export interface MeetingConfig {
+  version: 1
   /** Executables that count as "in a meeting" whenever they are in the foreground. */
-  apps: z.array(z.string().min(1)),
+  apps: string[]
   /** Browser title fragments that mean a web meeting (case-insensitive). */
-  browserTitles: z.array(z.string().min(1)),
-  slideshow: z.object({
-    apps: z.array(z.string().min(1)),
+  browserTitles: string[]
+  slideshow: {
+    apps: string[]
     /** Win32 window classes of a running slideshow. */
-    windowClasses: z.array(z.string().min(1)),
+    windowClasses: string[]
     /** Title fragments of a running slideshow (case-insensitive). */
-    titles: z.array(z.string().min(1))
-  })
-})
-
-export type MeetingConfig = z.infer<typeof meetingConfigSchema>
+    titles: string[]
+  }
+}
 
 /** Shipped default. Copied to `meeting-apps.json` in the user data folder, where it can be edited. */
 export const DEFAULT_MEETING_CONFIG: MeetingConfig = {

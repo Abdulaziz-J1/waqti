@@ -31,38 +31,6 @@
   margin-block: calc(var(--sp-3) * -1) 0;
 }
 
-.countdown {
-  position: absolute;
-  inset-inline: 0;
-  inset-block-start: 21%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  pointer-events: none;
-  color: var(--text-on-sky);
-}
-
-.nextLabel {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 17px;
-  color: var(--text-on-sky-2);
-}
-
-.odometer {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: var(--fs-display);
-  line-height: 1.25;
-  color: var(--text-on-sky);
-}
-
-.nextAt {
-  font-size: var(--fs-body);
-  color: var(--text-on-sky-2);
-}
-
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

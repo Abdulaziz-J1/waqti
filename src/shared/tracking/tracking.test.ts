@@ -21,9 +21,9 @@ import {
   DEFAULT_MEETING_CONFIG,
   PRESET_DISTRACTION_SITES,
   isInMeeting,
-  matchDistraction,
-  meetingConfigSchema
+  matchDistraction
 } from './detect'
+import { meetingConfigSchema } from './meeting-schema'
 import type { ForegroundInfo } from './apps'
 
 describe('site derivation', () => {

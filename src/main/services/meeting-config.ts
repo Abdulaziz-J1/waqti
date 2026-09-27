@@ -1,9 +1,6 @@
 import fs from 'node:fs'
-import {
-  DEFAULT_MEETING_CONFIG,
-  type MeetingConfig,
-  meetingConfigSchema
-} from '../../shared/tracking/detect'
+import { DEFAULT_MEETING_CONFIG, type MeetingConfig } from '../../shared/tracking/detect'
+import { meetingConfigSchema } from '../../shared/tracking/meeting-schema'
 import { log } from './logger'
 
 /**

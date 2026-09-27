@@ -2,8 +2,6 @@ import { motion } from 'motion/react'
 import { Play } from 'lucide-react'
 import { useState } from 'react'
 import { nextEvent } from '@shared/prayer/schedule'
-import { prayerLabel } from '@shared/machine/toasts'
-import { focusRemaining } from '@shared/machine/machine'
 import { greetings, prayerNames, today as t, common } from '@shared/strings'
 import { minutesOfDay } from '@shared/time'
 import { AppIcon } from '../components/AppIcon'
@@ -12,7 +10,8 @@ import { CategoryBar } from '../components/CategoryBar'
 import { CountUp } from '../components/CountUp'
 import { Divider } from '../components/Divider'
 import { EmptyState } from '../components/EmptyState'
-import { Odometer } from '../components/Odometer'
+import { FocusCountdown } from '../components/FocusCountdown'
+import { NextPrayerCountdown } from '../components/NextPrayerCountdown'
 import { Panel } from '../components/Panel'
 import { SkyArc } from '../components/SkyArc'
 import { TimelineStrip } from '../components/TimelineStrip'
@@ -31,7 +30,8 @@ import s from './Today.module.css'
 export function TodayPage(): React.JSX.Element {
   const snap = useSnapshot()
   const fmt = useFmt()
-  const now = useNow(1000)
+  // Everything on the page except the countdowns changes at most once a minute.
+  const now = useNow(60_000)
   const sky = useSkyTheme()
   const catColor = useCatColor()
   const [entrance] = useState(takeEntrance)
@@ -40,12 +40,7 @@ export function TodayPage(): React.JSX.Element {
   const next = bundle
     ? nextEvent([bundle.yesterday, bundle.today, bundle.tomorrow], now, true)
     : null
-  const nextName =
-    next && next.slot !== 'sunrise'
-      ? prayerLabel({ prayer: next.slot, isJumuah: next.isJumuah })
-      : null
   const focus = snap.machine.focus
-  const focusLeft = focusRemaining(focus, now)
   const data = today.data
 
   const startFocus = (): void => {
@@ -76,24 +71,7 @@ export function TodayPage(): React.JSX.Element {
         {bundle ? (
           <>
             <SkyArc bundle={bundle} now={now} nextSlot={next?.slot ?? null} entrance={entrance} />
-            {next && nextName ? (
-              <motion.div
-                className={s.countdown}
-                initial={entrance ? { opacity: 0, y: 10 } : false}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: entrance ? 1.5 : 0, duration: 0.5 }}
-              >
-                <span className={s.nextLabel}>
-                  {t.prayerOf(nextName)} {t.inPrefix}
-                </span>
-                <Odometer
-                  value={fmt.countdown(next.at - now)}
-                  className={s.odometer}
-                  label={`${t.prayerOf(nextName)} ${t.inPrefix} ${fmt.dur(next.at - now, { round: 'ceil', gramCase: 'obl' })}`}
-                />
-                <span className={`${s.nextAt} num`}>{fmt.clock(next.at)}</span>
-              </motion.div>
-            ) : null}
+            <NextPrayerCountdown bundle={bundle} entrance={entrance} />
           </>
         ) : (
           <EmptyState
@@ -175,9 +153,9 @@ export function TodayPage(): React.JSX.Element {
         </Panel>
 
         <Panel title={focus.kind === 'off' ? t.startFocus : t.focusRunning} id="today-focus">
-          {focus.kind !== 'off' && focusLeft !== null ? (
+          {focus.kind !== 'off' ? (
             <div className={s.focusCard}>
-              <Odometer value={fmt.countdown(focusLeft)} className={s.focusTimer} />
+              <FocusCountdown focus={focus} className={s.focusTimer} />
               <Button variant="primary" onClick={() => go('focus')}>
                 {t.openFocus}
               </Button>

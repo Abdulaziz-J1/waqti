@@ -1,3 +1,5 @@
+import fs from 'node:fs'
+import os from 'node:os'
 import { app, dialog } from 'electron'
 import { configureUserData, paths } from './paths'
 import { log } from './services/logger'
@@ -17,6 +19,42 @@ process.on('uncaughtException', (err) => log.error('uncaughtException', err))
 process.on('unhandledRejection', (reason) => log.error('unhandledRejection', reason))
 
 let core: WaqtiCore | null = null
+
+/**
+ * Diagnostics for the performance audit (scripts/perf.mjs): when
+ * WAQTI_PERF_LOG names a file, append one JSON line of process metrics every
+ * 5 s. CPU is reported both per core (Electron's figure) and as a share of the
+ * whole machine (what Task Manager shows).
+ */
+function startPerfLog(): void {
+  const file = process.env['WAQTI_PERF_LOG']
+  if (!file) return
+  const cores = os.cpus().length || 1
+  app.getAppMetrics()
+  setInterval(() => {
+    let cpu = 0
+    let ws = 0
+    let priv = 0
+    const metrics = app.getAppMetrics()
+    for (const m of metrics) {
+      cpu += m.cpu.percentCPUUsage
+      ws += m.memory.workingSetSize
+      priv += m.memory.privateBytes ?? 0
+    }
+    const line = {
+      t: Math.round(performance.now()),
+      cpuPerCore: Math.round(cpu * 100) / 100,
+      cpuMachine: Math.round((cpu / cores) * 100) / 100,
+      workingSetMB: Math.round(ws / 1024),
+      privateMB: Math.round(priv / 1024),
+      processes: metrics
+        .map((m) => `${m.type}:${Math.round(m.memory.privateBytes ?? 0) >> 10}`)
+        .join(' '),
+      startupMs: core?.startupMs ?? null
+    }
+    fs.appendFileSync(file, JSON.stringify(line) + '\n')
+  }, 5000).unref()
+}
 
 if (!app.requestSingleInstanceLock()) {
   app.quit()
@@ -55,6 +93,7 @@ if (!app.requestSingleInstanceLock()) {
         )
       }
       log.info(`started v${app.getVersion()}${startHidden ? ' (hidden)' : ''}`)
+      startPerfLog()
     } catch (err) {
       log.error('fatal startup error', err)
       dialog.showErrorBox('وقتي', 'ما قدر وقتي يشتغل. أعد تشغيل الجهاز وجرّب مرة ثانية.')

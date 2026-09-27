@@ -1,5 +1,5 @@
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
-import { useEffect } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import type { Page } from '@shared/ipc'
 import { SkyBackground } from './components/SkyBackground'
 import { Sidebar } from './components/Sidebar'
@@ -13,13 +13,17 @@ import { api } from './lib/api'
 import { pageVariants } from './motion'
 import { TodayPage } from './pages/Today'
 import { FocusPage } from './pages/Focus'
-import { ReportsPage } from './pages/Reports'
 import { PrayerPage } from './pages/Prayer'
-import { SettingsPage } from './pages/Settings'
 import { Onboarding } from './pages/Onboarding'
 import s from './App.module.css'
 
-const PAGE_COMPONENTS: Record<Page, () => React.JSX.Element> = {
+// Reports (charts) and Settings load on first visit, keeping the resident renderer small.
+const ReportsPage = lazy(() => import('./pages/Reports').then((m) => ({ default: m.ReportsPage })))
+const SettingsPage = lazy(() =>
+  import('./pages/Settings').then((m) => ({ default: m.SettingsPage }))
+)
+
+const PAGE_COMPONENTS: Record<Page, React.ComponentType> = {
   today: TodayPage,
   focus: FocusPage,
   reports: ReportsPage,
@@ -45,7 +49,9 @@ function Shell(): React.JSX.Element {
             animate="center"
             exit="exit"
           >
-            <Current />
+            <Suspense fallback={null}>
+              <Current />
+            </Suspense>
           </motion.div>
         </AnimatePresence>
       </main>
