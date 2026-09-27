@@ -41,7 +41,8 @@ export const CHANNELS = [
   'debug:seed',
   'debug:clearDemo',
   'debug:readout',
-  'debug:startupOffer'
+  'debug:startupOffer',
+  'debug:simulateDistraction'
 ] as const
 
 export type Channel = (typeof CHANNELS)[number]

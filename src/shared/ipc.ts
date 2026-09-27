@@ -205,7 +205,8 @@ export const requestSchemas = {
   'debug:seed': z.object({ range: z.enum(['day', 'week', 'year']) }),
   'debug:clearDemo': z.undefined(),
   'debug:readout': z.undefined(),
-  'debug:startupOffer': z.undefined()
+  'debug:startupOffer': z.undefined(),
+  'debug:simulateDistraction': z.object({ label: z.string().min(1).max(60) })
 } as const satisfies Record<Channel, z.ZodType>
 export type RequestOf<C extends Channel> = z.infer<(typeof requestSchemas)[C]>
 
@@ -249,6 +250,7 @@ export interface ResponseMap {
   'debug:clearDemo': null
   'debug:readout': DebugReadout
   'debug:startupOffer': null
+  'debug:simulateDistraction': null
 }
 
 /** Events pushed from main to renderers. */

@@ -220,6 +220,10 @@ export function registerIpc(core: WaqtiCore): void {
     'debug:startupOffer': () => {
       core.simulateStartup()
       return null
+    },
+    'debug:simulateDistraction': ({ label }) => {
+      core.simulateDistraction(label)
+      return null
     }
   }
 

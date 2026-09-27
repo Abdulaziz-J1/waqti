@@ -330,7 +330,8 @@ export class WaqtiCore {
           now,
           target: { ...m, hwnd: fg.info.hwnd, bounds: fg.info.bounds }
         })
-      } else if (f.kind === 'guard') {
+      } else if (f.kind === 'guard' && f.target.process !== 'debug') {
+        // A simulated distraction (debug panel) stays until the user answers the guard.
         this.dispatch({ type: 'DISTRACTION_CLEARED', now })
       }
     }
@@ -696,6 +697,15 @@ export class WaqtiCore {
       type: 'APP_STARTED',
       now,
       recent: this.scheduler.recent(now, DEFAULT_MACHINE_CONFIG.startupOfferMs)
+    })
+  }
+
+  /** Shows the Focus Guard as if `label` had come to the foreground (focus session required). */
+  simulateDistraction(label: string): void {
+    this.dispatch({
+      type: 'DISTRACTION',
+      now: this.clock.now(),
+      target: { kind: 'site', label, process: 'debug', site: null, hwnd: null, bounds: null }
     })
   }
 

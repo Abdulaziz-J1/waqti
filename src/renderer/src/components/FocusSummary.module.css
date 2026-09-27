@@ -1,0 +1,70 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-5);
+}
+
+.art {
+  position: relative;
+  inline-size: 180px;
+  block-size: 140px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.ring {
+  position: absolute;
+  inline-size: 110px;
+  block-size: 110px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.core {
+  inline-size: 46px;
+  block-size: 46px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #ffe6a8, var(--accent));
+  box-shadow: 0 0 40px var(--accent-soft);
+}
+
+.mote {
+  position: absolute;
+  inset-block-end: 0;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.stats {
+  inline-size: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-2);
+  margin: 0;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2px;
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+}
+
+.stat dt {
+  color: var(--text-3);
+  font-size: var(--fs-micro);
+}
+
+.stat dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text-1);
+}

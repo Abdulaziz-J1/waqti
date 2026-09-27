@@ -241,6 +241,7 @@ export const focusPage = {
   apps: 'تطبيقات',
   keywords: 'كلمات في عنوان الصفحة',
   keywordPlaceholder: 'مثال: مباراة',
+  newKeyword: 'كلمة جديدة',
   addApp: 'إضافة تطبيق',
   pickApp: 'اختر تطبيق',
   noApps: 'ما فيه تطبيقات مفتوحة غير وقتي. افتح التطبيق اللي يشتتك وارجع هنا',
