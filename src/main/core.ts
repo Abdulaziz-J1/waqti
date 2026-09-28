@@ -118,6 +118,12 @@ export class WaqtiCore {
     this.repo = opts.repo
     this.settings = opts.settings
     this.notice = opts.notice
+    // Isolated test profiles may start at a pinned clock so a run that happens
+    // to launch just after an adhan does not begin with that prayer's offer.
+    const testOffset = Number(process.env['WAQTI_CLOCK_OFFSET_MS'])
+    if (process.env['WAQTI_USER_DATA'] && Number.isFinite(testOffset)) {
+      this.clock.setOffset(testOffset)
+    }
     this.tracker = new Tracker(this.repo)
     this.scheduler = new Scheduler(() => this.settings.get(), this.clock.now())
     this.apps = new AppsService(this.native, this.repo)

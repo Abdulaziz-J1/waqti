@@ -1,7 +1,9 @@
-// Copies the Thmanyah Sans weights Waqti uses out of the official download
+// Copies the Thmanyah weights Waqti uses (Serif Display for headings and big
+// numbers, Serif Text for everything else) out of the official download
 // (https://font.thmanyah.com) into fonts/thmanyah. The thmanyah Font License
 // forbids redistributing the font files, so they are not committed; at build
-// time electron.vite.config.ts inlines them into the CSS bundle.
+// time electron.vite.config.ts inlines them into the CSS bundle. Keep FILES in
+// step with THMANYAH_FACES there.
 //
 //   npm run fonts                      reads ~/Downloads/Thmanyah-Font-Family.zip
 //   npm run fonts -- path/to/file.zip  reads another copy of the official zip
@@ -14,22 +16,28 @@ import { fileURLToPath } from 'node:url'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const target = path.join(root, 'fonts', 'thmanyah')
-const inZip = 'thmanyah typeface/thmanyahsans/woff2'
-const files = ['thmanyahsans-Regular.woff2', 'thmanyahsans-Medium.woff2', 'thmanyahsans-Bold.woff2']
+const inZip = 'thmanyah typeface'
+const FILES = [
+  'thmanyahserifdisplay/woff2/thmanyahserifdisplay-Medium.woff2',
+  'thmanyahserifdisplay/woff2/thmanyahserifdisplay-Bold.woff2',
+  'thmanyahseriftext/woff2/thmanyahseriftext-Regular.woff2',
+  'thmanyahseriftext/woff2/thmanyahseriftext-Medium.woff2',
+  'thmanyahseriftext/woff2/thmanyahseriftext-Bold.woff2'
+]
+const names = FILES.map((f) => path.basename(f))
 
 const args = process.argv.slice(2)
-const missing = () => files.filter((f) => !fs.existsSync(path.join(target, f)))
 
 if (args.includes('--check')) {
-  const gone = missing()
+  const gone = names.filter((f) => !fs.existsSync(path.join(target, f)))
   if (gone.length > 0) {
     console.error(
-      `Thmanyah Sans is missing from fonts/thmanyah (${gone.join(', ')}).\n` +
-        'Download it from https://font.thmanyah.com and run: npm run fonts'
+      `The Thmanyah fonts are missing from fonts/thmanyah (${gone.join(', ')}).\n` +
+        'Download them from https://font.thmanyah.com and run: npm run fonts'
     )
     process.exit(1)
   }
-  console.log('Thmanyah Sans: present')
+  console.log('Thmanyah fonts: present')
   process.exit(0)
 }
 
@@ -46,16 +54,20 @@ const systemTar = path.join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System3
 const tar = process.platform === 'win32' && fs.existsSync(systemTar) ? systemTar : 'tar'
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'waqti-fonts-'))
 try {
-  const members = [...files.map((f) => `${inZip}/${f}`), 'LICENSE.pdf']
+  const members = [...FILES.map((f) => `${inZip}/${f}`), 'LICENSE.pdf']
   const run = spawnSync(tar, ['-xf', zip, '-C', tmp, ...members], { encoding: 'utf8' })
   if (run.status !== 0) {
     console.error(`Could not read ${zip}:\n${run.stderr || run.error?.message}`)
     process.exit(1)
   }
+  // Start clean so weights the app no longer uses do not linger.
+  fs.rmSync(target, { recursive: true, force: true })
   fs.mkdirSync(target, { recursive: true })
-  for (const f of files) fs.copyFileSync(path.join(tmp, inZip, f), path.join(target, f))
+  for (const f of FILES) {
+    fs.copyFileSync(path.join(tmp, inZip, f), path.join(target, path.basename(f)))
+  }
   fs.copyFileSync(path.join(tmp, 'LICENSE.pdf'), path.join(target, 'LICENSE.pdf'))
-  console.log(`Thmanyah Sans: ${files.length} weights copied to fonts/thmanyah`)
+  console.log(`Thmanyah: ${FILES.length} font files copied to fonts/thmanyah`)
 } finally {
   fs.rmSync(tmp, { recursive: true, force: true })
 }

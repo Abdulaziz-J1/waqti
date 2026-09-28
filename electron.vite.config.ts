@@ -45,19 +45,23 @@ function cspPlugin(isDev: boolean): Plugin {
 }
 
 const THMANYAH_DIR = resolve(__dirname, 'fonts/thmanyah')
+// Serif Display for headings and big numbers (500 also serves 400; 700 serves
+// 600), Serif Text for everything else. Keep in step with FILES in scripts/fonts.mjs.
 const THMANYAH_FACES = [
-  { file: 'thmanyahsans-Regular.woff2', weight: 400 },
-  { file: 'thmanyahsans-Medium.woff2', weight: 500 },
-  { file: 'thmanyahsans-Bold.woff2', weight: 700 }
+  { family: 'Thmanyah Serif Display', file: 'thmanyahserifdisplay-Medium.woff2', weight: 500 },
+  { family: 'Thmanyah Serif Display', file: 'thmanyahserifdisplay-Bold.woff2', weight: 700 },
+  { family: 'Thmanyah Serif Text', file: 'thmanyahseriftext-Regular.woff2', weight: 400 },
+  { family: 'Thmanyah Serif Text', file: 'thmanyahseriftext-Medium.woff2', weight: 500 },
+  { family: 'Thmanyah Serif Text', file: 'thmanyahseriftext-Bold.woff2', weight: 700 }
 ]
 
 /**
- * Serves `virtual:thmanyah.css`: the @font-face rules for Thmanyah Sans with
- * the font files inlined as data URIs. The thmanyah Font License allows the
- * font only inside a compiled, packaged product and never as files a user can
- * pull out, and it forbids redistributing them, so the files live outside git
- * (`npm run fonts`) and never ship as separate assets. When they are missing
- * (a fresh clone) the module is empty and the bundled OFL fonts take over.
+ * Serves `virtual:thmanyah.css`: the @font-face rules for the Thmanyah serif
+ * fonts with the files inlined as data URIs. The thmanyah Font License allows
+ * the font only inside a compiled, packaged product and never as files a user
+ * can pull out, and it forbids redistributing them, so the files live outside
+ * git (`npm run fonts`) and never ship as separate assets. When they are
+ * missing (a fresh clone) the module is empty and the bundled OFL fonts take over.
  */
 function thmanyahPlugin(): Plugin {
   const id = 'virtual:thmanyah.css'
@@ -71,14 +75,14 @@ function thmanyahPlugin(): Plugin {
       if (source !== resolvedId) return undefined
       if (!THMANYAH_FACES.every((f) => existsSync(join(THMANYAH_DIR, f.file)))) {
         this.warn(
-          'Thmanyah Sans is not in fonts/thmanyah (npm run fonts); using the bundled fonts.'
+          'The Thmanyah fonts are not in fonts/thmanyah (npm run fonts); using the bundled fonts.'
         )
         return ''
       }
       return THMANYAH_FACES.map((f) => {
         const data = readFileSync(join(THMANYAH_DIR, f.file)).toString('base64')
         return `@font-face {
-  font-family: 'Thmanyah Sans';
+  font-family: '${f.family}';
   font-style: normal;
   font-display: block;
   font-weight: ${f.weight};

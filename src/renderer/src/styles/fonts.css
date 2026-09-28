@@ -1,8 +1,8 @@
 /*
- * The UI face is Thmanyah Sans, served by `virtual:thmanyah.css` (see
- * electron.vite.config.ts). These bundled fonts (SIL OFL 1.1, see
- * THIRD_PARTY_LICENSES) fill the glyphs it lacks and stand in when it is not
- * installed. Arabic and Latin subsets only, woff2 only.
+ * The UI faces are Thmanyah Serif Display and Serif Text, served by
+ * `virtual:thmanyah.css` (see electron.vite.config.ts). These bundled fonts
+ * (SIL OFL 1.1, see THIRD_PARTY_LICENSES) fill the glyphs they lack and stand
+ * in when they are not installed. Arabic and Latin subsets only, woff2 only.
  * Noto Kufi Arabic: headings, times, big numbers. IBM Plex Sans Arabic: body.
  */
 

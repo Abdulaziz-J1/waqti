@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
-import { invoke, launch, shown } from './helpers'
+import { advanceClock, invoke, launch, shown } from './helpers'
 
 const SHOTS = process.env['SHOT_DIR']
 
@@ -60,7 +60,7 @@ test('prayer lock: snooze once, then صلّيت after the minimum time', async (
   expect((await invoke(win, 'app:snapshot')).machine.prayer.kind).toBe('snoozed')
 
   // Jump the scheduler clock past the snooze: the lock returns without a second snooze.
-  await invoke(win, 'debug:setOffset', { minutes: 6 })
+  await advanceClock(win, 6)
   overlay = await overlayWindow(app)
   await expect(overlay.locator('[data-testid="lock-snooze"]')).toBeDisabled()
   const closed2 = overlay.waitForEvent('close')

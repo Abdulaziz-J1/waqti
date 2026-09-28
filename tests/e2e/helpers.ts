@@ -15,7 +15,17 @@ export interface Launched {
   dataDir: string
 }
 
-/** Launches the built app with an isolated data folder. */
+/**
+ * Offset that makes the app's clock read 10:00 today: well clear of every
+ * prayer, so a run never starts inside a real adhan's startup offer.
+ */
+function tenAmOffset(): string {
+  const target = new Date()
+  target.setHours(10, 0, 0, 0)
+  return String(Math.round((target.getTime() - Date.now()) / 60_000) * 60_000)
+}
+
+/** Launches the built app with an isolated data folder and a pinned clock. */
 export async function launch(
   extraEnv: Record<string, string> = {},
   dataDir?: string
@@ -23,7 +33,12 @@ export async function launch(
   const dir = dataDir ?? fs.mkdtempSync(path.join(os.tmpdir(), 'waqti-e2e-'))
   const app = await electron.launch({
     args: ['.'],
-    env: { ...process.env, WAQTI_USER_DATA: dir, ...extraEnv } as Record<string, string>
+    env: {
+      ...process.env,
+      WAQTI_USER_DATA: dir,
+      WAQTI_CLOCK_OFFSET_MS: tenAmOffset(),
+      ...extraEnv
+    } as Record<string, string>
   })
   const win = await app.firstWindow()
   return { app, win, dataDir: dir }
@@ -47,6 +62,15 @@ export async function shown(app: ElectronApplication, page: Page): Promise<Page>
     )
     .toBe(true)
   return page
+}
+
+/**
+ * Moves the app's clock `minutes` forward from where it reads now.
+ * (`debug:setOffset` alone is relative to the real clock, and tests start pinned.)
+ */
+export async function advanceClock(win: Page, minutes: number): Promise<void> {
+  const { clockOffsetMs } = await invoke(win, 'app:snapshot')
+  await invoke(win, 'debug:setOffset', { minutes: Math.round(clockOffsetMs / 60_000) + minutes })
 }
 
 /** Calls the typed IPC bridge from the page. */

@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
-import { invoke, launch, shown } from './helpers'
+import { advanceClock, invoke, launch, shown } from './helpers'
 
 const SHOTS = process.env['SHOT_DIR']
 
@@ -66,7 +66,7 @@ test('focus session: guard, back to work, snooze, prayer pause and summary', asy
   }
 
   // Jump past the end: the session completes and the summary appears.
-  await invoke(win, 'debug:setOffset', { minutes: 30 })
+  await advanceClock(win, 30)
   await expect(win.getByRole('dialog')).toBeVisible({ timeout: 10_000 })
   await expect(win.getByRole('dialog')).toContainText('أحسنت')
   if (SHOTS) {
