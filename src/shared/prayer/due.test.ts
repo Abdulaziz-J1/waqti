@@ -7,36 +7,89 @@ import { MINUTE } from '../time'
 const RIYADH = { lat: 24.7136, lng: 46.6753 }
 const sunday = buildDaySchedule('2026-09-27', RIYADH)
 const friday = buildDaySchedule('2026-10-02', RIYADH)
+const ramadanDay = buildDaySchedule('2027-02-15', RIYADH)
 const s = defaultSettings()
+const kinds = (from: number, to: number, settings = s, day = sunday): string[] =>
+  dueBetween([day], settings, from, to).map((e) => e.kind)
 
 describe('due events', () => {
-  it('fires the pre-reminder and the prayer exactly once across ticks', () => {
+  it('fires the reminder before the adhan, the notice at the adhan and the lock at the iqama', () => {
     const asr = sunday.times.asr
-    const pre = dueBetween([sunday], s, asr - 10 * MINUTE - 1000, asr - 10 * MINUTE)
-    expect(pre).toEqual([
-      {
-        kind: 'pre',
-        fireAt: asr - 10 * MINUTE,
-        ref: { prayer: 'asr', day: '2026-09-27', at: asr, isJumuah: false },
-        minutesBefore: 10
-      }
+    const ref = {
+      prayer: 'asr',
+      day: '2026-09-27',
+      at: asr + 20 * MINUTE,
+      adhanAt: asr,
+      isJumuah: false
+    }
+    expect(dueBetween([sunday], s, asr - 10 * MINUTE - 1000, asr - 10 * MINUTE)).toEqual([
+      { kind: 'pre', fireAt: asr - 10 * MINUTE, ref, minutesBefore: 10 }
     ])
     expect(dueBetween([sunday], s, asr - 10 * MINUTE, asr - 10 * MINUTE + 1000)).toEqual([])
-    const at = dueBetween([sunday], s, asr - 1000, asr)
-    expect(at.map((e) => e.kind)).toEqual(['prayer'])
+    expect(dueBetween([sunday], s, asr - 1000, asr)).toEqual([{ kind: 'adhan', fireAt: asr, ref }])
+    expect(dueBetween([sunday], s, asr, asr + 20 * MINUTE - 1000)).toEqual([])
+    expect(dueBetween([sunday], s, asr + 20 * MINUTE - 1000, asr + 20 * MINUTE)).toEqual([
+      { kind: 'prayer', fireAt: asr + 20 * MINUTE, ref }
+    ])
+  })
+
+  it('uses each prayer’s own iqama delay', () => {
+    const at = (p: 'fajr' | 'dhuhr' | 'maghrib' | 'isha'): number =>
+      dueBetween([sunday], s, sunday.times.fajr - 1, sunday.times.isha + 30 * MINUTE).find(
+        (e) => e.kind === 'prayer' && e.ref.prayer === p
+      )!.fireAt - sunday.times[p]
+    expect([at('fajr'), at('dhuhr'), at('maghrib'), at('isha')]).toEqual([
+      25 * MINUTE,
+      20 * MINUTE,
+      10 * MINUTE,
+      20 * MINUTE
+    ])
+  })
+
+  it('shows the adhan notice only when it adds something', () => {
+    const asr = sunday.times.asr
+    // A prayer that does not lock: the notice, then the (lock-less) prayer event at the adhan.
+    expect(kinds(asr - 1000, asr, applyPatch(s, { prayers: { asr: { lock: false } } }))).toEqual([
+      'adhan',
+      'prayer'
+    ])
+    // Locking with the adhan: the lock itself announces it.
+    expect(
+      kinds(asr - 1000, asr, applyPatch(s, { prayers: { asr: { lockDelayMinutes: 0 } } }))
+    ).toEqual(['prayer'])
+    // Turned off: nothing at the adhan, the lock still comes at the iqama.
+    const off = applyPatch(s, { adhanNotice: false })
+    expect(kinds(asr - 1000, asr, off)).toEqual([])
+    expect(kinds(asr + 20 * MINUTE - 1000, asr + 20 * MINUTE, off)).toEqual(['prayer'])
+  })
+
+  it('uses the Ramadan iqama for Fajr and Maghrib only', () => {
+    expect(ramadanDay.isRamadan).toBe(true)
+    const events = dueBetween(
+      [ramadanDay],
+      s,
+      ramadanDay.times.fajr - 1,
+      ramadanDay.times.isha + 30 * MINUTE
+    ).filter((e) => e.kind === 'prayer')
+    const delay = (p: string): number => {
+      const e = events.find((x) => x.ref.prayer === p)!
+      return e.ref.at - e.ref.adhanAt
+    }
+    expect([delay('fajr'), delay('dhuhr'), delay('maghrib')]).toEqual([
+      20 * MINUTE,
+      20 * MINUTE,
+      15 * MINUTE
+    ])
+    const changed = applyPatch(s, { ramadanLockDelay: { maghrib: 20 } })
+    const m = dueBetween([ramadanDay], changed, ramadanDay.times.maghrib, ramadanDay.times.isha)
+    expect(m.find((e) => e.kind === 'prayer')?.fireAt).toBe(ramadanDay.times.maghrib + 20 * MINUTE)
   })
 
   it('never fires sunrise', () => {
-    const r = dueBetween(
-      [sunday],
-      s,
-      sunday.times.sunrise - 20 * MINUTE,
-      sunday.times.sunrise + MINUTE
-    )
-    expect(r).toEqual([])
+    expect(kinds(sunday.times.sunrise - 20 * MINUTE, sunday.times.sunrise + MINUTE)).toEqual([])
   })
 
-  it('uses the Friday reminder for Jumuah', () => {
+  it('locks Jumuah with its adhan, after the Friday reminder', () => {
     const dhuhr = friday.times.dhuhr
     const r = dueBetween([friday], s, dhuhr - 46 * MINUTE, dhuhr)
     expect(r.map((e) => [e.kind, e.fireAt === dhuhr - 45 * MINUTE || e.fireAt === dhuhr])).toEqual([
@@ -49,12 +102,17 @@ describe('due events', () => {
   it('skips reminders set to 0 and empty windows', () => {
     const none = applyPatch(s, { reminderMinutes: 0 })
     const asr = sunday.times.asr
-    expect(dueBetween([sunday], none, asr - 11 * MINUTE, asr - 9 * MINUTE)).toEqual([])
+    expect(kinds(asr - 11 * MINUTE, asr - 9 * MINUTE, none)).toEqual([])
     expect(dueBetween([sunday], s, asr, asr)).toEqual([])
   })
 
   it('returns events in chronological order over a long window', () => {
-    const r = dueBetween([sunday], s, sunday.times.fajr - 60 * MINUTE, sunday.times.isha + 1)
+    const r = dueBetween(
+      [sunday],
+      s,
+      sunday.times.fajr - 60 * MINUTE,
+      sunday.times.isha + 21 * MINUTE
+    )
     expect(r.filter((e) => e.kind === 'prayer').map((e) => e.ref.prayer)).toEqual([
       'fajr',
       'dhuhr',
@@ -67,7 +125,7 @@ describe('due events', () => {
 })
 
 describe('missed and recent prayers', () => {
-  it('lists prayers that passed while asleep with their plans', () => {
+  it('lists prayers whose lock time passed while asleep, with their plans', () => {
     const m = prayersBetween(
       [sunday],
       applyPatch(s, { prayers: { maghrib: { lock: false } } }),
@@ -78,16 +136,21 @@ describe('missed and recent prayers', () => {
       ['asr', false],
       ['maghrib', true]
     ])
+    // Asr locks at its iqama, 20 minutes after the adhan.
+    expect(prayersBetween([sunday], s, sunday.times.asr, sunday.times.asr + 19 * MINUTE)).toEqual(
+      []
+    )
   })
 
-  it('finds the latest prayer within the startup window', () => {
-    const asr = sunday.times.asr
-    expect(recentPrayer([sunday], s, asr + 4 * MINUTE, 10 * MINUTE)?.ref.prayer).toBe('asr')
-    expect(recentPrayer([sunday], s, asr + 11 * MINUTE, 10 * MINUTE)).toBeNull()
+  it('finds the latest prayer whose lock time is within the startup window', () => {
+    const iqama = sunday.times.asr + 20 * MINUTE
+    expect(recentPrayer([sunday], s, sunday.times.asr + 4 * MINUTE, 10 * MINUTE)).toBeNull()
+    expect(recentPrayer([sunday], s, iqama + 4 * MINUTE, 10 * MINUTE)?.ref.prayer).toBe('asr')
+    expect(recentPrayer([sunday], s, iqama + 11 * MINUTE, 10 * MINUTE)).toBeNull()
   })
 
-  it('builds a ref for today', () => {
-    expect(refForToday(friday, 'dhuhr', 5).isJumuah).toBe(true)
+  it('builds a ref for today whose adhan and lock are the same moment', () => {
+    expect(refForToday(friday, 'dhuhr', 5)).toMatchObject({ isJumuah: true, at: 5, adhanAt: 5 })
     expect(refForToday(sunday, 'dhuhr', 5).isJumuah).toBe(false)
   })
 })

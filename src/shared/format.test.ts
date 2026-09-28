@@ -141,8 +141,9 @@ describe('durations', () => {
   it('formats odometer countdowns', () => {
     expect(fmtCountdown(23 * MINUTE + 5 * SECOND, 'arab')).toBe('٢٣:٠٥')
     expect(fmtCountdown(HOUR + 2 * MINUTE + 5 * SECOND, 'latn')).toBe('1:02:05')
-    expect(fmtCountdown(400, 'latn')).toBe('00:01')
-    expect(fmtCountdown(-1000, 'latn')).toBe('00:00')
+    expect(fmtCountdown(4 * MINUTE + 26 * SECOND, 'arab')).toBe('٤:٢٦')
+    expect(fmtCountdown(400, 'latn')).toBe('0:01')
+    expect(fmtCountdown(-1000, 'latn')).toBe('0:00')
   })
 })
 

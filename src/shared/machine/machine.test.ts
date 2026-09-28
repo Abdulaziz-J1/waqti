@@ -18,13 +18,16 @@ import type {
 import { MINUTE, SECOND } from '../time'
 
 const T0 = new Date('2026-09-27T15:09:00+03:00').getTime()
-const ASR: PrayerRef = { prayer: 'asr', day: '2026-09-27', at: T0, isJumuah: false }
+const ASR: PrayerRef = { prayer: 'asr', day: '2026-09-27', at: T0, adhanAt: T0, isJumuah: false }
 const MAGHRIB: PrayerRef = {
   prayer: 'maghrib',
   day: '2026-09-27',
   at: T0 + 156 * MINUTE,
+  adhanAt: T0 + 156 * MINUTE,
   isJumuah: false
 }
+/** Asr whose lock comes 20 minutes after its adhan (the iqama). */
+const ASR_IQAMA: PrayerRef = { ...ASR, adhanAt: T0 - 20 * MINUTE }
 const PLAN: LockPlan = { lockMs: 15 * MINUTE, minUnlockMs: 5 * MINUTE, chime: true }
 const CTX: TickContext = { idleSeconds: 0, screenLocked: false, inMeeting: false }
 const TARGET: DistractionTarget = {
@@ -128,10 +131,18 @@ describe('prayer time → lock', () => {
     expect(r.state.prayer.hardUntil).toBe(T0 + 2 * SECOND + 60 * MINUTE)
   })
 
-  it('without a lock plan shows a toast only', () => {
+  it('without a lock plan does nothing (the adhan notice announced it)', () => {
     const r = reduce(INITIAL_STATE, due(T0, {}, null))
     expect(r.state.prayer.kind).toBe('idle')
-    expect(toastKinds(r.effects)).toEqual(['prayerNow'])
+    expect(r.effects).toEqual([])
+  })
+
+  it('logs the adhan as the scheduled time when the lock comes at the iqama', () => {
+    const r = run(INITIAL_STATE, due(T0, {}, PLAN, ASR_IQAMA), {
+      type: 'EMERGENCY_EXIT',
+      now: T0 + MINUTE
+    })
+    expect(logs(r.effects)[0]).toMatchObject({ scheduledAt: T0 - 20 * MINUTE })
   })
 
   it('a late PRAYER_DUE still locks for the full duration', () => {
@@ -340,6 +351,17 @@ describe('sleep and resume', () => {
     expect(logs(r.effects)).toHaveLength(1)
   })
 
+  it('tells how long ago the adhan was when the lock came at the iqama', () => {
+    const r = reduce(INITIAL_STATE, {
+      type: 'RESUME',
+      now: T0 + 12 * MINUTE,
+      missed: [{ ref: ASR_IQAMA, plan: PLAN }]
+    })
+    const toast = r.effects.find((e) => e.type === 'toast')
+    if (toast?.type !== 'toast' || toast.toast.kind !== 'resumeReminder') throw new Error()
+    expect(toast.toast.agoMs).toBe(32 * MINUTE)
+  })
+
   it('does not log prayers that have no lock', () => {
     const r = reduce(INITIAL_STATE, {
       type: 'RESUME',
@@ -406,6 +428,69 @@ describe('startup offer', () => {
     })
     if (r.state.prayer.kind !== 'offered') throw new Error()
     expect(r.state.prayer.expiresAt).toBe(T0 + 13 * MINUTE)
+  })
+
+  it('counts the window from the lock and tells the time since the adhan', () => {
+    const r = reduce(INITIAL_STATE, {
+      type: 'APP_STARTED',
+      now: T0 + 4 * MINUTE,
+      recent: { ref: ASR_IQAMA, plan: PLAN }
+    })
+    expect(r.state.prayer.kind).toBe('offered')
+    const toast = r.effects.find((e) => e.type === 'toast')
+    if (toast?.type !== 'toast' || toast.toast.kind !== 'offer') throw new Error()
+    expect(toast.toast.agoMs).toBe(24 * MINUTE)
+  })
+})
+
+describe('adhan notice', () => {
+  const ADHAN = T0 - 20 * MINUTE
+  const adhanDue = (locks: boolean): MachineEvent => ({
+    type: 'ADHAN_DUE',
+    now: ADHAN,
+    ref: ASR_IQAMA,
+    locks,
+    chime: true
+  })
+
+  it('shows the notice with the lock time for 10 seconds', () => {
+    const r = reduce(INITIAL_STATE, adhanDue(true))
+    expect(r.state).toBe(INITIAL_STATE)
+    expect(r.effects).toEqual([
+      {
+        type: 'showAdhan',
+        adhan: {
+          ref: ASR_IQAMA,
+          lockAt: T0,
+          shownAt: ADHAN,
+          until: ADHAN + 10 * SECOND,
+          chime: true
+        }
+      }
+    ])
+  })
+
+  it('has no lock time for a prayer that does not lock', () => {
+    const e = reduce(INITIAL_STATE, adhanDue(false)).effects[0]
+    if (e?.type !== 'showAdhan') throw new Error()
+    expect(e.adhan.lockAt).toBeNull()
+  })
+
+  it('stays away while a lock is up or the device sleeps', () => {
+    expect(reduce(locked(), adhanDue(true)).effects).toEqual([])
+    const asleep = reduce(INITIAL_STATE, { type: 'SUSPEND', now: ADHAN - MINUTE }).state
+    expect(reduce(asleep, adhanDue(true)).effects).toEqual([])
+  })
+
+  it('a reminder before the adhan still leads to the lock at the iqama', () => {
+    const r = run(
+      INITIAL_STATE,
+      { type: 'PRE_REMINDER_DUE', now: ADHAN - 10 * MINUTE, ref: ASR_IQAMA, minutesBefore: 10 },
+      adhanDue(true),
+      tick(T0 - MINUTE),
+      due(T0, {}, PLAN, ASR_IQAMA)
+    )
+    expect(r.state.prayer.kind).toBe('locked')
   })
 })
 

@@ -2,10 +2,11 @@ import { MotionConfig } from 'motion/react'
 import { useEffect, useState } from 'react'
 import type { OverlayState } from '@shared/ipc'
 import { api } from '../lib/api'
+import { AdhanNotice } from './AdhanNotice'
 import { FocusGuard } from './FocusGuard'
 import { LockOverlay } from './LockOverlay'
 
-/** Root of lock and guard windows. State is pushed by the main process. */
+/** Root of lock, guard and adhan-notice windows. State is pushed by the main process. */
 export function OverlayApp(): React.JSX.Element | null {
   const [state, setState] = useState<OverlayState | null>(null)
 
@@ -20,7 +21,7 @@ export function OverlayApp(): React.JSX.Element | null {
     const root = document.documentElement
     root.dataset['tone'] = 'dark'
     root.toggleAttribute('data-reduce-motion', state.reduceMotion)
-    if (state.kind === 'guard') {
+    if (state.kind === 'guard' || state.kind === 'adhan') {
       root.style.background = 'transparent'
       document.body.style.background = 'transparent'
     }
@@ -29,7 +30,13 @@ export function OverlayApp(): React.JSX.Element | null {
   if (!state || state.kind === 'none') return null
   return (
     <MotionConfig reducedMotion={state.reduceMotion ? 'always' : 'never'}>
-      {state.kind === 'lock' ? <LockOverlay state={state} /> : <FocusGuard state={state} />}
+      {state.kind === 'lock' ? (
+        <LockOverlay state={state} />
+      ) : state.kind === 'guard' ? (
+        <FocusGuard state={state} />
+      ) : (
+        <AdhanNotice state={state} />
+      )}
     </MotionConfig>
   )
 }

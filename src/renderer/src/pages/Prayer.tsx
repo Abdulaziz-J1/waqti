@@ -64,6 +64,7 @@ export function PrayerPage(): React.JSX.Element {
   }
 
   const days = [...new Set((history.data ?? []).map((e) => e.day))].sort().reverse()
+  const delayText = (v: number): string => (v === 0 ? t.withAdhan : fmt.minutes(v))
 
   return (
     <motion.div className={s.page} initial="hidden" animate="show" variants={stagger()}>
@@ -86,6 +87,7 @@ export function PrayerPage(): React.JSX.Element {
             <div className={s.head} role="row">
               <span role="columnheader">{t.title}</span>
               <span role="columnheader">{t.lock}</span>
+              <span role="columnheader">{t.lockAfter}</span>
               <span role="columnheader">{t.lockFor}</span>
               <span role="columnheader">{t.adjust}</span>
             </div>
@@ -130,6 +132,22 @@ export function PrayerPage(): React.JSX.Element {
                     />
                   </span>
                   <span role="cell" className={lockOn ? undefined : s.dim}>
+                    {jumuah ? (
+                      // The Friday prayer always locks with its adhan (see the Friday card).
+                      <span className={s.fixed}>{t.withAdhan}</span>
+                    ) : (
+                      <Stepper
+                        label={`${t.lockAfter} ${prayerNames[slot]}`}
+                        value={p.lockDelayMinutes}
+                        min={0}
+                        max={30}
+                        step={5}
+                        format={delayText}
+                        onChange={(v) => setPrayer(slot, { lockDelayMinutes: v })}
+                      />
+                    )}
+                  </span>
+                  <span role="cell" className={lockOn ? undefined : s.dim}>
                     <Stepper
                       label={`${t.lockFor} ${prayerNames[slot]}`}
                       value={lockMinutes}
@@ -157,7 +175,38 @@ export function PrayerPage(): React.JSX.Element {
                 </div>
               )
             })}
-            <p className={s.footnote}>{t.adjustHint}</p>
+            <p className={s.footnote}>
+              {t.lockAfterHint}
+              <br />
+              {t.adjustHint}
+            </p>
+
+            <section className={s.ramadan} aria-labelledby="prayer-ramadan-title">
+              <div className={s.ramadanHead}>
+                <h3 className={s.ramadanTitle} id="prayer-ramadan-title">
+                  {t.ramadan}
+                </h3>
+                {bundle.today.isRamadan ? (
+                  <span className={s.nextTag}>{t.ramadanActive}</span>
+                ) : null}
+              </div>
+              <p className={s.ramadanLead}>{t.ramadanLead}</p>
+              <div className={s.ramadanRows}>
+                {(['fajr', 'maghrib'] as const).map((p) => (
+                  <SettingRow key={p} label={prayerNames[p]}>
+                    <Stepper
+                      label={`${t.ramadan} ${prayerNames[p]}`}
+                      value={settings.ramadanLockDelay[p]}
+                      min={0}
+                      max={30}
+                      step={5}
+                      format={delayText}
+                      onChange={(v) => void updateSettings({ ramadanLockDelay: { [p]: v } })}
+                    />
+                  </SettingRow>
+                ))}
+              </div>
+            </section>
           </div>
         ) : (
           <EmptyState art="error" body={snap.scheduleError ? t.coordsInvalid : common.loadError} />
@@ -186,6 +235,12 @@ export function PrayerPage(): React.JSX.Element {
                 onChange={(v) => void updateSettings({ reminderMinutes: v })}
               />
             </SettingRow>
+            <Toggle
+              label={t.adhanNotice}
+              hint={t.adhanNoticeHint}
+              checked={settings.adhanNotice}
+              onChange={(v) => void updateSettings({ adhanNotice: v })}
+            />
             <Toggle
               label={t.chime}
               hint={t.chimeHint}

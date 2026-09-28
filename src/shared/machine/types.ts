@@ -7,8 +7,13 @@ import type { FocusSessionRecord } from '../tracking/aggregate'
 export interface PrayerRef {
   prayer: PrayerId
   day: DayKey
-  /** Scheduled time (epoch ms). */
+  /**
+   * When the prayer is due to lock (epoch ms): the adhan plus the configured
+   * delay, i.e. the iqama. Equals `adhanAt` when the prayer does not lock.
+   */
   at: number
+  /** The adhan, the prayer's scheduled time (epoch ms). */
+  adhanAt: number
   /** Dhuhr on Friday. */
   isJumuah: boolean
 }
@@ -133,6 +138,8 @@ export interface PlannedPrayer {
 export type MachineEvent =
   | { type: 'TICK'; now: number; ctx: TickContext }
   | { type: 'PRE_REMINDER_DUE'; now: number; ref: PrayerRef; minutesBefore: number }
+  /** The adhan time came; `locks` says whether a lock follows at `ref.at`. */
+  | { type: 'ADHAN_DUE'; now: number; ref: PrayerRef; locks: boolean; chime: boolean }
   | { type: 'PRAYER_DUE'; now: number; ref: PrayerRef; plan: LockPlan | null; ctx: TickContext }
   | { type: 'PRAYED'; now: number }
   | { type: 'SNOOZE'; now: number }
@@ -152,7 +159,6 @@ export type MachineEvent =
 
 export type ToastSpec =
   | { kind: 'preReminder'; ref: PrayerRef; minutesBefore: number }
-  | { kind: 'prayerNow'; ref: PrayerRef }
   | { kind: 'meeting'; ref: PrayerRef }
   | { kind: 'meetingFinal'; ref: PrayerRef }
   | { kind: 'resumeReminder'; ref: PrayerRef; agoMs: number }
@@ -176,10 +182,22 @@ export interface GuardView {
   sessionEndsAt: number
 }
 
+/** What the short adhan notice shows. */
+export interface AdhanView {
+  ref: PrayerRef
+  /** When the lock follows (the iqama), or null when this prayer does not lock. */
+  lockAt: number | null
+  shownAt: number
+  /** It closes itself at this time unless the user closes it first. */
+  until: number
+  chime: boolean
+}
+
 export type Effect =
   | { type: 'toast'; toast: ToastSpec }
   | { type: 'showLock'; lock: LockView }
   | { type: 'hideLock' }
+  | { type: 'showAdhan'; adhan: AdhanView }
   | { type: 'showGuard'; guard: GuardView }
   | { type: 'hideGuard' }
   | { type: 'minimize'; hwnd: number | null }
@@ -210,6 +228,7 @@ export interface MachineConfig {
   guardSnoozeMs: number
   guardGraceMs: number
   lateLockMinMs: number
+  adhanNoticeMs: number
 }
 
 export interface Transition {

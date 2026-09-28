@@ -30,7 +30,8 @@ export const DEFAULT_MACHINE_CONFIG: MachineConfig = {
   startupOfferMs: 10 * MINUTE,
   guardSnoozeMs: 5 * MINUTE,
   guardGraceMs: 3 * SECOND,
-  lateLockMinMs: 5 * MINUTE
+  lateLockMinMs: 5 * MINUTE,
+  adhanNoticeMs: 10 * SECOND
 }
 
 export const INITIAL_STATE: MachineState = {
@@ -58,7 +59,15 @@ function log(
 ): Effect {
   return {
     type: 'logPrayer',
-    entry: { prayer: ref.prayer, day: ref.day, scheduledAt: ref.at, outcome, reason, snoozed, at }
+    entry: {
+      prayer: ref.prayer,
+      day: ref.day,
+      scheduledAt: ref.adhanAt,
+      outcome,
+      reason,
+      snoozed,
+      at
+    }
   }
 }
 
@@ -244,10 +253,8 @@ function onPrayerDue(
       base = { ...base, focus: resumeFocus(s.focus, e.now, effects, false) }
   }
 
-  if (!e.plan) {
-    effects.push({ type: 'toast', toast: { kind: 'prayerNow', ref: e.ref } })
-    return base
-  }
+  // A prayer that does not lock has nothing more to do: the adhan notice announced it.
+  if (!e.plan) return base
   if (cfg.skipWhenAway && isAway(e.ctx, cfg)) {
     effects.push(log(e.ref, 'skipped', 'away', false, e.now))
     return base
@@ -356,7 +363,7 @@ function onResume(
   if (latest && now - latest.ref.at <= cfg.resumeReminderMs) {
     effects.push({
       type: 'toast',
-      toast: { kind: 'resumeReminder', ref: latest.ref, agoMs: now - latest.ref.at }
+      toast: { kind: 'resumeReminder', ref: latest.ref, agoMs: now - latest.ref.adhanAt }
     })
   }
 
@@ -379,7 +386,11 @@ function onAppStarted(
   const ago = e.now - r.ref.at
   if (ago < 0 || ago > cfg.startupOfferMs) return s
   const windowEnd = r.ref.at + r.plan.lockMs
-  effects.push({ type: 'toast', toast: { kind: 'offer', ref: r.ref, agoMs: ago } })
+  // The offer window counts from the lock time; the text says how long ago the adhan was.
+  effects.push({
+    type: 'toast',
+    toast: { kind: 'offer', ref: r.ref, agoMs: e.now - r.ref.adhanAt }
+  })
   return {
     ...s,
     prayer: {
@@ -455,6 +466,22 @@ export function reduce(
           toast: { kind: 'preReminder', ref: e.ref, minutesBefore: e.minutesBefore }
         })
         state = { ...s, prayer: { kind: 'reminding', ref: e.ref, remindedAt: e.now } }
+      }
+      break
+
+    case 'ADHAN_DUE':
+      // Announces the adhan; never over a lock or while the device sleeps.
+      if (s.prayer.kind !== 'locked' && !s.asleep) {
+        effects.push({
+          type: 'showAdhan',
+          adhan: {
+            ref: e.ref,
+            lockAt: e.locks ? e.ref.at : null,
+            shownAt: e.now,
+            until: e.now + cfg.adhanNoticeMs,
+            chime: e.chime
+          }
+        })
       }
       break
 

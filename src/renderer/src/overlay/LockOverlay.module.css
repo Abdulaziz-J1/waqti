@@ -190,22 +190,10 @@
   }
 }
 
-/* Reduced motion: a still circle; the words stay readable. */
-.lock[data-reduce] .circle,
-.lock[data-reduce] .circleCore,
+/* Reduced motion stills the twinkling stars only. The breathing circle is the
+   lock's guided exercise, not decoration, and its 8 s cycle is slow and gentle. */
 .lock[data-reduce] .star {
   animation: none;
-}
-.lock[data-reduce] .circle {
-  transform: scale(0.85);
-}
-.lock[data-reduce] .inhale {
-  animation: none;
-  opacity: 0;
-}
-.lock[data-reduce] .exhale {
-  animation: none;
-  opacity: 0;
 }
 
 .remaining {

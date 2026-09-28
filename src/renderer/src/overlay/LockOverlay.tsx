@@ -82,11 +82,12 @@ export function LockOverlay({ state }: { state: OverlayState }): React.JSX.Eleme
         <h1 className={s.headline}>{t.headline(name)}</h1>
         <p className={s.sub}>{t.sub}</p>
 
+        {/* The breathing guide keeps moving under reduced motion (motion-essential). */}
         <div className={s.breath} aria-hidden>
-          <span className={s.circle} />
-          <span className={s.circleCore} />
-          <span className={`${s.word} ${s.inhale}`}>{t.breatheIn}</span>
-          <span className={`${s.word} ${s.exhale}`}>{t.breatheOut}</span>
+          <span className={`${s.circle} motion-essential`} />
+          <span className={`${s.circleCore} motion-essential`} />
+          <span className={`${s.word} ${s.inhale} motion-essential`}>{t.breatheIn}</span>
+          <span className={`${s.word} ${s.exhale} motion-essential`}>{t.breatheOut}</span>
         </div>
 
         <div className={s.remaining}>

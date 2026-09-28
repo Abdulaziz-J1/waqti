@@ -15,7 +15,7 @@ flowchart LR
     Sched["Scheduler<br/>yesterday/today/tomorrow<br/>due events, resume, gaps"]
     Machine["Orchestrator<br/>pure reducer (src/shared/machine)"]
     Effects["Effect runner"]
-    Overlays["OverlayManager<br/>lock per display · guard"]
+    Overlays["OverlayManager<br/>lock per display · guard · adhan notice"]
     Notifier["Windows toasts"]
     Tray["Tray (Arabic menu, next-prayer tooltip)"]
     DB[("SQLite · WAL<br/>better-sqlite3")]
@@ -53,7 +53,7 @@ flowchart LR
 | `src/shared`   | Pure logic: prayer schedule (`prayer/`), Arabic formatting (`format.ts`), strings (`strings.ts`), tracking rules (`tracking/`), the orchestrator (`machine/`), settings schema + migrations (`settings/`), sky palettes (`sky.ts`), Sky Arc geometry (`arc.ts`), chart palette (`palette.ts`), demo data (`demo/`), IPC contract (`ipc.ts`, `ipc-channels.ts`). |
 | `src/main`     | `index.ts` (lifecycle), `core.ts` (wiring, tick, effects), `ipc.ts` (router), `services/` (clock, db, tracker, foreground, native (koffi), idle, scheduler, overlays, notifications, tray, apps/icons, exporter, analytics, settings store, meeting config, logger).                                                                                            |
 | `src/preload`  | A 40-line bridge: `invoke(channel, payload)` and `on(event, cb)` for whitelisted names only.                                                                                                                                                                                                                                                                    |
-| `src/renderer` | `index.html` (main window) and `overlay.html` (lock and guard windows), React components, pages, design tokens, motion tokens.                                                                                                                                                                                                                                  |
+| `src/renderer` | `index.html` (main window) and `overlay.html` (lock, guard and adhan-notice windows), React components, pages, design tokens, motion tokens.                                                                                                                                                                                                                    |
 
 ## The orchestrator state machine
 
@@ -61,14 +61,19 @@ flowchart LR
 
 The state has two parallel regions: **prayer** and **focus**.
 
+### Adhan and iqama
+
+A `PrayerRef` carries two times: `adhanAt`, the prayer's scheduled time, and `at`, when it locks: the adhan plus that prayer's delay (the iqama; 25/20/20/10/20 minutes by default, 20 for Fajr and 15 for Maghrib in Ramadan, 0 for Jumuah). `dueBetween` turns them into three events: `pre` (the reminder, before the adhan), `adhan` (the 10-second notice, left out when the lock itself comes with the adhan) and `prayer` (the lock). Everything that concerns the lock window — the away and meeting rules, the startup offer, missed prayers after sleep — counts from `at`; the log's `scheduledAt` and the "the adhan was N minutes ago" texts use `adhanAt`.
+
 ### Prayer region
 
 ```mermaid
 stateDiagram-v2
   [*] --> idle
   idle --> reminding: PRE_REMINDER_DUE / toast «باقي ١٠ دقائق…»
-  reminding --> idle: TICK (5 min after the prayer)
-  idle --> idle: PRAYER_DUE, no lock / toast «حان الآن…»
+  reminding --> idle: TICK (5 min after the lock time)
+  idle --> idle: ADHAN_DUE / showAdhan (10 s notice; never over a lock or while asleep)
+  idle --> idle: PRAYER_DUE, no lock (the adhan notice announced it)
   reminding --> idle: PRAYER_DUE, away (idle ≥ 5 min or screen locked) / log skipped:away
   idle --> idle: PRAYER_DUE, away / log skipped:away
   idle --> meetingDeferred: PRAYER_DUE, in a meeting / toast «أنت في اجتماع…»
@@ -78,7 +83,7 @@ stateDiagram-v2
   meetingDeferred --> meetingDeferred: TICK every 60 s, still in the meeting (< 30 min)
   meetingDeferred --> locked: meeting ended or 30 min passed, inside the lock window
   meetingDeferred --> idle: window already over / final reminder, log skipped:meeting
-  idle --> offered: APP_STARTED ≤ 10 min after a prayer / clickable toast
+  idle --> offered: APP_STARTED ≤ 10 min after a lock time / clickable toast
   offered --> locked: OFFER_ACCEPTED (toast clicked)
   offered --> idle: TICK after the window / log skipped:late-start
   locked --> idle: PRAYED (after the minimum time) / log prayed, resume focus
@@ -93,7 +98,7 @@ stateDiagram-v2
 
 Other rules handled by the reducer:
 
-- **Machine asleep at prayer time** — `RESUME` carries the prayers that passed while suspended: each lock-enabled one is logged `skipped:asleep`; if the latest was ≤ 20 minutes ago a short reminder toast is shown, otherwise nothing.
+- **Machine asleep at prayer time** — `RESUME` carries the prayers whose lock time passed while suspended: each lock-enabled one is logged `skipped:asleep`; if the latest was ≤ 20 minutes ago a short reminder toast is shown, otherwise nothing.
 - **A new prayer while another is still active** (only possible with extreme settings) — the older one is closed (`superseded`) before the new one is handled.
 - **App quit during a lock** — main keeps a `lock_active` marker in the database while a lock is shown; on the next start it is logged `ended:interrupted` and no overlay comes back.
 
@@ -205,7 +210,7 @@ sequenceDiagram
 ```
 
 - Channels and events are listed once in `src/shared/ipc-channels.ts` (no dependencies, so the sandboxed preload can import it). Request schemas and response types live in `src/shared/ipc.ts`.
-- Lock actions are only accepted from lock windows and guard actions only from the guard window.
+- Lock actions are only accepted from lock windows, guard actions only from the guard window, and closing the adhan notice only from the notice window.
 - `contextIsolation`, `sandbox`, no `nodeIntegration`, a strict CSP (`script-src 'self'`), navigation and `window.open` blocked, all permission requests denied.
 
 ## Windows and overlays

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import type { Channel, EventName } from './ipc-channels'
-import type { MachineState, LockView, GuardView, PrayerLogEntry } from './machine/types'
+import type { AdhanView, MachineState, LockView, GuardView, PrayerLogEntry } from './machine/types'
 import type { DaySchedule, PrayerId } from './prayer/schedule'
 import type { Settings } from './settings/schema'
 import type { Category, Rule } from './tracking/categorize'
@@ -92,10 +92,13 @@ export interface RunningApp {
   icon: string | null
 }
 
+export type OverlayKind = 'lock' | 'guard' | 'adhan'
+
 export interface OverlayState {
-  kind: 'lock' | 'guard' | 'none'
+  kind: OverlayKind | 'none'
   lock: LockView | null
   guard: GuardView | null
+  adhan: AdhanView | null
   /** Sky colours of the prayer period, for the lock background. */
   sky: SkyPalette & { period: PeriodId }
   clockOffsetMs: number
@@ -172,6 +175,7 @@ export const requestSchemas = {
   'focus:sessions': z.object({ from: dayKeySchema, to: dayKeySchema }),
   'lock:action': z.object({ action: z.enum(['prayed', 'snooze', 'emergency']) }),
   'guard:action': z.object({ action: z.enum(['back', 'snooze']) }),
+  'adhan:close': z.undefined(),
   'overlay:state': z.undefined(),
   'tracking:setPaused': z.object({ paused: z.boolean() }),
   'categories:get': z.undefined(),
@@ -202,6 +206,7 @@ export const requestSchemas = {
   'data:counts': z.undefined(),
   'debug:simulatePrayer': z.object({ prayer: prayerId }),
   'debug:simulatePre': z.object({ prayer: prayerId }),
+  'debug:simulateAdhan': z.object({ prayer: prayerId }),
   'debug:setIdle': z.object({ on: z.boolean() }),
   'debug:setMeeting': z.object({ on: z.boolean() }),
   'debug:setOffset': z.object({ minutes: z.number().int().min(-2880).max(2880) }),
@@ -231,6 +236,7 @@ export interface ResponseMap {
   'focus:sessions': FocusSessionRecord[]
   'lock:action': null
   'guard:action': null
+  'adhan:close': null
   'overlay:state': OverlayState
   'tracking:setPaused': null
   'categories:get': CategoriesData
@@ -247,6 +253,7 @@ export interface ResponseMap {
   'data:counts': DataCounts
   'debug:simulatePrayer': null
   'debug:simulatePre': null
+  'debug:simulateAdhan': null
   'debug:setIdle': null
   'debug:setMeeting': null
   'debug:setOffset': null

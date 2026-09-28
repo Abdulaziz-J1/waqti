@@ -114,6 +114,13 @@ export function DebugPanel(): React.JSX.Element {
               >
                 {t.prayerNow}
               </Button>
+              <Button
+                size="sm"
+                onClick={() => run(api.invoke('debug:simulateAdhan', { prayer }))}
+                data-testid="debug-simulate-adhan"
+              >
+                {t.adhanNow}
+              </Button>
               <Button size="sm" onClick={() => run(api.invoke('debug:simulatePre', { prayer }))}>
                 {t.preReminder}
               </Button>

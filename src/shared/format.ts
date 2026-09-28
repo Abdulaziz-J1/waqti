@@ -144,14 +144,17 @@ export function withBi(phrase: string): string {
   return /^[0-9٠-٩]/.test(phrase) ? `بـ${phrase}` : `ب${phrase}`
 }
 
-/** Countdown for the odometer: "٢٣:٠٥" or "١:٠٢:٠٥". Rounds up to the next second. */
+/**
+ * Countdown for the odometer: "٤:٢٦", "٢٣:٠٥" or "١:٠٢:٠٥". The leading unit
+ * has no padding zero; rounds up to the next second.
+ */
 export function fmtCountdown(ms: number, digits: Digits): string {
   const total = Math.max(0, Math.ceil(ms / SECOND))
   const h = Math.floor(total / 3600)
   const m = Math.floor((total % 3600) / 60)
   const s = total % 60
   if (h > 0) return `${fmtNum(h, digits)}:${fmt2(m, digits)}:${fmt2(s, digits)}`
-  return `${fmt2(m, digits)}:${fmt2(s, digits)}`
+  return `${fmtNum(m, digits)}:${fmt2(s, digits)}`
 }
 
 // ---------------------------------------------------------------------------

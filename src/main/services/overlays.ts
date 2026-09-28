@@ -1,13 +1,13 @@
 import { BrowserWindow, screen, type Display } from 'electron'
-import type { OverlayState } from '../../shared/ipc'
-import type { GuardView, LockView } from '../../shared/machine/types'
+import type { OverlayKind, OverlayState } from '../../shared/ipc'
+import type { AdhanView, GuardView, LockView } from '../../shared/machine/types'
 import { log } from './logger'
 
 export interface OverlayDeps {
   preload: string
   load: (win: BrowserWindow, query: Record<string, string>) => void
   /** Builds the state for one overlay window. */
-  stateFor: (kind: 'lock' | 'guard', primary: boolean) => OverlayState
+  stateFor: (kind: OverlayKind, primary: boolean) => OverlayState
   /** Scheduler-clock now (includes the debug offset). */
   now: () => number
   /** Called when the independent 60-minute safety timer fires. */
@@ -18,19 +18,26 @@ export interface OverlayDeps {
 /** Extra margin after the lock's hard maximum before the safety timer force-closes it. */
 const SAFETY_MARGIN_MS = 2000
 
+/** The adhan notice card (DIP), placed above the taskbar like a Windows notification. */
+const ADHAN_SIZE = { width: 420, height: 104 }
+const ADHAN_MARGIN = 16
+
 /**
- * Lock overlays (one fullscreen window per display, screen-saver level) and
- * the Focus Guard (one dimmed window on the distraction's display). Reacts to
- * monitors being plugged or unplugged while visible.
+ * Lock overlays (one fullscreen window per display, screen-saver level), the
+ * Focus Guard (one dimmed window on the distraction's display) and the short
+ * adhan notice. Reacts to monitors being plugged or unplugged while visible.
  */
 export class OverlayManager {
   private lockWins = new Map<number, BrowserWindow>()
   private guardWin: BrowserWindow | null = null
   private guardDisplay: number | null = null
+  private adhanWin: BrowserWindow | null = null
   private lock: LockView | null = null
   private guard: GuardView | null = null
+  private adhan: AdhanView | null = null
   private allowClose = new WeakSet<BrowserWindow>()
   private safetyTimer: NodeJS.Timeout | null = null
+  private adhanTimer: NodeJS.Timeout | null = null
 
   constructor(private readonly deps: OverlayDeps) {
     const reconcile = (): void => {
@@ -58,9 +65,14 @@ export class OverlayManager {
     return this.guard
   }
 
+  get adhanView(): AdhanView | null {
+    return this.adhan
+  }
+
   // -- lock ------------------------------------------------------------------
 
   showLock(view: LockView): void {
+    this.hideAdhan()
     this.lock = view
     this.reconcileLock()
     this.push()
@@ -199,12 +211,47 @@ export class OverlayManager {
     this.guardDisplay = display.id
   }
 
+  // -- adhan notice ----------------------------------------------------------
+
+  /** Shows the notice on the primary display and closes it at `view.until`. */
+  showAdhan(view: AdhanView): void {
+    this.hideAdhan()
+    this.adhan = view
+    const wa = screen.getPrimaryDisplay().workArea
+    const bounds = {
+      x: Math.round(wa.x + wa.width - ADHAN_SIZE.width - ADHAN_MARGIN),
+      y: Math.round(wa.y + wa.height - ADHAN_SIZE.height - ADHAN_MARGIN),
+      ...ADHAN_SIZE
+    }
+    const win = this.baseWindow(bounds, true)
+    win.once('ready-to-show', () => {
+      if (win.isDestroyed()) return
+      win.setBounds(bounds)
+      // A notice never takes focus from what the user is doing.
+      win.showInactive()
+    })
+    this.deps.load(win, { kind: 'adhan', primary: '1' })
+    win.webContents.on('did-finish-load', () => this.sendTo(win, 'adhan', true))
+    win.webContents.on('render-process-gone', () => this.hideAdhan())
+    this.adhanWin = win
+    this.adhanTimer = setTimeout(() => this.hideAdhan(), Math.max(0, view.until - this.deps.now()))
+  }
+
+  hideAdhan(): void {
+    this.adhan = null
+    if (this.adhanTimer) clearTimeout(this.adhanTimer)
+    this.adhanTimer = null
+    if (this.adhanWin) this.destroy(this.adhanWin)
+    this.adhanWin = null
+  }
+
   // -- shared ----------------------------------------------------------------
 
   /** Which overlay a window shows, for `overlay:state` requests. */
-  kindOf(win: BrowserWindow | null): { kind: 'lock' | 'guard'; primary: boolean } | null {
+  kindOf(win: BrowserWindow | null): { kind: OverlayKind; primary: boolean } | null {
     if (!win) return null
     if (win === this.guardWin) return { kind: 'guard', primary: true }
+    if (win === this.adhanWin) return { kind: 'adhan', primary: true }
     const primaryId = screen.getPrimaryDisplay().id
     for (const [id, w] of this.lockWins)
       if (w === win) return { kind: 'lock', primary: id === primaryId }
@@ -221,7 +268,7 @@ export class OverlayManager {
     if (this.guardWin) this.sendTo(this.guardWin, 'guard', true)
   }
 
-  private sendTo(win: BrowserWindow, kind: 'lock' | 'guard', primary: boolean): void {
+  private sendTo(win: BrowserWindow, kind: OverlayKind, primary: boolean): void {
     if (win.isDestroyed() || win.webContents.isLoading()) return
     win.webContents.send('overlay:state', this.deps.stateFor(kind, primary))
   }
@@ -235,5 +282,6 @@ export class OverlayManager {
   destroyAll(): void {
     this.hideLock()
     this.hideGuard()
+    this.hideAdhan()
   }
 }

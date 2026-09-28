@@ -15,10 +15,12 @@ const section = <T extends z.ZodRawShape>(shape: T) =>
     z.object(shape)
   )
 
-const prayerSettings = (lockMinutes: number) =>
+const prayerSettings = (lockMinutes: number, lockDelayMinutes: number) =>
   section({
     lock: bool(true),
     lockMinutes: int(5, 60, lockMinutes),
+    /** Minutes from the adhan to the lock (the iqama); 0 locks with the adhan. */
+    lockDelayMinutes: int(0, 30, lockDelayMinutes),
     adjust: int(-15, 15, 0)
   })
 
@@ -38,15 +40,23 @@ export const settingsSchema = section({
   version: z.number().int().catch(SETTINGS_VERSION),
   onboarded: bool(false),
   location: locationSchema,
+  // Lock delays follow the usual gap between adhan and iqama in Saudi mosques.
   prayers: section({
-    fajr: prayerSettings(15),
-    dhuhr: prayerSettings(15),
-    asr: prayerSettings(15),
-    maghrib: prayerSettings(10),
-    isha: prayerSettings(15)
+    fajr: prayerSettings(15, 25),
+    dhuhr: prayerSettings(15, 20),
+    asr: prayerSettings(15, 20),
+    maghrib: prayerSettings(10, 10),
+    isha: prayerSettings(15, 20)
   }),
-  /** Minutes before each prayer for the toast; 0 disables. */
+  /** In Ramadan the iqama moves for Fajr (earlier) and Maghrib (later). */
+  ramadanLockDelay: section({
+    fajr: int(0, 30, 20),
+    maghrib: int(0, 30, 15)
+  }),
+  /** Minutes before each prayer's adhan for the toast; 0 disables. */
   reminderMinutes: int(0, 60, 10),
+  /** A 10-second notice when the adhan time comes (the lock follows at the iqama). */
+  adhanNotice: bool(true),
   friday: section({
     lock: bool(true),
     reminderMinutes: int(0, 120, 45),

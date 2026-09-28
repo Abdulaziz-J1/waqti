@@ -26,6 +26,7 @@ import type {
   DebugReadout,
   EventMap,
   EventName,
+  OverlayKind,
   OverlayState,
   Page
 } from '../shared/ipc'
@@ -48,6 +49,7 @@ import { refForToday } from '../shared/prayer/due'
 import { type PrayerId, nextEvent } from '../shared/prayer/schedule'
 import {
   forcedLockPlan,
+  lockDelayMinutesFor,
   lockPlanFor,
   machineConfigOf,
   reminderMinutesFor
@@ -183,11 +185,12 @@ export class WaqtiCore {
     const raw = this.repo.getMeta(LOCK_MARKER)
     if (!raw) return
     try {
-      const ref = JSON.parse(raw) as PrayerRef
+      // Markers written before refs carried `adhanAt` only have `at`.
+      const ref = JSON.parse(raw) as Omit<PrayerRef, 'adhanAt'> & { adhanAt?: number }
       this.repo.logPrayer({
         prayer: ref.prayer,
         day: ref.day,
-        scheduledAt: ref.at,
+        scheduledAt: ref.adhanAt ?? ref.at,
         outcome: 'ended',
         reason: 'interrupted',
         snoozed: false,
@@ -317,6 +320,14 @@ export class WaqtiCore {
             ref: e.ref,
             minutesBefore: e.minutesBefore
           })
+        } else if (e.kind === 'adhan') {
+          this.dispatch({
+            type: 'ADHAN_DUE',
+            now,
+            ref: e.ref,
+            locks: lockPlanFor(s, e.ref.prayer, e.ref.isJumuah) !== null,
+            chime: s.chime
+          })
         } else {
           this.dispatch({
             type: 'PRAYER_DUE',
@@ -392,6 +403,9 @@ export class WaqtiCore {
       case 'hideLock':
         this.overlays.hideLock()
         this.repo.deleteMeta(LOCK_MARKER)
+        return
+      case 'showAdhan':
+        this.overlays.showAdhan(e.adhan)
         return
       case 'showGuard':
         this.overlays.showGuard(e.guard)
@@ -657,21 +671,19 @@ export class WaqtiCore {
     }
   }
 
-  overlayState(kind: 'lock' | 'guard', primary: boolean): OverlayState {
+  overlayState(kind: OverlayKind, primary: boolean): OverlayState {
     const b = this.scheduler.bundle()
     const now = this.clock.now()
     const sky = b ? skyAt(b.today, now) : { period: 'day' as const, colors: PALETTES.day }
+    const lock = this.overlays.lockView
+    const guard = this.overlays.guardView
+    const adhan = this.overlays.adhanView
+    const shown = { lock, guard, adhan }[kind]
     return {
-      kind:
-        kind === 'lock'
-          ? this.overlays.lockView
-            ? 'lock'
-            : 'none'
-          : this.overlays.guardView
-            ? 'guard'
-            : 'none',
-      lock: this.overlays.lockView,
-      guard: this.overlays.guardView,
+      kind: shown ? kind : 'none',
+      lock,
+      guard,
+      adhan,
       sky: { ...sky.colors, period: sky.period },
       clockOffsetMs: this.clock.offsetMs,
       digits: this.s.general.digits,
@@ -722,6 +734,19 @@ export class WaqtiCore {
     })
   }
 
+  /** Shows the adhan notice now, with the lock time this prayer would get. */
+  simulateAdhan(prayer: PrayerId): void {
+    const b = this.scheduler.bundle()
+    if (!b) return
+    const now = this.clock.now()
+    const s = this.s
+    const isJumuah = prayer === 'dhuhr' && b.today.isFriday
+    const locks = lockPlanFor(s, prayer, isJumuah) !== null
+    const delay = locks ? lockDelayMinutesFor(s, prayer, isJumuah, b.today.isRamadan) : 0
+    const ref = { ...refForToday(b.today, prayer, now), at: now + delay * MINUTE }
+    this.dispatch({ type: 'ADHAN_DUE', now, ref, locks, chime: s.chime })
+  }
+
   simulatePreReminder(prayer: PrayerId): void {
     const b = this.scheduler.bundle()
     if (!b) return
@@ -738,15 +763,29 @@ export class WaqtiCore {
     this.markDirty()
   }
 
-  /** Moves the scheduler clock to `minutes` before (negative: after) the prayer's next occurrence. */
+  /**
+   * Moves the scheduler clock to `minutes` before the prayer's next adhan or,
+   * when negative, that many minutes after today's lock time (the iqama), which
+   * is where the startup offer applies.
+   */
   jumpBefore(prayer: PrayerId, minutes: number): void {
     const b = this.scheduler.bundle()
     if (!b) return
     const now = this.clock.now()
+    if (minutes < 0) {
+      const s = this.s
+      const isJumuah = prayer === 'dhuhr' && b.today.isFriday
+      const delay =
+        lockPlanFor(s, prayer, isJumuah) !== null
+          ? lockDelayMinutesFor(s, prayer, isJumuah, b.today.isRamadan)
+          : 0
+      const target = b.today.times[prayer] + (delay - minutes) * MINUTE
+      this.setOffset(target - Date.now())
+      return
+    }
     let at = b.today.times[prayer]
-    if (at - minutes * MINUTE <= now && minutes >= 0) at = b.tomorrow.times[prayer]
-    const target = at - minutes * MINUTE
-    this.setOffset(target - Date.now())
+    if (at - minutes * MINUTE <= now) at = b.tomorrow.times[prayer]
+    this.setOffset(at - minutes * MINUTE - Date.now())
   }
 
   simulateStartup(): void {

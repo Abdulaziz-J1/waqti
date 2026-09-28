@@ -134,12 +134,22 @@ describe('scheduler', () => {
     const start = new Date('2026-09-27T15:00:00+03:00').getTime()
     const sch = new Scheduler(() => settings, start)
     const asr = sch.bundle()!.today.times.asr
-    let seen = 0
-    for (let t = start + SECOND; t <= asr + 2 * SECOND; t += SECOND) {
+    const seen = { adhan: 0, prayer: 0 }
+    // The adhan notice at the adhan, the lock at the iqama 20 minutes later: each once.
+    for (let t = start + SECOND; t <= asr + 20 * MINUTE + 2 * SECOND; t += SECOND) {
       const r = sch.tick(t)
-      if (r.kind === 'due') seen += r.events.filter((e) => e.kind === 'prayer').length
+      if (r.kind !== 'due') continue
+      for (const e of r.events) {
+        if (e.kind === 'adhan') {
+          seen.adhan++
+          expect(t).toBeGreaterThanOrEqual(asr)
+        } else if (e.kind === 'prayer') {
+          seen.prayer++
+          expect(t).toBeGreaterThanOrEqual(asr + 20 * MINUTE)
+        }
+      }
     }
-    expect(seen).toBe(1)
+    expect(seen).toEqual({ adhan: 1, prayer: 1 })
     const nextDay = new Date('2026-09-28T00:00:01+03:00').getTime()
     sch.reset(nextDay - 2000)
     sch.tick(nextDay)
@@ -154,7 +164,10 @@ describe('scheduler', () => {
     if (r.kind === 'gap') expect(r.missed.map((m) => m.ref.prayer)).toEqual(['asr'])
     const missed = sch.resume(start, start + 5 * 60 * MINUTE)
     expect(missed.map((m) => m.ref.prayer)).toEqual(['asr', 'maghrib'])
-    expect(sch.recent(sch.bundle()!.today.times.asr + MINUTE, 10 * MINUTE)?.ref.prayer).toBe('asr')
+    // The startup offer counts from the lock time (the iqama, 20 minutes after the adhan).
+    const asr = sch.bundle()!.today.times.asr
+    expect(sch.recent(asr + MINUTE, 10 * MINUTE)).toBeNull()
+    expect(sch.recent(asr + 21 * MINUTE, 10 * MINUTE)?.ref.prayer).toBe('asr')
   })
 
   it('follows city changes and reports schedule errors', () => {

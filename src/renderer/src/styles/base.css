@@ -147,10 +147,11 @@ bdi,
   animation-play-state: paused !important;
 }
 
-/* Reduced motion (OS setting or the in-app تقليل الحركة): keep state feedback, drop decoration. */
-:root[data-reduce-motion] *,
-:root[data-reduce-motion] *::before,
-:root[data-reduce-motion] *::after {
+/* Reduced motion (OS setting or the in-app تقليل الحركة): keep state feedback, drop decoration.
+   .motion-essential keeps its timing: the lock's breathing guide and the adhan notice's timer. */
+:root[data-reduce-motion] *:not(.motion-essential),
+:root[data-reduce-motion] *:not(.motion-essential)::before,
+:root[data-reduce-motion] *:not(.motion-essential)::after {
   animation-duration: 0.001ms !important;
   animation-iteration-count: 1 !important;
   scroll-behavior: auto !important;

@@ -6,6 +6,7 @@ import {
   coordsOf,
   forcedLockPlan,
   locationLabel,
+  lockDelayMinutesFor,
   lockPlanFor,
   machineConfigOf,
   reminderMinutesFor
@@ -19,7 +20,11 @@ describe('settings schema', () => {
     expect(s.onboarded).toBe(false)
     expect(s.location).toEqual({ kind: 'city', cityId: 'riyadh' })
     expect(s.prayers.maghrib.lockMinutes).toBe(10)
-    expect(s.prayers.asr).toEqual({ lock: true, lockMinutes: 15, adjust: 0 })
+    expect(s.prayers.asr).toEqual({ lock: true, lockMinutes: 15, lockDelayMinutes: 20, adjust: 0 })
+    expect(s.prayers.fajr.lockDelayMinutes).toBe(25)
+    expect(s.prayers.maghrib.lockDelayMinutes).toBe(10)
+    expect(s.ramadanLockDelay).toEqual({ fajr: 20, maghrib: 15 })
+    expect(s.adhanNotice).toBe(true)
     expect(s.reminderMinutes).toBe(10)
     expect(s.friday).toEqual({ lock: true, reminderMinutes: 45, lockMinutes: 40 })
     expect(s.minUnlockMinutes).toBe(5)
@@ -40,7 +45,7 @@ describe('settings schema', () => {
     })
     expect(s.reminderMinutes).toBe(10)
     expect(s.minUnlockMinutes).toBe(5)
-    expect(s.prayers.fajr).toEqual({ lock: true, lockMinutes: 15, adjust: 0 })
+    expect(s.prayers.fajr).toEqual({ lock: true, lockMinutes: 15, lockDelayMinutes: 25, adjust: 0 })
     expect(s.general.digits).toBe('arab')
     expect(s.location).toEqual({ kind: 'city', cityId: 'riyadh' })
     expect(s.tracking.retentionDays).toBe(365)
@@ -53,7 +58,7 @@ describe('settings schema', () => {
       distractions: { apps: ['steam.exe'] },
       location: { kind: 'custom', lat: 21.5, lng: 39.2 }
     })
-    expect(s.prayers.asr).toEqual({ lock: true, lockMinutes: 20, adjust: 0 })
+    expect(s.prayers.asr).toEqual({ lock: true, lockMinutes: 20, lockDelayMinutes: 20, adjust: 0 })
     expect(s.prayers.fajr).toEqual(base.prayers.fajr)
     expect(s.distractions.apps).toEqual(['steam.exe'])
     expect(s.distractions.sites).toEqual(base.distractions.sites)
@@ -136,6 +141,25 @@ describe('plan resolution', () => {
     expect(lockPlanFor(off, 'dhuhr', true)).toBeNull()
     expect(forcedLockPlan(off, 'asr', false).lockMs).toBe(15 * MINUTE)
     expect(forcedLockPlan(s, 'maghrib', false).lockMs).toBe(10 * MINUTE)
+  })
+
+  it('resolves the lock delay after the adhan, with Ramadan and Friday rules', () => {
+    expect(lockDelayMinutesFor(s, 'dhuhr', false, false)).toBe(20)
+    expect(lockDelayMinutesFor(s, 'fajr', false, false)).toBe(25)
+    expect(lockDelayMinutesFor(s, 'fajr', false, true)).toBe(20)
+    expect(lockDelayMinutesFor(s, 'maghrib', false, true)).toBe(15)
+    expect(lockDelayMinutesFor(s, 'isha', false, true)).toBe(20)
+    expect(lockDelayMinutesFor(s, 'dhuhr', true, false)).toBe(0)
+    const custom = applyPatch(s, {
+      prayers: { asr: { lockDelayMinutes: 5 } },
+      ramadanLockDelay: { fajr: 10 }
+    })
+    expect(lockDelayMinutesFor(custom, 'asr', false, false)).toBe(5)
+    expect(lockDelayMinutesFor(custom, 'fajr', false, true)).toBe(10)
+    // Out of range falls back to the default.
+    expect(
+      applyPatch(s, { prayers: { asr: { lockDelayMinutes: 90 } } }).prayers.asr.lockDelayMinutes
+    ).toBe(20)
   })
 
   it('resolves reminders, adjustments and machine config', () => {

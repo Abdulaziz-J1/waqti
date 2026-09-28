@@ -32,7 +32,7 @@
 .head,
 .row {
   display: grid;
-  grid-template-columns: minmax(170px, 1.3fr) 90px minmax(170px, 1fr) minmax(170px, 1fr);
+  grid-template-columns: minmax(140px, 1.2fr) 80px repeat(3, minmax(150px, 1fr));
   align-items: center;
   gap: var(--sp-4);
 }
@@ -123,6 +123,45 @@
   padding-inline: var(--sp-3);
   color: var(--text-3);
   font-size: var(--fs-small);
+  line-height: 1.8;
+}
+
+/* A setting that cannot change here, shown where its stepper would be. */
+.fixed {
+  display: inline-block;
+  padding-inline: var(--sp-3);
+  color: var(--text-2);
+  font-weight: 500;
+}
+
+.ramadan {
+  margin-block-start: var(--sp-4);
+  padding-block-start: var(--sp-4);
+  padding-inline: var(--sp-3);
+  border-block-start: 1px solid var(--border);
+}
+
+.ramadanHead {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.ramadanTitle {
+  font-size: var(--fs-h3);
+  color: var(--text-1);
+}
+
+.ramadanLead {
+  margin-block: var(--sp-1) var(--sp-2);
+  color: var(--text-3);
+  font-size: var(--fs-small);
+}
+
+.ramadanRows {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--sp-7);
 }
 
 .lead {

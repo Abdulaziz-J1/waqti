@@ -33,6 +33,23 @@ export function lockPlanFor(s: Settings, prayer: PrayerId, isJumuah: boolean): L
   return { lockMs: p.lockMinutes * MINUTE, minUnlockMs, chime: s.chime }
 }
 
+/**
+ * Minutes from the adhan to the lock (the iqama). Ramadan has its own values
+ * for Fajr and Maghrib; the Friday prayer locks with its adhan, as the khutbah
+ * starts then.
+ */
+export function lockDelayMinutesFor(
+  s: Settings,
+  prayer: PrayerId,
+  isJumuah: boolean,
+  isRamadan: boolean
+): number {
+  if (isJumuah) return 0
+  if (isRamadan && prayer === 'fajr') return s.ramadanLockDelay.fajr
+  if (isRamadan && prayer === 'maghrib') return s.ramadanLockDelay.maghrib
+  return s.prayers[prayer].lockDelayMinutes
+}
+
 /** Plan used by the debug "simulate prayer" action: the configured one, or a 15-minute default. */
 export function forcedLockPlan(s: Settings, prayer: PrayerId, isJumuah: boolean): LockPlan {
   return (
@@ -44,7 +61,7 @@ export function forcedLockPlan(s: Settings, prayer: PrayerId, isJumuah: boolean)
   )
 }
 
-/** Minutes before the prayer for the reminder toast; 0 = no reminder. */
+/** Minutes before the prayer's adhan for the reminder toast; 0 = no reminder. */
 export function reminderMinutesFor(s: Settings, isJumuah: boolean): number {
   return isJumuah ? s.friday.reminderMinutes : s.reminderMinutes
 }

@@ -8,7 +8,7 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { OverlayApp } from './overlay/OverlayApp'
 
 const kind = new URLSearchParams(window.location.search).get('kind')
-if (kind === 'guard') {
+if (kind === 'guard' || kind === 'adhan') {
   document.documentElement.style.background = 'transparent'
   document.body.style.background = 'transparent'
 }

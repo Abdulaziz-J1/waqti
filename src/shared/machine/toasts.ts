@@ -25,17 +25,11 @@ export function renderToast(spec: ToastSpec, digits: Digits): RenderedToast {
         action: 'open'
       }
     }
-    case 'prayerNow':
-      return {
-        title: toasts.prayerNowTitle,
-        body: toasts.prayerNowBody(prayerLabel(spec.ref)),
-        action: 'open'
-      }
     case 'meeting':
       return { title: toasts.meetingTitle, body: toasts.meetingBody, action: 'open' }
     case 'meetingFinal':
       return {
-        title: toasts.prayerNowTitle,
+        title: toasts.appTitle,
         body: toasts.meetingFinalBody(prayerLabel(spec.ref)),
         action: 'open'
       }

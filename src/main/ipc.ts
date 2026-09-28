@@ -6,7 +6,13 @@ import type { WaqtiCore } from './core'
 import { paths } from './paths'
 import { log } from './services/logger'
 import { isAppUrl } from './services/windows'
-import { type Channel, type RequestOf, type ResponseMap, requestSchemas } from '../shared/ipc'
+import {
+  type Channel,
+  type OverlayKind,
+  type RequestOf,
+  type ResponseMap,
+  requestSchemas
+} from '../shared/ipc'
 import { CHANNELS } from '../shared/ipc-channels'
 import { buildDaySchedule } from '../shared/prayer/schedule'
 import { coordsOf } from '../shared/settings/plan'
@@ -39,7 +45,7 @@ function readLicenses(): string {
 export function registerIpc(core: WaqtiCore): void {
   const winOf = (e: IpcMainInvokeEvent): BrowserWindow | null =>
     BrowserWindow.fromWebContents(e.sender)
-  const requireOverlay = (e: IpcMainInvokeEvent, kind: 'lock' | 'guard'): void => {
+  const requireOverlay = (e: IpcMainInvokeEvent, kind: OverlayKind): void => {
     if (core.overlays.kindOf(winOf(e))?.kind !== kind)
       throw new Error(`${kind} action from a non-${kind} window`)
   }
@@ -123,6 +129,11 @@ export function registerIpc(core: WaqtiCore): void {
       core.dispatch({ type: action === 'back' ? 'GUARD_BACK' : 'GUARD_SNOOZE', now })
       return null
     },
+    'adhan:close': (_req, e) => {
+      requireOverlay(e, 'adhan')
+      core.overlays.hideAdhan()
+      return null
+    },
     'overlay:state': (_req, e) => {
       const k = core.overlays.kindOf(winOf(e))
       if (!k) throw new Error('overlay:state from a non-overlay window')
@@ -192,6 +203,10 @@ export function registerIpc(core: WaqtiCore): void {
     },
     'debug:simulatePre': ({ prayer }) => {
       core.simulatePreReminder(prayer)
+      return null
+    },
+    'debug:simulateAdhan': ({ prayer }) => {
+      core.simulateAdhan(prayer)
       return null
     },
     'debug:setIdle': ({ on }) => {

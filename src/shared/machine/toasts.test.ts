@@ -3,8 +3,14 @@ import { prayerLabel, renderToast } from './toasts'
 import type { PrayerRef } from './types'
 import { MINUTE } from '../time'
 
-const ASR: PrayerRef = { prayer: 'asr', day: '2026-09-27', at: 0, isJumuah: false }
-const JUMUAH: PrayerRef = { prayer: 'dhuhr', day: '2026-10-02', at: 0, isJumuah: true }
+const ASR: PrayerRef = { prayer: 'asr', day: '2026-09-27', at: 0, adhanAt: 0, isJumuah: false }
+const JUMUAH: PrayerRef = {
+  prayer: 'dhuhr',
+  day: '2026-10-02',
+  at: 0,
+  adhanAt: 0,
+  isJumuah: true
+}
 
 describe('toasts', () => {
   it('renders the pre-reminder in Arabic', () => {
@@ -24,9 +30,6 @@ describe('toasts', () => {
   })
 
   it('renders every toast kind', () => {
-    expect(renderToast({ kind: 'prayerNow', ref: ASR }, 'arab').body).toBe(
-      'حان الآن وقت صلاة العصر'
-    )
     expect(renderToast({ kind: 'meeting', ref: ASR }, 'arab').body).toBe(
       'أنت في اجتماع الآن، بنذكّرك بعد ما تخلص'
     )
