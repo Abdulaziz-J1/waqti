@@ -25,10 +25,11 @@
   color: var(--text-on-sky-2);
 }
 
-/* Hero sits directly on the sky: no card. */
+/* Hero sits directly on the sky: no card. The extra space below lets the
+   night arc breathe before the cards start. */
 .hero {
   position: relative;
-  margin-block: calc(var(--sp-3) * -1) 0;
+  margin-block: calc(var(--sp-3) * -1) var(--sp-6);
 }
 
 .grid {

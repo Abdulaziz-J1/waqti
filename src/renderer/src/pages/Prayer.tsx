@@ -164,99 +164,102 @@ export function PrayerPage(): React.JSX.Element {
         )}
       </Panel>
 
-      <div className={s.grid}>
-        <Panel title={t.location} id="prayer-location">
-          <LocationPicker
-            value={settings.location}
-            onChange={(loc) => void updateSettings({ location: loc })}
-          />
-        </Panel>
+      {/* Two independent columns so short cards don't leave holes beside tall ones. */}
+      <div className={s.columns}>
+        <div className={s.column}>
+          <Panel title={t.location} id="prayer-location">
+            <LocationPicker
+              value={settings.location}
+              onChange={(loc) => void updateSettings({ location: loc })}
+            />
+          </Panel>
 
-        <Panel title={t.friday} id="prayer-friday">
-          <p className={s.lead}>{t.fridayLead}</p>
-          <Toggle
-            label={t.lock}
-            checked={settings.friday.lock}
-            onChange={(v) => void updateSettings({ friday: { lock: v } })}
-          />
-          <SettingRow label={t.fridayReminder}>
-            <Stepper
-              label={t.fridayReminder}
-              value={settings.friday.reminderMinutes}
-              min={0}
-              max={120}
-              step={5}
-              format={(v) => (v === 0 ? t.reminderOff : fmt.minutes(v))}
-              onChange={(v) => void updateSettings({ friday: { reminderMinutes: v } })}
+          <Panel title={t.reminders} id="prayer-reminders">
+            <SettingRow label={t.reminderBefore}>
+              <Stepper
+                label={t.reminderBefore}
+                value={settings.reminderMinutes}
+                min={0}
+                max={60}
+                step={5}
+                format={(v) => (v === 0 ? t.reminderOff : fmt.minutes(v))}
+                onChange={(v) => void updateSettings({ reminderMinutes: v })}
+              />
+            </SettingRow>
+            <Toggle
+              label={t.chime}
+              hint={t.chimeHint}
+              checked={settings.chime}
+              onChange={(v) => void updateSettings({ chime: v })}
             />
-          </SettingRow>
-          <SettingRow label={t.fridayLock}>
-            <Stepper
-              label={t.fridayLock}
-              value={settings.friday.lockMinutes}
-              min={5}
-              max={60}
-              step={5}
-              format={(v) => fmt.minutes(v)}
-              onChange={(v) => void updateSettings({ friday: { lockMinutes: v } })}
-            />
-          </SettingRow>
-        </Panel>
-      </div>
-
-      <div className={s.grid}>
-        <Panel title={t.reminders} id="prayer-reminders">
-          <SettingRow label={t.reminderBefore}>
-            <Stepper
-              label={t.reminderBefore}
-              value={settings.reminderMinutes}
-              min={0}
-              max={60}
-              step={5}
-              format={(v) => (v === 0 ? t.reminderOff : fmt.minutes(v))}
-              onChange={(v) => void updateSettings({ reminderMinutes: v })}
-            />
-          </SettingRow>
-          <Toggle
-            label={t.chime}
-            hint={t.chimeHint}
-            checked={settings.chime}
-            onChange={(v) => void updateSettings({ chime: v })}
-          />
-          <div className={s.sliderRow}>
-            <div className={s.sliderLabel}>
-              <span>{t.minUnlock}</span>
-              <span className={`${s.sliderValue} num`}>
-                {settings.minUnlockMinutes === 0
-                  ? t.immediately
-                  : fmt.minutes(settings.minUnlockMinutes)}
-              </span>
+            <div className={s.sliderRow}>
+              <div className={s.sliderLabel}>
+                <span>{t.minUnlock}</span>
+                <span className={`${s.sliderValue} num`}>
+                  {settings.minUnlockMinutes === 0
+                    ? t.immediately
+                    : fmt.minutes(settings.minUnlockMinutes)}
+                </span>
+              </div>
+              <Slider
+                label={t.minUnlock}
+                value={settings.minUnlockMinutes}
+                min={0}
+                max={15}
+                valueText={(v) => (v === 0 ? t.immediately : fmt.minutes(v))}
+                onChange={(v) => void updateSettings({ minUnlockMinutes: v })}
+              />
             </div>
-            <Slider
-              label={t.minUnlock}
-              value={settings.minUnlockMinutes}
-              min={0}
-              max={15}
-              valueText={(v) => (v === 0 ? t.immediately : fmt.minutes(v))}
-              onChange={(v) => void updateSettings({ minUnlockMinutes: v })}
-            />
-          </div>
-        </Panel>
+          </Panel>
+        </div>
 
-        <Panel title={t.smart} id="prayer-smart">
-          <Toggle
-            label={t.skipAway}
-            hint={t.skipAwayHint}
-            checked={settings.smart.skipWhenAway}
-            onChange={(v) => void updateSettings({ smart: { skipWhenAway: v } })}
-          />
-          <Toggle
-            label={t.deferMeetings}
-            hint={t.deferMeetingsHint}
-            checked={settings.smart.deferInMeetings}
-            onChange={(v) => void updateSettings({ smart: { deferInMeetings: v } })}
-          />
-        </Panel>
+        <div className={s.column}>
+          <Panel title={t.friday} id="prayer-friday">
+            <p className={s.lead}>{t.fridayLead}</p>
+            <Toggle
+              label={t.lock}
+              checked={settings.friday.lock}
+              onChange={(v) => void updateSettings({ friday: { lock: v } })}
+            />
+            <SettingRow label={t.fridayReminder}>
+              <Stepper
+                label={t.fridayReminder}
+                value={settings.friday.reminderMinutes}
+                min={0}
+                max={120}
+                step={5}
+                format={(v) => (v === 0 ? t.reminderOff : fmt.minutes(v))}
+                onChange={(v) => void updateSettings({ friday: { reminderMinutes: v } })}
+              />
+            </SettingRow>
+            <SettingRow label={t.fridayLock}>
+              <Stepper
+                label={t.fridayLock}
+                value={settings.friday.lockMinutes}
+                min={5}
+                max={60}
+                step={5}
+                format={(v) => fmt.minutes(v)}
+                onChange={(v) => void updateSettings({ friday: { lockMinutes: v } })}
+              />
+            </SettingRow>
+          </Panel>
+
+          <Panel title={t.smart} id="prayer-smart">
+            <Toggle
+              label={t.skipAway}
+              hint={t.skipAwayHint}
+              checked={settings.smart.skipWhenAway}
+              onChange={(v) => void updateSettings({ smart: { skipWhenAway: v } })}
+            />
+            <Toggle
+              label={t.deferMeetings}
+              hint={t.deferMeetingsHint}
+              checked={settings.smart.deferInMeetings}
+              onChange={(v) => void updateSettings({ smart: { deferInMeetings: v } })}
+            />
+          </Panel>
+        </div>
       </div>
 
       <Panel title={t.history} id="prayer-history">
