@@ -1,4 +1,5 @@
-import { resolve } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { join, resolve } from 'node:path'
 import { defineConfig } from 'electron-vite'
 import react from '@vitejs/plugin-react'
 import type { Plugin } from 'vite'
@@ -43,6 +44,51 @@ function cspPlugin(isDev: boolean): Plugin {
   }
 }
 
+const THMANYAH_DIR = resolve(__dirname, 'fonts/thmanyah')
+const THMANYAH_FACES = [
+  { file: 'thmanyahsans-Regular.woff2', weight: 400 },
+  { file: 'thmanyahsans-Medium.woff2', weight: 500 },
+  { file: 'thmanyahsans-Bold.woff2', weight: 700 }
+]
+
+/**
+ * Serves `virtual:thmanyah.css`: the @font-face rules for Thmanyah Sans with
+ * the font files inlined as data URIs. The thmanyah Font License allows the
+ * font only inside a compiled, packaged product and never as files a user can
+ * pull out, and it forbids redistributing them, so the files live outside git
+ * (`npm run fonts`) and never ship as separate assets. When they are missing
+ * (a fresh clone) the module is empty and the bundled OFL fonts take over.
+ */
+function thmanyahPlugin(): Plugin {
+  const id = 'virtual:thmanyah.css'
+  const resolvedId = `\0${id}`
+  return {
+    name: 'waqti-thmanyah',
+    resolveId(source) {
+      return source === id ? resolvedId : undefined
+    },
+    load(source) {
+      if (source !== resolvedId) return undefined
+      if (!THMANYAH_FACES.every((f) => existsSync(join(THMANYAH_DIR, f.file)))) {
+        this.warn(
+          'Thmanyah Sans is not in fonts/thmanyah (npm run fonts); using the bundled fonts.'
+        )
+        return ''
+      }
+      return THMANYAH_FACES.map((f) => {
+        const data = readFileSync(join(THMANYAH_DIR, f.file)).toString('base64')
+        return `@font-face {
+  font-family: 'Thmanyah Sans';
+  font-style: normal;
+  font-display: block;
+  font-weight: ${f.weight};
+  src: url(data:font/woff2;base64,${data}) format('woff2');
+}`
+      }).join('\n')
+    }
+  }
+}
+
 export default defineConfig(({ command }) => ({
   main: {
     resolve: { alias },
@@ -63,7 +109,7 @@ export default defineConfig(({ command }) => ({
   renderer: {
     root: resolve(__dirname, 'src/renderer'),
     resolve: { alias },
-    plugins: [react(), cspPlugin(command === 'serve')],
+    plugins: [react(), cspPlugin(command === 'serve'), thmanyahPlugin()],
     build: {
       target: 'chrome140',
       assetsInlineLimit: 0,

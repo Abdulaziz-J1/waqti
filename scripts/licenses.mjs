@@ -1,7 +1,8 @@
 // Writes THIRD_PARTY_LICENSES: the licence of every package that ships with
 // Waqti — runtime dependencies (packaged in node_modules), everything bundled
 // into the renderer (React, Motion, Recharts, Lucide and their dependencies),
-// the two fonts (SIL OFL 1.1) and Electron itself. Run: npm run licenses
+// the fallback fonts (SIL OFL 1.1), Electron itself, and a notice for the
+// interface font, Thmanyah Sans (thmanyah Font License). Run: npm run licenses
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -75,8 +76,15 @@ Waqti itself is released under the MIT License (see LICENSE).
 It includes the following third-party software. Electron also ships
 Chromium's licences in LICENSES.chromium.html next to Waqti.exe.
 
-Fonts: Noto Kufi Arabic and IBM Plex Sans Arabic are licensed under the
-SIL Open Font License 1.1 (full text included below with each package).
+Fonts: the interface font, Thmanyah Sans, is Copyright (c) thmanyah
+Publishing and Distribution (https://thmanyah.com), with Reserved Font Name
+"thmanyah", and is used under the thmanyah Font License
+(https://font.thmanyah.com/licenses). It is embedded in this application
+only; it is not licensed for extraction, reuse or redistribution, and may
+only be obtained from https://font.thmanyah.com.
+The fallback fonts, Noto Kufi Arabic and IBM Plex Sans Arabic, are licensed
+under the SIL Open Font License 1.1 (full text included below with each
+package).
 
 ${entries.map((e) => `- ${e.name} ${e.version} (${e.license})`).join('\n')}
 `

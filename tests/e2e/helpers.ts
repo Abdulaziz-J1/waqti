@@ -1,7 +1,12 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { _electron as electron, type ElectronApplication, type Page } from '@playwright/test'
+import {
+  _electron as electron,
+  expect,
+  type ElectronApplication,
+  type Page
+} from '@playwright/test'
 import type { Channel, RequestOf, ResponseMap, WaqtiApi } from '../../src/shared/ipc'
 
 export interface Launched {
@@ -22,6 +27,26 @@ export async function launch(
   })
   const win = await app.firstWindow()
   return { app, win, dataDir: dir }
+}
+
+/**
+ * Resolves once the overlay window behind `page` is on screen. Overlays are
+ * created hidden and shown (and focused) after their first paint; a press
+ * that starts earlier races that focus change, which cancels a press-and-hold,
+ * and a real user cannot press a window before it appears anyway.
+ */
+export async function shown(app: ElectronApplication, page: Page): Promise<Page> {
+  const url = page.url()
+  await expect
+    .poll(() =>
+      app.evaluate(
+        ({ BrowserWindow }, u) =>
+          BrowserWindow.getAllWindows().some((w) => w.webContents.getURL() === u && w.isVisible()),
+        url
+      )
+    )
+    .toBe(true)
+  return page
 }
 
 /** Calls the typed IPC bridge from the page. */

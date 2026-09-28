@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { test, type Page } from '@playwright/test'
-import { invoke, launch } from './helpers'
+import { invoke, launch, shown } from './helpers'
 
 const OUT = path.resolve('docs/screenshots')
 
@@ -51,7 +51,7 @@ for (const [period, hh, mm] of [
     // Lock overlay (its own window, full display)
     const lockWin = app.waitForEvent('window', { predicate: (w) => w.url().includes('kind=lock') })
     await invoke(win, 'debug:simulatePrayer', { prayer: period === 'day' ? 'asr' : 'isha' })
-    const overlay = await lockWin
+    const overlay = await shown(app, await lockWin)
     await overlay.setViewportSize({ width: 1280, height: 820 })
     await shot(overlay, `${period}-lock.png`)
     await app.close()

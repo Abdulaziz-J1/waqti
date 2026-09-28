@@ -9,3 +9,5 @@ playwright-report/
 .DS_Store
 Thumbs.db
 .vite/
+# Thmanyah Sans: its licence forbids redistributing the files (npm run fonts)
+fonts/

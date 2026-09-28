@@ -1,13 +1,12 @@
 import path from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
-import { invoke, launch } from './helpers'
+import { invoke, launch, shown } from './helpers'
 
 const SHOTS = process.env['SHOT_DIR']
 
 async function overlayWindow(app: Awaited<ReturnType<typeof launch>>['app']): Promise<Page> {
-  const existing = app.windows().find((w) => w.url().includes('overlay.html'))
-  if (existing) return existing
-  return app.waitForEvent('window', { predicate: (w) => w.url().includes('overlay.html') })
+  const match = (w: Page): boolean => w.url().includes('overlay.html')
+  return shown(app, app.windows().find(match) ?? (await app.waitForEvent('window', match)))
 }
 
 test('prayer lock: overlay appears on simulate and the emergency exit closes it', async () => {

@@ -23,6 +23,9 @@ html {
   text-rendering: optimizeLegibility;
   /* Arabic joining breaks with letter-spacing; italics are never used. */
   letter-spacing: normal;
+  /* Thmanyah Sans's final ر sweeps into the following space; a touch of word
+     spacing keeps «سبتمبر ٢٠٢٦» from reading as one word. */
+  word-spacing: 0.08em;
   font-style: normal;
   overflow: hidden;
   user-select: none;

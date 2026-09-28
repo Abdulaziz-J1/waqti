@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
-import { invoke, launch } from './helpers'
+import { invoke, launch, shown } from './helpers'
 
 const SHOTS = process.env['SHOT_DIR']
 
@@ -9,7 +9,7 @@ async function overlay(
   kind: 'guard' | 'lock'
 ): Promise<Page> {
   const match = (w: Page): boolean => w.url().includes(`kind=${kind}`)
-  return app.windows().find(match) ?? app.waitForEvent('window', { predicate: match })
+  return shown(app, app.windows().find(match) ?? (await app.waitForEvent('window', match)))
 }
 
 test('focus session: guard, back to work, snooze, prayer pause and summary', async () => {

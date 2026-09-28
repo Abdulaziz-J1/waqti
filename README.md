@@ -69,6 +69,8 @@ npm install
 npm run dev
 ```
 
+**الخط:** الواجهة بخط ثمانية (Thmanyah Sans). ترخيصه يمنع إعادة توزيع ملفاته، فهي مو موجودة في المستودع. نزّله من [font.thmanyah.com](https://font.thmanyah.com) لمجلد التنزيلات، وبعدين شغّل `npm run fonts` مرة وحدة. بدونه يشتغل التطبيق بالخطوط الاحتياطية، لكن `npm run dist` يرفض يبني المثبّت.
+
 | الأمر                                | الوظيفة                                    |
 | ------------------------------------ | ------------------------------------------ |
 | `npm run dev`                        | تشغيل التطبيق للتطوير                      |
@@ -91,7 +93,7 @@ npm run dev
 
 ## الترخيص
 
-MIT — انظر [LICENSE](LICENSE). الخطوط (Noto Kufi Arabic وIBM Plex Sans Arabic) بترخيص SIL OFL 1.1، وتراخيص كل المكتبات في [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
+MIT — انظر [LICENSE](LICENSE). خط الواجهة «خط ثمانية» © ثمانية للنشر والتوزيع، مستخدم حسب [ترخيص خط ثمانية](https://font.thmanyah.com/licenses)، وهو مضمّن داخل التطبيق ومو مرخّص لاستخراجه أو إعادة توزيعه. الخطوط الاحتياطية (Noto Kufi Arabic وIBM Plex Sans Arabic) بترخيص SIL OFL 1.1، وتراخيص كل المكتبات في [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
 
 </div>
 
@@ -130,6 +132,8 @@ npm install
 npm run dev
 ```
 
+**Font:** the interface uses Thmanyah Sans. Its licence forbids redistributing the font files, so they are not in the repository: download the family from [font.thmanyah.com](https://font.thmanyah.com) into your Downloads folder and run `npm run fonts` once (or `npm run fonts -- path/to/Thmanyah-Font-Family.zip`). The build inlines the fonts into the CSS bundle, so they never ship as separate files. Without them the app runs on the bundled fallback fonts, and `npm run dist` refuses to build.
+
 `npm run dist` builds the installer at `dist/Waqti-Setup-1.0.0.exe`. Other scripts: `typecheck`, `lint`, `test` (Vitest with a coverage gate), `test:e2e` (Playwright driving the real Electron app), `bench`, `perf`, `screenshots`.
 
 Documentation: [ARCHITECTURE.md](ARCHITECTURE.md) (processes, the lock/focus state machine with Mermaid diagrams, data model), [DECISIONS.md](DECISIONS.md) (design decisions, in Arabic), [TESTING.md](TESTING.md) (manual test checklist, in Arabic), [PROGRESS.md](PROGRESS.md) (build log and measured performance).
@@ -145,4 +149,4 @@ Documentation: [ARCHITECTURE.md](ARCHITECTURE.md) (processes, the lock/focus sta
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Fonts are under the SIL Open Font License 1.1; all third-party licences are in [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
+MIT — see [LICENSE](LICENSE). The interface font, Thmanyah Sans, is © thmanyah Publishing and Distribution and used under the [thmanyah Font License](https://font.thmanyah.com/licenses); it is embedded in the application and is not licensed for extraction or redistribution. The fallback fonts (Noto Kufi Arabic, IBM Plex Sans Arabic) are under the SIL Open Font License 1.1; all third-party licences are in [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).

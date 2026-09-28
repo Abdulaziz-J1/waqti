@@ -32,9 +32,11 @@
   /* Category colours: src/shared/palette.ts (validated for both tones) */
   --cat-other: #4a3aa7;
 
-  /* Type */
-  --font-display: 'Noto Kufi Arabic', 'IBM Plex Sans Arabic', 'Segoe UI', system-ui, sans-serif;
-  --font-body: 'IBM Plex Sans Arabic', 'Segoe UI', system-ui, sans-serif;
+  /* Type: Thmanyah Sans everywhere; the OFL fonts cover the few glyphs it lacks
+     (٫ ٬) and stand in when it is not installed (see fonts.css). */
+  --font-display:
+    'Thmanyah Sans', 'Noto Kufi Arabic', 'IBM Plex Sans Arabic', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Thmanyah Sans', 'IBM Plex Sans Arabic', 'Segoe UI', system-ui, sans-serif;
   --fs-display: 56px;
   --fs-h1: 28px;
   --fs-h2: 20px;

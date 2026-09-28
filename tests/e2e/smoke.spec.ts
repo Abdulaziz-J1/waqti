@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { invoke, launch, readLog } from './helpers'
+import { invoke, launch, readLog, shown } from './helpers'
 
 /**
  * Smoke test: the app launches, onboarding completes, Today shows the
@@ -34,7 +34,7 @@ test('smoke: onboarding → Today → debug simulate → lock → emergency exit
     predicate: (w) => w.url().includes('kind=lock')
   })
   await win.locator('[data-testid="debug-simulate-prayer"]').click()
-  const overlay = await overlayPromise
+  const overlay = await shown(app, await overlayPromise)
   await expect(overlay.locator('h1')).toContainText('حان الآن وقت صلاة')
 
   // Emergency exit: hold for three seconds.
