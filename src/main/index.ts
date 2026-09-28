@@ -59,7 +59,10 @@ function startPerfLog(): void {
 if (!app.requestSingleInstanceLock()) {
   app.quit()
 } else {
-  app.setAppUserModelId(APP_ID)
+  // Windows takes the taskbar icon from the Start Menu shortcut registered for
+  // this ID. Unpackaged runs (npm run dev, E2E) use their own ID so a shortcut
+  // left behind for node_modules' electron.exe never stands in for the installed app.
+  app.setAppUserModelId(app.isPackaged ? APP_ID : `${APP_ID}.dev`)
   app.on('second-instance', () => core?.showWindow())
 
   void app.whenReady().then(() => {
