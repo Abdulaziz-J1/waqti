@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { useState } from 'react'
-import { ARC, arcMarkers, arcPointAt, dayPath, nightPath } from '@shared/arc'
+import { ARC, arcMarkers, arcPointAt, dayPath, dayProgressPath, nightPath } from '@shared/arc'
 import type { ScheduleBundle } from '@shared/ipc'
 import type { SlotId } from '@shared/prayer/schedule'
 import { prayerNames, today as t } from '@shared/strings'
@@ -89,16 +89,17 @@ export function SkyArc({ bundle, now, nextSlot, entrance }: SkyArcProps): React.
           animate={{ pathLength: 1 }}
           transition={{ duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
         />
-        <motion.path
-          d={dayPath()}
-          className={s.progress}
-          stroke="url(#arc-progress)"
-          initial={{ pathLength: entrance ? 0 : dayProgress }}
-          animate={{ pathLength: dayProgress }}
-          transition={
-            entrance ? { duration: 1.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] } : spring.slow
-          }
-        />
+        {/* The travelled part ends exactly where the sun is (its own arc, not a length fraction). */}
+        {dayProgress > 0 ? (
+          <motion.path
+            d={dayProgressPath(dayProgress)}
+            className={s.progress}
+            stroke="url(#arc-progress)"
+            initial={entrance ? { pathLength: 0 } : false}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 1.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          />
+        ) : null}
 
         {/* Sun or moon */}
         <motion.g

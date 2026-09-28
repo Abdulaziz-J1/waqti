@@ -75,6 +75,19 @@ export function dayPath(g: ArcGeometry = ARC): string {
   return `M ${g.cx + g.rx} ${g.cy} A ${g.rx} ${g.ryDay} 0 0 0 ${g.cx - g.rx} ${g.cy}`
 }
 
+/**
+ * The travelled part of the day arc: from sunrise to the sun's position at
+ * `t`. It is drawn as its own elliptical arc ending exactly at
+ * `pointOnArc('day', t)`, so it always meets the sun. (Using a length fraction
+ * of the full arc would drift ahead of or behind the sun, because equal time
+ * steps are equal angles on an ellipse, not equal lengths.)
+ */
+export function dayProgressPath(t: number, g: ArcGeometry = ARC): string {
+  if (!(t > 0)) return ''
+  const end = pointOnArc('day', t, g)
+  return `M ${g.cx + g.rx} ${g.cy} A ${g.rx} ${g.ryDay} 0 0 0 ${end.x} ${end.y}`
+}
+
 /** SVG path for the night arc (left to right under the horizon). */
 export function nightPath(g: ArcGeometry = ARC): string {
   return `M ${g.cx - g.rx} ${g.cy} A ${g.rx} ${g.ryNight} 0 0 0 ${g.cx + g.rx} ${g.cy}`

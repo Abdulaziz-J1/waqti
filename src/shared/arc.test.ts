@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ARC, arcMarkers, arcPointAt, dayPath, nightPath, pointOnArc } from './arc'
+import { ARC, arcMarkers, arcPointAt, dayPath, dayProgressPath, nightPath, pointOnArc } from './arc'
 import { schedulesAround } from './prayer/schedule'
 import { MINUTE } from './time'
 
@@ -43,6 +43,22 @@ describe('sky arc geometry', () => {
     expect(m['maghrib']!.x).toBeLessThan(m['asr']!.x)
     expect(m['isha']!.phase).toBe('night')
     expect(m['isha']!.x).toBeLessThan(ARC.cx)
+  })
+
+  it('ends the travelled arc exactly at the sun', () => {
+    for (const t of [0.1, 0.4, 0.5, 0.73, 0.95]) {
+      const sun = pointOnArc('day', t)
+      const path = dayProgressPath(t)
+      const [x, y] = path.split(' ').slice(-2).map(Number)
+      expect(x).toBeCloseTo(sun.x, 6)
+      expect(y).toBeCloseTo(sun.y, 6)
+      expect(path.startsWith(`M ${ARC.cx + ARC.rx} ${ARC.cy} A ${ARC.rx} ${ARC.ryDay}`)).toBe(true)
+    }
+    expect(dayProgressPath(0)).toBe('')
+    expect(dayProgressPath(Number.NaN)).toBe('')
+    const [x1, y1] = dayProgressPath(1).split(' ').slice(-2).map(Number)
+    expect(x1).toBeCloseTo(ARC.cx - ARC.rx, 6)
+    expect(y1).toBeCloseTo(ARC.cy, 6)
   })
 
   it('builds the SVG paths', () => {
