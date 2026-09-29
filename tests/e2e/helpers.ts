@@ -25,6 +25,15 @@ function tenAmOffset(): string {
   return String(Math.round((target.getTime() - Date.now()) / 60_000) * 60_000)
 }
 
+/**
+ * WAQTI_E2E_EXE runs the suite against a packaged build (for example
+ * dist/win-unpacked/Waqti.exe) instead of the development Electron.
+ */
+export const PACKAGED_EXE = process.env['WAQTI_E2E_EXE'] ?? ''
+
+/** The AppUserModelID the app under test uses (src/main/index.ts). */
+export const TEST_APP_ID = PACKAGED_EXE ? 'com.waqti.desktop' : 'com.waqti.desktop.dev'
+
 /** Launches the built app with an isolated data folder and a pinned clock. */
 export async function launch(
   extraEnv: Record<string, string> = {},
@@ -32,7 +41,7 @@ export async function launch(
 ): Promise<Launched> {
   const dir = dataDir ?? fs.mkdtempSync(path.join(os.tmpdir(), 'waqti-e2e-'))
   const app = await electron.launch({
-    args: ['.'],
+    ...(PACKAGED_EXE ? { executablePath: PACKAGED_EXE, args: [] } : { args: ['.'] }),
     env: {
       ...process.env,
       WAQTI_USER_DATA: dir,

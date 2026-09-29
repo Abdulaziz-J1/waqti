@@ -37,6 +37,7 @@ export const CHANNELS = [
   'debug:simulatePrayer',
   'debug:simulatePre',
   'debug:simulateAdhan',
+  'debug:mediaSessions',
   'debug:setIdle',
   'debug:setMeeting',
   'debug:setOffset',

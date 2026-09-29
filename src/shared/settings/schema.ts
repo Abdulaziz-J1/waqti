@@ -63,6 +63,8 @@ export const settingsSchema = section({
     lockMinutes: int(5, 60, 40)
   }),
   chime: bool(true),
+  /** Pause whatever is playing (video, audio) when a lock starts. */
+  pauseMedia: bool(true),
   /** Minutes before "صلّيت" becomes available. */
   minUnlockMinutes: int(0, 15, 5),
   smart: section({

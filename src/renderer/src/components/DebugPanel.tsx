@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import type { DebugReadout } from '@shared/ipc'
+import { statusName } from '@shared/media'
 import { PRAYERS, type PrayerId } from '@shared/prayer/schedule'
 import { common, debug as t, prayerNames } from '@shared/strings'
 import { siteLabel } from '@shared/tracking/sites'
@@ -27,6 +28,7 @@ export function DebugPanel(): React.JSX.Element {
   const [offset, setOffset] = useState(Math.round(snap.debug.offsetMs / 60_000))
   const [readout, setReadout] = useState<DebugReadout | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const [media, setMedia] = useState<string | null>(null)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
@@ -146,6 +148,35 @@ export function DebugPanel(): React.JSX.Element {
               checked={snap.debug.meetingOverride}
               onChange={(on) => run(api.invoke('debug:setMeeting', { on }))}
             />
+          </section>
+
+          <section className={s.section}>
+            <h3>{t.media}</h3>
+            <div className={s.row}>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setMedia(null)
+                  api
+                    .invoke('debug:mediaSessions')
+                    .then((list) =>
+                      setMedia(
+                        list.length === 0
+                          ? t.mediaNone
+                          : list.map((m) => `${m.appId}: ${statusName(m.status)}`).join('\n')
+                      )
+                    )
+                    .catch(() => setMedia(common.loadError))
+                }}
+              >
+                {t.mediaCheck}
+              </Button>
+            </div>
+            {media ? (
+              <pre className={s.media} dir="ltr">
+                {media}
+              </pre>
+            ) : null}
           </section>
 
           <section className={s.section}>

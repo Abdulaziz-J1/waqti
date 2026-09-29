@@ -100,6 +100,7 @@ Other rules handled by the reducer:
 
 - **Machine asleep at prayer time** — `RESUME` carries the prayers whose lock time passed while suspended: each lock-enabled one is logged `skipped:asleep`; if the latest was ≤ 20 minutes ago a short reminder toast is shown, otherwise nothing.
 - **A new prayer while another is still active** (only possible with extreme settings) — the older one is closed (`superseded`) before the new one is handled.
+- **Media** — every `showLock` (including the return after a snooze) asks `MediaService` to pause what is playing, when the setting is on: a short-lived utility process (`media-helper.ts`) calls the GSMTC WinRT API through koffi, pauses the sessions whose status is Playing (never media keys) and replies with the apps it paused, which main logs.
 - **App quit during a lock** — main keeps a `lock_active` marker in the database while a lock is shown; on the next start it is logged `ended:interrupted` and no overlay comes back.
 
 ### Focus region

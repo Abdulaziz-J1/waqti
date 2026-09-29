@@ -98,7 +98,11 @@ export default defineConfig(({ command }) => ({
     resolve: { alias },
     build: {
       rollupOptions: {
-        input: { index: resolve(__dirname, 'src/main/index.ts') }
+        input: {
+          index: resolve(__dirname, 'src/main/index.ts'),
+          // Runs as a utility process (services/media.ts).
+          'media-helper': resolve(__dirname, 'src/main/media-helper.ts')
+        }
       }
     }
   },

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import type { Channel, EventName } from './ipc-channels'
 import type { AdhanView, MachineState, LockView, GuardView, PrayerLogEntry } from './machine/types'
+import type { MediaSessionInfo } from './media'
 import type { DaySchedule, PrayerId } from './prayer/schedule'
 import type { Settings } from './settings/schema'
 import type { Category, Rule } from './tracking/categorize'
@@ -207,6 +208,7 @@ export const requestSchemas = {
   'debug:simulatePrayer': z.object({ prayer: prayerId }),
   'debug:simulatePre': z.object({ prayer: prayerId }),
   'debug:simulateAdhan': z.object({ prayer: prayerId }),
+  'debug:mediaSessions': z.undefined(),
   'debug:setIdle': z.object({ on: z.boolean() }),
   'debug:setMeeting': z.object({ on: z.boolean() }),
   'debug:setOffset': z.object({ minutes: z.number().int().min(-2880).max(2880) }),
@@ -254,6 +256,7 @@ export interface ResponseMap {
   'debug:simulatePrayer': null
   'debug:simulatePre': null
   'debug:simulateAdhan': null
+  'debug:mediaSessions': MediaSessionInfo[]
   'debug:setIdle': null
   'debug:setMeeting': null
   'debug:setOffset': null

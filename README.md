@@ -14,7 +14,7 @@
 
 - **يعرف وين يروح وقتك:** يسجّل تلقائياً التطبيقات والمواقع اللي تستخدمها، ويصنّفها (دراسة وعمل، تواصل، ترفيه، أخرى)، ويعطيك تقارير يومية وأسبوعية وشهرية.
 - **يساعدك تركّز:** جلسات تركيز (٢٥ / ٥٠ / ٩٠ دقيقة أو مدة تختارها). لو فتحت تطبيق أو موقع يشتتك، يطلع لك تذكير لطيف ترجع لشغلك.
-- **يوقف كل شي وقت الصلاة:** بتقويم أم القرى. يذكّرك قبل الأذان، ووقت الأذان يجيك تنبيه قصير، ووقت الإقامة تنقفل الشاشة بهدوء على كل الشاشات، مع دائرة تنفّس والوقت المتبقي. وتقدر تطلع متى ما احتجت.
+- **يوقف كل شي وقت الصلاة:** بتقويم أم القرى. يذكّرك قبل الأذان، ووقت الأذان يجيك تنبيه قصير، ووقت الإقامة تنقفل الشاشة بهدوء على كل الشاشات ويوقف الفيديو والصوت الشغّال، مع دائرة تنفّس والوقت المتبقي. وتقدر تطلع متى ما احتجت.
 
 ## المميزات
 
@@ -85,7 +85,7 @@ npm run dev
 
 ## قيود معروفة (بصراحة)
 
-- **ما يوقف الفيديو والصوت وقت الصلاة.** ما فيه مكتبة مدعومة تتحكم بالوسائط عن طريق واجهة ويندوز الرسمية، وإرسال زر الإيقاف «على العمياني» ممكن يشغّل شي بدل ما يوقفه. شاشة القفل تغطي كل الشاشات فالفيديو يكون مخفي، لكن الصوت يكمل.
+- **إيقاف الفيديو والصوت وقت القفل** يشتغل مع البرامج اللي تسجّل نفسها عند ويندوز (المتصفحات وSpotify ومشغّل الوسائط). البرامج اللي ما تسجّل (مثل VLC 3) تكمل، وشاشة القفل تغطيها.
 - **الذاكرة والنافذة مفتوحة:** حوالي ٢٩٠ ميجا على صفحة اليوم (نافذة Electron الفاضية لحالها ١٣٣ ميجا). في الخلفية وهو الاستخدام المعتاد: حوالي ١٤٠ ميجا. التفاصيل في PROGRESS.md.
 - **المثبّت غير موقّع**، فيطلع تحذير SmartScreen أول مرة.
 - **ويندوز فقط.** الكود ما ينهار على الأنظمة الثانية، لكن التتبع والقفل مصممين لويندوز.
@@ -114,7 +114,7 @@ Students and office workers in Saudi Arabia spend hours a day on a PC. Waqti ans
 
 - **Automatic time tracking** — the foreground app is sampled once a second, merged into intervals, and grouped into categories (study & work, communication, entertainment, other, plus your own). Browser sites (YouTube, Netflix, …) are recognised from window titles. Re-categorising an app updates all history because rules are applied at query time.
 - **Focus sessions** — 25/50/90 minutes or custom. If a distracting app or site comes to the foreground, a dimmed Focus Guard asks you to get back to work (it can minimise the distracting window) or allows a recorded 5-minute snooze. Sessions pause for prayer and end with a short summary.
-- **Prayer reminders and lock** — Umm al-Qura times (Shafi Asr, +30 min Isha in Ramadan, Friday handled as Jumuah, ±15 min per-prayer adjustment) for 19 Saudi cities or custom coordinates. A toast before each adhan, a 10-second notice at the adhan, and at the iqama — a per-prayer delay after the adhan (Fajr 25, Dhuhr/Asr/Isha 20, Maghrib 10 minutes by default, with Ramadan values for Fajr and Maghrib; Jumuah locks with its adhan) — a calm full-screen lock on every display with a breathing circle and the time remaining. "صلّيت" unlocks after a minimum time, one 5-minute snooze, and a 3-second press-and-hold emergency exit that is always available. It never locks when you are away, defers during meetings (Teams, Zoom, Webex, Google Meet, PowerPoint slideshows), reminds you after waking from sleep, and has a hard 60-minute safety limit.
+- **Prayer reminders and lock** — Umm al-Qura times (Shafi Asr, +30 min Isha in Ramadan, Friday handled as Jumuah, ±15 min per-prayer adjustment) for 19 Saudi cities or custom coordinates. A toast before each adhan, a 10-second notice at the adhan, and at the iqama — a per-prayer delay after the adhan (Fajr 25, Dhuhr/Asr/Isha 20, Maghrib 10 minutes by default, with Ramadan values for Fajr and Maghrib; Jumuah locks with its adhan) — a calm full-screen lock on every display with a breathing circle and the time remaining, which also pauses any video or audio that is playing. "صلّيت" unlocks after a minimum time, one 5-minute snooze, and a 3-second press-and-hold emergency exit that is always available. It never locks when you are away, defers during meetings (Teams, Zoom, Webex, Google Meet, PowerPoint slideshows), reminds you after waking from sleep, and has a hard 60-minute safety limit.
 - **Reports** — day/week/month with stacked bars (time flows right-to-left), a category donut, top apps and sites, focus statistics and a comparison with the previous period.
 - **Privacy** — pause tracking, exclude apps, don't store window titles, retention (30/90/365 days or forever), JSON/CSV export, JSON import, delete everything.
 
@@ -141,7 +141,7 @@ Documentation: [ARCHITECTURE.md](ARCHITECTURE.md) (processes, the lock/focus sta
 
 ## Honest limitations
 
-- **No media pause at prayer time.** There is no maintained Node package for the Windows Global System Media Transport Controls, and blindly sending media keys could start playback instead of pausing it. The lock covers every display, so video is hidden, but audio keeps playing.
+- **Media pause at the lock covers apps that report to Windows' media controls** (browsers, Spotify, Media Player). It pauses only sessions that are playing, through the official Global System Media Transport Controls (WinRT called with koffi in a separate utility process) — never blind media keys. Apps that don't report (e.g. VLC 3) keep playing behind the lock.
 - **Memory with the window open** is ~290 MB on the Today screen (an empty Electron window alone uses 133 MB). In typical use Waqti lives in the tray, releases its window after 60 seconds, and idles at ~140 MB with ~0 % CPU.
 - **Unsigned installer** — SmartScreen warns on first run.
 - **Windows only.** The code does not crash elsewhere, but tracking and the lock are built for Windows.

@@ -242,6 +242,12 @@ export function PrayerPage(): React.JSX.Element {
               onChange={(v) => void updateSettings({ adhanNotice: v })}
             />
             <Toggle
+              label={t.pauseMedia}
+              hint={t.pauseMediaHint}
+              checked={settings.pauseMedia}
+              onChange={(v) => void updateSettings({ pauseMedia: v })}
+            />
+            <Toggle
               label={t.chime}
               hint={t.chimeHint}
               checked={settings.chime}

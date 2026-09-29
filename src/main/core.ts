@@ -11,6 +11,7 @@ import { Exporter } from './services/exporter'
 import { ForegroundService } from './services/foreground'
 import { IdleService } from './services/idle'
 import { log } from './services/logger'
+import { MediaService } from './services/media'
 import { MeetingConfigStore } from './services/meeting-config'
 import { getNative, type Native } from './services/native'
 import { Notifier } from './services/notifications'
@@ -85,6 +86,7 @@ export class WaqtiCore {
   readonly idle = new IdleService()
   readonly meeting = new MeetingConfigStore(paths.meetingConfig)
   readonly notifier = new Notifier(paths.resources)
+  readonly media = new MediaService()
   readonly repo: Repo
   readonly db: DB
   readonly settings: SettingsStore
@@ -398,6 +400,8 @@ export class WaqtiCore {
       case 'showLock':
         this.tracker.flush(this.clock.now())
         this.overlays.showLock(e.lock)
+        // Every time the lock goes up (also after a snooze): only what plays gets paused.
+        if (this.s.pauseMedia) this.media.pausePlaying()
         this.repo.setMeta(LOCK_MARKER, JSON.stringify(e.lock.ref))
         return
       case 'hideLock':

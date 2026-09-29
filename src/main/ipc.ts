@@ -205,6 +205,7 @@ export function registerIpc(core: WaqtiCore): void {
       core.simulatePreReminder(prayer)
       return null
     },
+    'debug:mediaSessions': () => core.media.sessions(),
     'debug:simulateAdhan': ({ prayer }) => {
       core.simulateAdhan(prayer)
       return null

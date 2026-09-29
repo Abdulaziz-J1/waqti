@@ -25,6 +25,7 @@ describe('settings schema', () => {
     expect(s.prayers.maghrib.lockDelayMinutes).toBe(10)
     expect(s.ramadanLockDelay).toEqual({ fajr: 20, maghrib: 15 })
     expect(s.adhanNotice).toBe(true)
+    expect(s.pauseMedia).toBe(true)
     expect(s.reminderMinutes).toBe(10)
     expect(s.friday).toEqual({ lock: true, reminderMinutes: 45, lockMinutes: 40 })
     expect(s.minUnlockMinutes).toBe(5)

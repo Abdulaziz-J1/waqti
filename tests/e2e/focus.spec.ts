@@ -15,7 +15,12 @@ async function overlay(
 test('focus session: guard, back to work, snooze, prayer pause and summary', async () => {
   const { app, win } = await launch()
   await invoke(win, 'onboarding:complete', { launchAtStartup: false })
-  await invoke(win, 'settings:update', { smart: { skipWhenAway: false } })
+  // Empty lists: the real foreground window (whatever the person at the machine is
+  // doing) must never replace the simulated distraction below.
+  await invoke(win, 'settings:update', {
+    smart: { skipWhenAway: false },
+    distractions: { apps: [], sites: [], keywords: [] }
+  })
   await win.locator('[data-testid="nav-focus"]').click()
   await win.locator('[data-testid="focus-start"]').click()
   await expect(win.locator('[data-testid="focus-stop"]')).toBeVisible()
