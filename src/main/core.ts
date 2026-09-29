@@ -41,6 +41,7 @@ import { renderToast } from '../shared/machine/toasts'
 import { prayerLabel } from '../shared/machine/toasts'
 import type {
   Effect,
+  LockPlan,
   MachineEvent,
   MachineState,
   PrayerRef,
@@ -259,8 +260,38 @@ export class WaqtiCore {
     return {
       idleSeconds: this.idle.idleSeconds(),
       screenLocked: this.idle.screenLocked(),
-      inMeeting: this.inMeeting
+      inMeeting: this.inMeeting,
+      // Looked up only when it matters, in prayerDue().
+      mediaPlaying: false
     }
+  }
+
+  /**
+   * Dispatches PRAYER_DUE. When no input for a while would skip the lock as
+   * "away", Windows is asked first whether media is playing: someone watching
+   * a video without touching the keyboard is still there.
+   */
+  private prayerDue(ref: PrayerRef, plan: LockPlan | null, ctx: TickContext): void {
+    const cfg = machineConfigOf(this.s)
+    const idleOnly =
+      plan !== null &&
+      cfg.skipWhenAway &&
+      !ctx.screenLocked &&
+      ctx.idleSeconds >= cfg.awayThresholdSec
+    if (!idleOnly) {
+      this.dispatch({ type: 'PRAYER_DUE', now: this.clock.now(), ref, plan, ctx })
+      return
+    }
+    void this.media.anyPlaying().then((mediaPlaying) => {
+      if (mediaPlaying) log.info(`idle ${ctx.idleSeconds} s but media is playing: locking`)
+      this.dispatch({
+        type: 'PRAYER_DUE',
+        now: this.clock.now(),
+        ref,
+        plan,
+        ctx: { ...ctx, mediaPlaying }
+      })
+    })
   }
 
   private tick(): void {
@@ -331,13 +362,7 @@ export class WaqtiCore {
             chime: s.chime
           })
         } else {
-          this.dispatch({
-            type: 'PRAYER_DUE',
-            now,
-            ref: e.ref,
-            plan: lockPlanFor(s, e.ref.prayer, e.ref.isJumuah),
-            ctx
-          })
+          this.prayerDue(e.ref, lockPlanFor(s, e.ref.prayer, e.ref.isJumuah), ctx)
         }
       }
     }
@@ -727,15 +752,8 @@ export class WaqtiCore {
   simulatePrayer(prayer: PrayerId): void {
     const b = this.scheduler.bundle()
     if (!b) return
-    const now = this.clock.now()
-    const ref = refForToday(b.today, prayer, now)
-    this.dispatch({
-      type: 'PRAYER_DUE',
-      now,
-      ref,
-      plan: forcedLockPlan(this.s, prayer, ref.isJumuah),
-      ctx: this.ctx()
-    })
+    const ref = refForToday(b.today, prayer, this.clock.now())
+    this.prayerDue(ref, forcedLockPlan(this.s, prayer, ref.isJumuah), this.ctx())
   }
 
   /** Shows the adhan notice now, with the lock time this prayer would get. */

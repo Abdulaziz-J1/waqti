@@ -1,6 +1,11 @@
 import path from 'node:path'
 import { utilityProcess } from 'electron'
-import type { MediaReply, MediaRequest, MediaSessionInfo } from '../../shared/media'
+import {
+  type MediaReply,
+  type MediaRequest,
+  type MediaSessionInfo,
+  anyPlaying
+} from '../../shared/media'
 import { log } from './logger'
 
 /** Longest a media helper may run before it is stopped. */
@@ -33,6 +38,22 @@ export class MediaService {
         log.warn(`media pause failed: ${reply.message}`)
       }
     })
+  }
+
+  /**
+   * Whether something is playing right now (someone watching counts as
+   * present); false when it cannot tell. Test profiles only look at
+   * WAQTI_MEDIA_PAUSE_APP, never at the real machine's media.
+   */
+  async anyPlaying(): Promise<boolean> {
+    const onlyAppId = process.env['WAQTI_MEDIA_PAUSE_APP'] ?? ''
+    if (process.env['WAQTI_USER_DATA'] && !onlyAppId) return false
+    try {
+      return anyPlaying(await this.sessions(), onlyAppId)
+    } catch (err) {
+      log.warn('media check failed', err)
+      return false
+    }
   }
 
   /** Read-only: the sessions Windows lists right now (debug panel, E2E). */

@@ -229,8 +229,10 @@ function enterLock(
   return { ...s, prayer: lock, focus }
 }
 
-function isAway(ctx: TickContext, cfg: MachineConfig): boolean {
-  return ctx.screenLocked || ctx.idleSeconds >= cfg.awayThresholdSec
+/** Away: the screen is locked, or no input for a while and nothing playing. */
+export function isAway(ctx: TickContext, cfg: MachineConfig): boolean {
+  if (ctx.screenLocked) return true
+  return ctx.idleSeconds >= cfg.awayThresholdSec && !ctx.mediaPlaying
 }
 
 // ---------------------------------------------------------------------------

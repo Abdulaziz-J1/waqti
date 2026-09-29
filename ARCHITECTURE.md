@@ -74,7 +74,7 @@ stateDiagram-v2
   reminding --> idle: TICK (5 min after the lock time)
   idle --> idle: ADHAN_DUE / showAdhan (10 s notice; never over a lock or while asleep)
   idle --> idle: PRAYER_DUE, no lock (the adhan notice announced it)
-  reminding --> idle: PRAYER_DUE, away (idle ≥ 5 min or screen locked) / log skipped:away
+  reminding --> idle: PRAYER_DUE, away (screen locked, or idle ≥ 5 min with no media playing) / log skipped:away
   idle --> idle: PRAYER_DUE, away / log skipped:away
   idle --> meetingDeferred: PRAYER_DUE, in a meeting / toast «أنت في اجتماع…»
   reminding --> meetingDeferred: PRAYER_DUE, in a meeting
@@ -100,7 +100,7 @@ Other rules handled by the reducer:
 
 - **Machine asleep at prayer time** — `RESUME` carries the prayers whose lock time passed while suspended: each lock-enabled one is logged `skipped:asleep`; if the latest was ≤ 20 minutes ago a short reminder toast is shown, otherwise nothing.
 - **A new prayer while another is still active** (only possible with extreme settings) — the older one is closed (`superseded`) before the new one is handled.
-- **Media** — every `showLock` (including the return after a snooze) asks `MediaService` to pause what is playing, when the setting is on: a short-lived utility process (`media-helper.ts`) calls the GSMTC WinRT API through koffi, pauses the sessions whose status is Playing (never media keys) and replies with the apps it paused, which main logs.
+- **Media** — every `showLock` (including the return after a snooze) asks `MediaService` to pause what is playing, when the setting is on: a short-lived utility process (`media-helper.ts`) calls the GSMTC WinRT API through koffi, pauses the sessions whose status is Playing (never media keys) and replies with the apps it paused, which main logs. Before a lock is skipped as away because of input idle time alone, main asks the same helper whether anything is playing and passes `mediaPlaying` in the context: someone watching a video is present.
 - **App quit during a lock** — main keeps a `lock_active` marker in the database while a lock is shown; on the next start it is logged `ended:interrupted` and no overlay comes back.
 
 ### Focus region

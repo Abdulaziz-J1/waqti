@@ -337,7 +337,7 @@ export const prayerPage = {
   immediately: 'فوراً',
   smart: 'قواعد ذكية',
   skipAway: 'لا تقفل إذا كنت بعيد عن الجهاز',
-  skipAwayHint: 'إذا ما لمست الجهاز ٥ دقائق وقت القفل',
+  skipAwayHint: 'إذا ما لمست الجهاز ٥ دقائق وقت القفل وما فيه فيديو أو صوت شغّال',
   deferMeetings: 'أجّل القفل إذا كنت في اجتماع',
   deferMeetingsHint: 'Teams وZoom وWebex وGoogle Meet وعرض شرائح PowerPoint',
   history: 'سجل القفل هالأسبوع',

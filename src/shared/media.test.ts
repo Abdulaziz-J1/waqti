@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { PlaybackStatus, shouldPause, statusName } from './media'
+import { PlaybackStatus, anyPlaying, shouldPause, statusName } from './media'
 
 describe('media pause decisions', () => {
   it('pauses only sessions that are playing, so nothing ever starts', () => {
@@ -20,6 +20,15 @@ describe('media pause decisions', () => {
     const user = { appId: 'Spotify.exe', status: PlaybackStatus.playing }
     expect(shouldPause(own, 'com.waqti.desktop.dev')).toBe(true)
     expect(shouldPause(user, 'com.waqti.desktop.dev')).toBe(false)
+  })
+
+  it('tells whether anything in scope is playing', () => {
+    const paused = { appId: 'Brave', status: PlaybackStatus.paused }
+    const playing = { appId: 'Spotify.exe', status: PlaybackStatus.playing }
+    expect(anyPlaying([])).toBe(false)
+    expect(anyPlaying([paused])).toBe(false)
+    expect(anyPlaying([paused, playing])).toBe(true)
+    expect(anyPlaying([paused, playing], 'Brave')).toBe(false)
   })
 
   it('names statuses for the log', () => {

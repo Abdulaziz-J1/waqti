@@ -127,6 +127,11 @@ export interface TickContext {
   idleSeconds: number
   screenLocked: boolean
   inMeeting: boolean
+  /**
+   * Some app reports media playing (a video, audio). Someone watching without
+   * touching the keyboard is still there; only looked up when idle.
+   */
+  mediaPlaying: boolean
 }
 
 export interface PlannedPrayer {

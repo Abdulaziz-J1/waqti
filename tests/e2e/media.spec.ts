@@ -22,28 +22,50 @@ function silentWav(seconds = 10): string {
   return `data:audio/wav;base64,${b.toString('base64')}`
 }
 
-test('media: what is playing pauses when the lock starts', async () => {
-  test.skip(process.platform !== 'win32', 'Windows media controls only')
-  const { app, win, dataDir } = await launch({ WAQTI_MEDIA_PAUSE_APP: APP_ID })
-  await invoke(win, 'onboarding:complete', { launchAtStartup: false })
-  await invoke(win, 'settings:update', { smart: { skipWhenAway: false } })
+type Launched = Awaited<ReturnType<typeof launch>>
 
-  const player = (): Promise<boolean> =>
-    win.evaluate(() => (globalThis as unknown as { player: HTMLAudioElement }).player.paused)
+/** Starts a silent looping player in the app window; resolves once Windows lists it as playing. */
+async function startPlayer(win: Launched['win']): Promise<() => Promise<boolean>> {
   await win.evaluate((src) => {
     const audio = new Audio(src)
     audio.loop = true
     ;(globalThis as unknown as { player: HTMLAudioElement }).player = audio
     return audio.play()
   }, silentWav())
-
-  // Windows lists the app's player as playing (read through the app's own media helper).
+  // Read through the app's own media helper.
   const status = async (): Promise<number | null> =>
     (await invoke(win, 'debug:mediaSessions')).find((m) => m.appId === APP_ID)?.status ?? null
   await expect.poll(status, { timeout: 15_000 }).toBe(PlaybackStatus.playing)
+  return () =>
+    win.evaluate(() => (globalThis as unknown as { player: HTMLAudioElement }).player.paused)
+}
+
+test('media: what is playing pauses when the lock starts', async () => {
+  test.skip(process.platform !== 'win32', 'Windows media controls only')
+  const { app, win, dataDir } = await launch({ WAQTI_MEDIA_PAUSE_APP: APP_ID })
+  await invoke(win, 'onboarding:complete', { launchAtStartup: false })
+  await invoke(win, 'settings:update', { smart: { skipWhenAway: false } })
+  const paused = await startPlayer(win)
 
   await invoke(win, 'debug:simulatePrayer', { prayer: 'asr' })
-  await expect.poll(player, { timeout: 15_000 }).toBe(true)
+  await expect.poll(paused, { timeout: 15_000 }).toBe(true)
   await expect.poll(() => readLog(dataDir), { timeout: 5_000 }).toContain(`media paused: ${APP_ID}`)
+  await app.close()
+})
+
+test('media: watching without touching the keyboard is not away', async () => {
+  test.skip(process.platform !== 'win32', 'Windows media controls only')
+  const { app, win, dataDir } = await launch({ WAQTI_MEDIA_PAUSE_APP: APP_ID })
+  await invoke(win, 'onboarding:complete', { launchAtStartup: false })
+  // The away rule stays on (its default); the input idle time is over 5 minutes.
+  await invoke(win, 'debug:setIdle', { on: true })
+  const paused = await startPlayer(win)
+
+  await invoke(win, 'debug:simulatePrayer', { prayer: 'maghrib' })
+  await expect
+    .poll(async () => (await invoke(win, 'app:snapshot')).machine.prayer.kind, { timeout: 15_000 })
+    .toBe('locked')
+  await expect.poll(paused, { timeout: 15_000 }).toBe(true)
+  expect(readLog(dataDir)).toContain('media is playing: locking')
   await app.close()
 })

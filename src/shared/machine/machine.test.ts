@@ -4,6 +4,7 @@ import {
   INITIAL_STATE,
   describeState,
   focusRemaining,
+  isAway,
   reduce
 } from './machine'
 import type {
@@ -29,7 +30,12 @@ const MAGHRIB: PrayerRef = {
 /** Asr whose lock comes 20 minutes after its adhan (the iqama). */
 const ASR_IQAMA: PrayerRef = { ...ASR, adhanAt: T0 - 20 * MINUTE }
 const PLAN: LockPlan = { lockMs: 15 * MINUTE, minUnlockMs: 5 * MINUTE, chime: true }
-const CTX: TickContext = { idleSeconds: 0, screenLocked: false, inMeeting: false }
+const CTX: TickContext = {
+  idleSeconds: 0,
+  screenLocked: false,
+  inMeeting: false,
+  mediaPlaying: false
+}
 const TARGET: DistractionTarget = {
   kind: 'site',
   label: 'YouTube',
@@ -177,6 +183,14 @@ describe('smart rules', () => {
   it('skips when the screen is locked', () => {
     const r = reduce(INITIAL_STATE, due(T0, { screenLocked: true }))
     expect(logs(r.effects)[0]).toMatchObject({ reason: 'away' })
+  })
+
+  it('someone watching a video is not away, even without input', () => {
+    const r = reduce(INITIAL_STATE, due(T0, { idleSeconds: 1200, mediaPlaying: true }))
+    expect(r.state.prayer.kind).toBe('locked')
+    expect(isAway({ ...CTX, idleSeconds: 1200, mediaPlaying: true }, CFG)).toBe(false)
+    // A locked Windows session is away whatever plays behind it.
+    expect(isAway({ ...CTX, screenLocked: true, mediaPlaying: true }, CFG)).toBe(true)
   })
 
   it('does not skip when the away rule is off', () => {

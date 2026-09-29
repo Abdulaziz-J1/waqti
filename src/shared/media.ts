@@ -29,6 +29,11 @@ export function shouldPause(session: MediaSessionInfo, onlyAppId = ''): boolean 
   return session.status === PlaybackStatus.playing
 }
 
+/** Whether any session in scope is playing (someone may be watching or listening). */
+export function anyPlaying(sessions: MediaSessionInfo[], onlyAppId = ''): boolean {
+  return sessions.some((s) => shouldPause(s, onlyAppId))
+}
+
 /** Readable status for logs and the debug panel. */
 export function statusName(status: number): string {
   const found = Object.entries(PlaybackStatus).find(([, v]) => v === status)
