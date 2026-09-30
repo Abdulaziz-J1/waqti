@@ -73,6 +73,7 @@
 
 .input {
   inline-size: 100%;
+  block-size: 44px;
   padding-block: 9px;
   padding-inline: 12px;
   border: none;

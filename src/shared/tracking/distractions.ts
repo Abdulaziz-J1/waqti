@@ -3,6 +3,8 @@ import { PRESET_DISTRACTION_SITES } from './detect'
 
 export type Distractions = Settings['distractions']
 export type ChipKind = 'apps' | 'sites' | 'customSites' | 'keywords'
+/** What adding did: a new chip, one that was already on, or one switched back on. */
+export type AddOutcome = 'added' | 'exists' | 'enabled'
 
 const LISTED = {
   apps: 'listedApps',
@@ -12,8 +14,14 @@ const LISTED = {
 } as const
 
 const presets: readonly string[] = PRESET_DISTRACTION_SITES
+const isPreset = (kind: ChipKind, v: string): boolean => kind === 'sites' && presets.includes(v)
 /** Custom sites and keywords are words from page titles: "Kick" and "kick" are one chip. */
 const caseless = (kind: ChipKind): boolean => kind === 'customSites' || kind === 'keywords'
+
+/** The preset sites still on the list (the user can take any of them off). */
+export function shownPresets(d: Distractions): string[] {
+  return presets.filter((id) => !d.hiddenPresets.includes(id))
+}
 
 /**
  * The chips of a kind beyond the preset sites, in the order they were added:
@@ -26,8 +34,11 @@ export function chipsOf(d: Distractions, kind: ChipKind): string[] {
   return kind === 'sites' ? out.filter((v) => !presets.includes(v)) : out
 }
 
-function same(kind: ChipKind, a: string, b: string): boolean {
-  return caseless(kind) ? a.toLowerCase() === b.toLowerCase() : a === b
+function find(d: Distractions, kind: ChipKind, value: string): string | null {
+  const same = (a: string): boolean =>
+    caseless(kind) ? a.toLowerCase() === value.toLowerCase() : a === value
+  if (isPreset(kind, value)) return d.hiddenPresets.includes(value) ? null : value
+  return chipsOf(d, kind).find(same) ?? null
 }
 
 /** Switches a chip on or off; it stays on the list either way. */
@@ -37,27 +48,40 @@ export function setChip(
   value: string,
   on: boolean
 ): Partial<Distractions> {
+  const existing = find(d, kind, value) ?? value
   const chips = chipsOf(d, kind)
-  const existing = chips.find((v) => same(kind, v, value)) ?? value
-  const listed =
-    kind === 'sites' && presets.includes(existing)
-      ? chips
-      : chips.includes(existing)
-        ? chips
-        : [...chips, existing]
+  const listed = isPreset(kind, existing) || chips.includes(existing) ? chips : [...chips, existing]
   const enabled = d[kind].filter((v) => v !== existing)
-  return { [kind]: on ? [...enabled, existing] : enabled, [LISTED[kind]]: listed }
+  const patch: Partial<Distractions> = {
+    [kind]: on ? [...enabled, existing] : enabled,
+    [LISTED[kind]]: listed
+  }
+  if (isPreset(kind, existing) && d.hiddenPresets.includes(existing)) {
+    patch.hiddenPresets = d.hiddenPresets.filter((v) => v !== existing)
+  }
+  return patch
 }
 
-/** Adds a chip switched on (or switches on the one already there). */
+/** What adding `value` would do (to tell the user "added" or "already there"). */
+export function addOutcome(d: Distractions, kind: ChipKind, value: string): AddOutcome {
+  const existing = find(d, kind, value)
+  if (existing === null) return 'added'
+  return d[kind].includes(existing) ? 'exists' : 'enabled'
+}
+
+/** Adds a chip switched on (or switches on the one already there, or brings a preset back). */
 export function addChip(d: Distractions, kind: ChipKind, value: string): Partial<Distractions> {
   return setChip(d, kind, value, true)
 }
 
-/** Takes a chip off the list entirely. Preset sites cannot be removed, only switched off. */
+/** Takes a chip off the list entirely; a preset site is hidden until added again. */
 export function removeChip(d: Distractions, kind: ChipKind, value: string): Partial<Distractions> {
-  return {
+  const patch: Partial<Distractions> = {
     [kind]: d[kind].filter((v) => v !== value),
     [LISTED[kind]]: chipsOf(d, kind).filter((v) => v !== value)
   }
+  if (isPreset(kind, value) && !d.hiddenPresets.includes(value)) {
+    patch.hiddenPresets = [...d.hiddenPresets, value]
+  }
+  return patch
 }

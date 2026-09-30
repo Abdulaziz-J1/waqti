@@ -34,3 +34,26 @@
   color: var(--text-3);
   font-size: var(--fs-micro);
 }
+
+/* «ما لقيت تطبيقك؟…» above the list. */
+.hint {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-block-end: var(--sp-3);
+  padding-block: var(--sp-2);
+  padding-inline: var(--sp-3);
+  border-radius: var(--r-md);
+  background: var(--tint-soft);
+  color: var(--text-1);
+  font-size: var(--fs-small);
+}
+
+.hint svg {
+  flex-shrink: 0;
+  color: var(--tint-text);
+}
+
+.flash {
+  margin-inline-end: auto;
+}

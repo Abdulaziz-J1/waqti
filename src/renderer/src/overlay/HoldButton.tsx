@@ -1,4 +1,4 @@
-import { animate, motion, useMotionValue } from 'motion/react'
+import { animate, motion, useMotionValue, useTransform } from 'motion/react'
 import { useEffect, useRef, type ReactNode } from 'react'
 import s from './HoldButton.module.css'
 
@@ -10,8 +10,10 @@ interface HoldButtonProps {
 }
 
 /**
- * Press and hold to confirm. A ring fills while the button is held (mouse,
- * touch or Space/Enter) and drains when released early.
+ * Press and hold to confirm. The ring is empty until the press starts; then
+ * it fills in the hour's colours with a glow that swells behind it (mouse,
+ * touch or Space/Enter), and drains when released early. Only opacity,
+ * transforms and the ring's path length move.
  */
 export function HoldButton({
   holdMs,
@@ -20,6 +22,10 @@ export function HoldButton({
   hint
 }: HoldButtonProps): React.JSX.Element {
   const progress = useMotionValue(0)
+  // Nothing shows before the press: a zero-length round-capped stroke is a dot.
+  const fillOpacity = useTransform(progress, [0, 0.02], [0, 1])
+  const glowOpacity = useTransform(progress, [0, 1], [0, 0.9])
+  const glowScale = useTransform(progress, [0, 1], [0.55, 1.25])
   const anim = useRef<ReturnType<typeof animate> | null>(null)
   const done = useRef(false)
   const completeRef = useRef(onComplete)
@@ -71,10 +77,26 @@ export function HoldButton({
       }}
       data-testid="emergency-exit"
     >
-      <svg className={s.ring} viewBox="0 0 44 44" aria-hidden>
-        <circle cx="22" cy="22" r="19" className={s.track} />
-        <motion.circle cx="22" cy="22" r="19" className={s.fill} style={{ pathLength: progress }} />
-      </svg>
+      <span className={s.ringWrap} aria-hidden>
+        <motion.span className={s.glow} style={{ opacity: glowOpacity, scale: glowScale }} />
+        <svg className={s.ring} viewBox="0 0 44 44">
+          <defs>
+            <linearGradient id="hold-fill" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" className={s.stopA} />
+              <stop offset="1" className={s.stopB} />
+            </linearGradient>
+          </defs>
+          <circle cx="22" cy="22" r="19" className={s.track} />
+          <motion.circle
+            cx="22"
+            cy="22"
+            r="19"
+            className={s.fill}
+            stroke="url(#hold-fill)"
+            style={{ pathLength: progress, opacity: fillOpacity }}
+          />
+        </svg>
+      </span>
       <span className={s.label}>{children}</span>
       <span id="hold-hint" className={s.hint}>
         {hint}

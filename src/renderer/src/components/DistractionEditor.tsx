@@ -4,22 +4,25 @@ import { type ReactNode, useEffect, useState } from 'react'
 import type { RunningApp } from '@shared/ipc'
 import { common, focusPage as t } from '@shared/strings'
 import { friendlyAppName } from '@shared/tracking/apps'
-import { PRESET_DISTRACTION_SITES, type SiteInput } from '@shared/tracking/detect'
 import {
   type ChipKind,
   type Distractions,
   addChip,
+  addOutcome,
   chipsOf,
   removeChip,
-  setChip
+  setChip,
+  shownPresets
 } from '@shared/tracking/distractions'
 import { siteLabel } from '@shared/tracking/sites'
 import { api } from '../lib/api'
+import { useFlash } from '../lib/flash'
 import { updateSettings, useSettings } from '../lib/store'
 import { AppIcon } from './AppIcon'
 import { AppPicker } from './AppPicker'
 import { Button } from './Button'
 import { Chip, TextField } from './Field'
+import { FlashNote } from './FlashNote'
 import { SitePicker } from './SitePicker'
 import { spring } from '../motion'
 import s from './DistractionEditor.module.css'
@@ -60,6 +63,8 @@ export function DistractionEditor(): React.JSX.Element {
   const [sitePicker, setSitePicker] = useState(false)
   const [keyword, setKeyword] = useState('')
 
+  const [flash, show] = useFlash()
+  const presets = shownPresets(d)
   const knownSites = chipsOf(d, 'sites')
   const customSites = chipsOf(d, 'customSites')
   const apps = chipsOf(d, 'apps')
@@ -72,22 +77,25 @@ export function DistractionEditor(): React.JSX.Element {
   const toggle = (kind: ChipKind, v: string): void =>
     save(setChip(d, kind, v, !d[kind].includes(v)))
 
-  const addSite = (site: SiteInput): void => {
-    save(
-      site.kind === 'known' ? addChip(d, 'sites', site.id) : addChip(d, 'customSites', site.name)
-    )
-  }
-
   const addKeyword = (): void => {
     const k = keyword.trim()
     if (!k) return
-    save(addChip(d, 'keywords', k))
+    const outcome = addOutcome(d, 'keywords', k)
+    if (outcome !== 'exists') save(addChip(d, 'keywords', k))
+    show(
+      outcome === 'added'
+        ? t.added(k)
+        : outcome === 'enabled'
+          ? t.switchedOn(k)
+          : t.alreadyThere(k),
+      outcome === 'exists' ? 'info' : 'ok'
+    )
     setKeyword('')
   }
 
   // Edit mode ends by itself once nothing is left to remove.
   const removable: Record<Section, number> = {
-    sites: knownSites.length + customSites.length,
+    sites: presets.length + knownSites.length + customSites.length,
     apps: apps.length,
     keywords: keywords.length
   }
@@ -165,15 +173,7 @@ export function DistractionEditor(): React.JSX.Element {
       {head('sites', t.sites)}
       <div className={s.chips} data-testid="site-chips">
         <AnimatePresence initial={false} mode="popLayout">
-          {PRESET_DISTRACTION_SITES.map((id) => (
-            <Chip
-              key={`preset:${id}`}
-              selected={d.sites.includes(id)}
-              onToggle={() => toggle('sites', id)}
-            >
-              <bdi>{siteLabel(id)}</bdi>
-            </Chip>
-          ))}
+          {presets.map((id) => chip('sites', 'sites', id, siteLabel(id)))}
           {knownSites.map((id) => chip('sites', 'sites', id, siteLabel(id)))}
           {customSites.map((name) => chip('customSites', 'sites', name, name))}
           {addButton(t.addSite, () => setSitePicker(true), 'add-site')}
@@ -221,10 +221,17 @@ export function DistractionEditor(): React.JSX.Element {
           maxLength={60}
           onChange={(e) => setKeyword(e.target.value)}
         />
-        <Button type="submit" variant="secondary" disabled={!keyword.trim()}>
+        <Button
+          type="submit"
+          variant="primary"
+          className={s.addButton}
+          disabled={!keyword.trim()}
+          data-testid="keyword-add"
+        >
           {common.add}
         </Button>
       </form>
+      <FlashNote flash={flash} className={s.flash} />
 
       <AppPicker
         open={picker}
@@ -236,11 +243,8 @@ export function DistractionEditor(): React.JSX.Element {
       <SitePicker
         open={sitePicker}
         onClose={() => setSitePicker(false)}
-        selected={knownSites}
-        onToggle={(id) =>
-          save(knownSites.includes(id) ? removeChip(d, 'sites', id) : addChip(d, 'sites', id))
-        }
-        onAdd={addSite}
+        distractions={d}
+        save={save}
       />
     </div>
   )

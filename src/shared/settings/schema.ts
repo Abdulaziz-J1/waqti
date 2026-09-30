@@ -97,7 +97,9 @@ export const settingsSchema = section({
     listedApps: z.array(z.string().min(1).max(200)).max(200).catch([]),
     listedSites: z.array(z.string().min(1).max(100)).max(100).catch([]),
     listedCustomSites: z.array(z.string().min(1).max(60)).max(100).catch([]),
-    listedKeywords: z.array(z.string().min(1).max(60)).max(100).catch([])
+    listedKeywords: z.array(z.string().min(1).max(60)).max(100).catch([]),
+    /** Preset sites (YouTube, X…) taken off the list; the site picker offers them again. */
+    hiddenPresets: z.array(z.string().min(1).max(100)).max(50).catch([])
   }),
   focus: section({
     /** The length on the dial: the last one started, 30 minutes at first. */

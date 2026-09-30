@@ -42,6 +42,17 @@
   flex: 1;
 }
 
+/* Same height as the field beside it. */
+.addButton {
+  block-size: 44px;
+  min-inline-size: 96px;
+  padding-block: 0;
+}
+
+.flash {
+  margin-inline-end: auto;
+}
+
 .hint,
 .error {
   margin-block-start: var(--sp-2);

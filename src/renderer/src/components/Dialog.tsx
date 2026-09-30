@@ -26,6 +26,12 @@ export function Dialog({
   const id = useId()
   const box = useRef<HTMLDivElement>(null)
   const returnTo = useRef<HTMLElement | null>(null)
+  // The latest onClose, so a parent re-render (a saved setting) does not
+  // re-run the open effect and move the focus back to the first control.
+  const close = useRef(onClose)
+  useEffect(() => {
+    close.current = onClose
+  })
 
   useEffect(() => {
     if (!open) return
@@ -39,7 +45,7 @@ export function Dialog({
     const onKey = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') {
         e.stopPropagation()
-        onClose()
+        close.current()
       } else if (e.key === 'Tab' && box.current) {
         const items = [
           ...box.current.querySelectorAll<HTMLElement>(
@@ -64,7 +70,7 @@ export function Dialog({
       document.removeEventListener('keydown', onKey, true)
       returnTo.current?.focus?.()
     }
-  }, [open, onClose])
+  }, [open])
 
   return (
     <AnimatePresence>

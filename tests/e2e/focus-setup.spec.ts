@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { invoke, launch } from './helpers'
 
-test('focus: sites and apps as chips that switch off and come off the list', async () => {
+test('focus: sites as chips that switch off, come off the list and say what happened', async () => {
   const { app, win } = await launch()
   await invoke(win, 'onboarding:complete', { launchAtStartup: false })
   await win.locator('[data-testid="nav-focus"]').click()
@@ -25,17 +25,44 @@ test('focus: sites and apps as chips that switch off and come off the list', asy
   await expect(kick).toHaveAttribute('aria-pressed', 'false')
   await expect.poll(distractions).toMatchObject({ customSites: [], listedCustomSites: ['kick'] })
 
-  // The pencil beside «مواقع»: × takes an added site off the list; presets stay.
+  // Adding again says it is already there, and the dialog stays open for more.
+  await win.locator('[data-testid="add-site"]').click()
+  await dialog.locator('[data-testid="site-input"]').fill('youtube.com')
+  await dialog.locator('[data-testid="site-add"]').click()
+  await expect(
+    dialog.getByTestId('flash-note').filter({ hasText: 'في القائمة من قبل' })
+  ).toBeVisible()
+  await dialog.locator('[data-testid="site-input"]').fill('kick')
+  await dialog.locator('[data-testid="site-input"]').press('Enter')
+  await expect(dialog.getByTestId('flash-note').filter({ hasText: 'فعّلنا kick' })).toBeVisible()
+  await expect.poll(distractions).toMatchObject({ customSites: ['kick'] })
+  await dialog.getByRole('button', { name: 'تم' }).last().click()
+
+  // The pencil beside «مواقع»: × takes any site off the list, presets included.
   await win.locator('[data-testid="edit-sites"]').click()
-  await expect(chips.getByRole('button', { name: 'حذف YouTube' })).toHaveCount(0)
   await chips.getByRole('button', { name: 'حذف kick' }).click()
   await expect(kick).toHaveCount(0)
-  await chips.getByRole('button', { name: 'حذف Reddit' }).click()
-  await expect.poll(distractions).toMatchObject({ listedCustomSites: [], listedSites: [] })
-  expect((await distractions()).sites).not.toContain('reddit')
-  // Nothing left to remove: edit mode ends and the pencil goes.
-  await expect(win.locator('[data-testid="edit-sites"]')).toHaveCount(0)
-  await expect(chips.getByRole('button', { name: 'YouTube', exact: true })).toBeVisible()
+  await chips.getByRole('button', { name: 'حذف Snapchat' }).click()
+  await expect(chips.getByRole('button', { name: 'Snapchat', exact: true })).toHaveCount(0)
+  await expect
+    .poll(distractions)
+    .toMatchObject({ listedCustomSites: [], hiddenPresets: ['snapchat'] })
+  expect((await distractions()).sites).not.toContain('snapchat')
+  await win.locator('[data-testid="edit-sites"]').click()
+
+  // A removed preset waits in «إضافة موقع» and comes back with its switch.
+  await win.locator('[data-testid="add-site"]').click()
+  await dialog.getByRole('switch', { name: 'Snapchat' }).click()
+  await expect(
+    dialog.getByTestId('flash-note').filter({ hasText: 'تمت إضافة Snapchat' })
+  ).toBeVisible()
+  await expect(dialog.getByRole('switch', { name: 'Snapchat' })).toHaveAttribute(
+    'aria-checked',
+    'true'
+  )
+  await dialog.getByRole('button', { name: 'تم' }).last().click()
+  await expect(chips.getByRole('button', { name: 'Snapchat', exact: true })).toBeVisible()
+  expect((await distractions()).hiddenPresets).toEqual([])
   await app.close()
 })
 

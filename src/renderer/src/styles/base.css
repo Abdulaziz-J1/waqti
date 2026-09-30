@@ -26,6 +26,9 @@ html {
   /* Thmanyah's final ر sweeps into the following space; a touch of word
      spacing keeps «سبتمبر ٢٠٢٦» from reading as one word. */
   word-spacing: 0.08em;
+  /* Thmanyah's kerning stretches some joins (خـير، تقاريـر، ويـن). It is the
+     font's signature, so only the big headings keep it (h1 below). */
+  font-kerning: none;
   font-style: normal;
   overflow: hidden;
   user-select: none;
@@ -54,6 +57,7 @@ h3,
 
 h1 {
   font-size: var(--fs-h1);
+  font-kerning: normal;
 }
 h2 {
   font-size: var(--fs-h2);

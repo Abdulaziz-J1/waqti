@@ -28,21 +28,49 @@
   outline-offset: 3px;
 }
 
+.ringWrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: 36px;
+  block-size: 36px;
+}
+
+/* A soft light that swells behind the ring as it fills. */
+.glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--tint-2) 55%, transparent),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
 .ring {
+  position: relative;
   inline-size: 36px;
   block-size: 36px;
   transform: rotate(-90deg);
 }
 
+.stopA {
+  stop-color: var(--tint-2);
+}
+.stopB {
+  stop-color: color-mix(in srgb, var(--tint-2) 55%, #ffffff);
+}
+
 .track {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.2);
+  stroke: rgba(255, 255, 255, 0.22);
   stroke-width: 3;
 }
 
 .fill {
   fill: none;
-  stroke: var(--tint-2);
   stroke-width: 3.5;
   stroke-linecap: round;
 }

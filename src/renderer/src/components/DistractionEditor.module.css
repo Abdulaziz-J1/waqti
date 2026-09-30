@@ -117,3 +117,14 @@
 .keywordField {
   flex: 1;
 }
+
+/* Same height as the field beside it. */
+.addButton {
+  block-size: 44px;
+  min-inline-size: 96px;
+  padding-block: 0;
+}
+
+.flash:empty {
+  display: none;
+}

@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { defaultSettings } from '../settings/schema'
-import { type Distractions, addChip, chipsOf, removeChip, setChip } from './distractions'
+import {
+  type Distractions,
+  addChip,
+  addOutcome,
+  chipsOf,
+  removeChip,
+  setChip,
+  shownPresets
+} from './distractions'
 
 const base = (patch: Partial<Distractions> = {}): Distractions => ({
   ...defaultSettings().distractions,
@@ -54,5 +62,30 @@ describe('distraction chips', () => {
     expect(chipsOf(d, 'apps')).toEqual(['b.exe'])
     d = apply(d, removeChip(d, 'apps', 'b.exe'))
     expect(chipsOf(d, 'apps')).toEqual([])
+  })
+
+  it('takes a preset site off the list and brings it back when added again', () => {
+    let d = base()
+    expect(shownPresets(d)).toContain('snapchat')
+    d = apply(d, removeChip(d, 'sites', 'snapchat'))
+    expect(shownPresets(d)).not.toContain('snapchat')
+    expect(d.sites).not.toContain('snapchat')
+    expect(addOutcome(d, 'sites', 'snapchat')).toBe('added')
+    d = apply(d, addChip(d, 'sites', 'snapchat'))
+    expect(shownPresets(d)).toContain('snapchat')
+    expect(d.sites).toContain('snapchat')
+    expect(d.hiddenPresets).toEqual([])
+  })
+
+  it('tells whether an add is new, already on, or switched back on', () => {
+    let d = base()
+    expect(addOutcome(d, 'sites', 'youtube')).toBe('exists')
+    d = apply(d, setChip(d, 'sites', 'youtube', false))
+    expect(addOutcome(d, 'sites', 'youtube')).toBe('enabled')
+    expect(addOutcome(d, 'apps', 'steam.exe')).toBe('added')
+    d = apply(d, addChip(d, 'keywords', 'مباراة'))
+    expect(addOutcome(d, 'keywords', 'مباراة')).toBe('exists')
+    d = apply(d, addChip(d, 'customSites', 'Kick'))
+    expect(addOutcome(d, 'customSites', 'KICK')).toBe('exists')
   })
 })
