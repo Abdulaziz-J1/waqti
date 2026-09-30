@@ -259,6 +259,74 @@
   opacity: 0.55;
 }
 
+/* Snooze length, chosen right on the lock screen (e.g. one minute to close a game). */
+.snoozeChooser {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-block-start: var(--sp-3);
+}
+
+.snoozeTitle {
+  font-size: 18px;
+  color: var(--lock-text-2);
+}
+
+.snoozeChoices {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-2);
+}
+
+.snoozeChoice {
+  min-inline-size: 110px;
+  padding-block: 12px;
+  padding-inline: 18px;
+  border-radius: var(--r-lg);
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--lock-text);
+  font-size: 17px;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    background-color var(--dur-base);
+}
+
+.snoozeChoice[data-default] {
+  background: rgba(245, 208, 138, 0.22);
+  box-shadow: inset 0 0 0 1.5px #f5d08a;
+}
+
+.snoozeChoice:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.snoozeChoice:active {
+  transform: scale(0.97);
+}
+
+.snoozeChoice:focus-visible,
+.snoozeBack:focus-visible {
+  outline: 2px solid var(--lock-text);
+  outline-offset: 3px;
+}
+
+.snoozeBack {
+  padding-block: 6px;
+  padding-inline: 16px;
+  border-radius: var(--r-pill);
+  color: var(--lock-text-2);
+  font-size: 15px;
+}
+
+.snoozeBack:hover {
+  color: var(--lock-text);
+}
+
 .prayed:focus-visible,
 .snooze:focus-visible {
   outline: 2px solid var(--lock-text);

@@ -242,35 +242,26 @@ export function PrayerPage(): React.JSX.Element {
               onChange={(v) => void updateSettings({ adhanNotice: v })}
             />
             <Toggle
-              label={t.pauseMedia}
-              hint={t.pauseMediaHint}
-              checked={settings.pauseMedia}
-              onChange={(v) => void updateSettings({ pauseMedia: v })}
-            />
-            <Toggle
               label={t.chime}
               hint={t.chimeHint}
               checked={settings.chime}
               onChange={(v) => void updateSettings({ chime: v })}
             />
-            <div className={s.sliderRow}>
-              <div className={s.sliderLabel}>
-                <span>{t.minUnlock}</span>
-                <span className={`${s.sliderValue} num`}>
-                  {settings.minUnlockMinutes === 0
-                    ? t.immediately
-                    : fmt.minutes(settings.minUnlockMinutes)}
-                </span>
-              </div>
-              <Slider
-                label={t.minUnlock}
-                value={settings.minUnlockMinutes}
-                min={0}
-                max={15}
-                valueText={(v) => (v === 0 ? t.immediately : fmt.minutes(v))}
-                onChange={(v) => void updateSettings({ minUnlockMinutes: v })}
-              />
-            </div>
+          </Panel>
+
+          <Panel title={t.smart} id="prayer-smart">
+            <Toggle
+              label={t.skipAway}
+              hint={t.skipAwayHint}
+              checked={settings.smart.skipWhenAway}
+              onChange={(v) => void updateSettings({ smart: { skipWhenAway: v } })}
+            />
+            <Toggle
+              label={t.deferMeetings}
+              hint={t.deferMeetingsHint}
+              checked={settings.smart.deferInMeetings}
+              onChange={(v) => void updateSettings({ smart: { deferInMeetings: v } })}
+            />
           </Panel>
         </div>
 
@@ -306,18 +297,64 @@ export function PrayerPage(): React.JSX.Element {
             </SettingRow>
           </Panel>
 
-          <Panel title={t.smart} id="prayer-smart">
+          <Panel title={t.lockScreen} id="prayer-lock-screen">
+            <div className={s.sliderRow}>
+              <div className={s.sliderLabel}>
+                <span>{t.minUnlock}</span>
+                <span className={`${s.sliderValue} num`}>
+                  {settings.minUnlockMinutes === 0
+                    ? t.immediately
+                    : fmt.minutes(settings.minUnlockMinutes)}
+                </span>
+              </div>
+              <Slider
+                label={t.minUnlock}
+                value={settings.minUnlockMinutes}
+                min={0}
+                max={15}
+                valueText={(v) => (v === 0 ? t.immediately : fmt.minutes(v))}
+                onChange={(v) => void updateSettings({ minUnlockMinutes: v })}
+              />
+            </div>
             <Toggle
-              label={t.skipAway}
-              hint={t.skipAwayHint}
-              checked={settings.smart.skipWhenAway}
-              onChange={(v) => void updateSettings({ smart: { skipWhenAway: v } })}
+              label={t.snooze}
+              hint={t.snoozeHint}
+              checked={settings.snooze.enabled}
+              onChange={(v) => void updateSettings({ snooze: { enabled: v } })}
+            />
+            {settings.snooze.enabled ? (
+              <SettingRow label={t.snoozeDefault}>
+                <Stepper
+                  label={t.snoozeDefault}
+                  value={settings.snooze.minutes}
+                  min={1}
+                  max={15}
+                  format={(v) => fmt.minutes(v)}
+                  onChange={(v) => void updateSettings({ snooze: { minutes: v } })}
+                />
+              </SettingRow>
+            ) : null}
+            <SettingRow label={t.emergencyHold} hint={t.emergencyHoldHint}>
+              <Stepper
+                label={t.emergencyHold}
+                value={settings.emergencyHoldSeconds}
+                min={3}
+                max={10}
+                format={(v) => t.seconds(fmt.num(v))}
+                onChange={(v) => void updateSettings({ emergencyHoldSeconds: v })}
+              />
+            </SettingRow>
+            <Toggle
+              label={t.muteDuringLock}
+              hint={t.muteDuringLockHint}
+              checked={settings.muteDuringLock}
+              onChange={(v) => void updateSettings({ muteDuringLock: v })}
             />
             <Toggle
-              label={t.deferMeetings}
-              hint={t.deferMeetingsHint}
-              checked={settings.smart.deferInMeetings}
-              onChange={(v) => void updateSettings({ smart: { deferInMeetings: v } })}
+              label={t.pauseMedia}
+              hint={t.pauseMediaHint}
+              checked={settings.pauseMedia}
+              onChange={(v) => void updateSettings({ pauseMedia: v })}
             />
           </Panel>
         </div>

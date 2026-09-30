@@ -115,11 +115,16 @@ export function registerIpc(core: WaqtiCore): void {
       return null
     },
     'focus:sessions': ({ from, to }) => core.repo.sessionsBetween(dayStartMs(from), dayEndMs(to)),
-    'lock:action': ({ action }, e) => {
+    'lock:action': ({ action, minutes }, e) => {
       requireOverlay(e, 'lock')
       const now = core.clock.now()
       if (action === 'prayed') core.dispatch({ type: 'PRAYED', now })
-      else if (action === 'snooze') core.dispatch({ type: 'SNOOZE', now })
+      else if (action === 'snooze')
+        core.dispatch({
+          type: 'SNOOZE',
+          now,
+          minutes: minutes ?? core.settings.get().snooze.minutes
+        })
       else core.dispatch({ type: 'EMERGENCY_EXIT', now })
       return null
     },

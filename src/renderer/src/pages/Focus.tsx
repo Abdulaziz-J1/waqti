@@ -1,6 +1,7 @@
 import { motion } from 'motion/react'
 import { Play, Square } from 'lucide-react'
 import { useState } from 'react'
+import { type DurationUnit, MAX_FOCUS_MINUTES, durationText, parseDuration } from '@shared/focus'
 import { focusRemaining } from '@shared/machine/machine'
 import type { FocusState } from '@shared/machine/types'
 import { common, focusPage as t } from '@shared/strings'
@@ -8,7 +9,7 @@ import { dayKey } from '@shared/time'
 import { Button } from '../components/Button'
 import { DistractionEditor } from '../components/DistractionEditor'
 import { EmptyState } from '../components/EmptyState'
-import { SettingRow } from '../components/Field'
+import { SettingRow, TextField } from '../components/Field'
 import { Odometer } from '../components/Odometer'
 import { PageHeader } from '../components/PageHeader'
 import { Panel } from '../components/Panel'
@@ -69,7 +70,12 @@ export function FocusPage(): React.JSX.Element {
     PRESETS.includes(last) ? (String(last) as Choice) : 'custom'
   )
   const [custom, setCustom] = useState(PRESETS.includes(last) ? 30 : last)
+  const digits = settings.general.digits
+  const [unit, setUnit] = useState<DurationUnit>('minutes')
+  const [typed, setTyped] = useState(() => durationText(custom, 'minutes', digits))
+  const typedValid = parseDuration(typed, unit) !== null
   const minutes = choice === 'custom' ? custom : Number(choice)
+  const canStart = choice !== 'custom' || typedValid
   const focus = snap.machine.focus
   const running = focus.kind !== 'off'
   const today = dayKey(now)
@@ -107,15 +113,53 @@ export function FocusPage(): React.JSX.Element {
                   ]}
                 />
                 {choice === 'custom' ? (
-                  <Stepper
-                    label={t.customMinutes}
-                    value={custom}
-                    min={5}
-                    max={240}
-                    step={5}
-                    format={(v) => fmt.minutes(v)}
-                    onChange={setCustom}
-                  />
+                  <>
+                    <Stepper
+                      label={t.customMinutes}
+                      value={custom}
+                      min={5}
+                      max={MAX_FOCUS_MINUTES}
+                      step={5}
+                      format={(v) => fmt.minutes(v)}
+                      onChange={(v) => {
+                        setCustom(v)
+                        setTyped(durationText(v, unit, digits))
+                      }}
+                    />
+                    <div className={s.typed}>
+                      <TextField
+                        label={t.typeDuration}
+                        className={s.typedField}
+                        inputMode="decimal"
+                        value={typed}
+                        error={typedValid ? null : t.durationRange}
+                        onChange={(e) => {
+                          setTyped(e.target.value)
+                          const m = parseDuration(e.target.value, unit)
+                          if (m !== null) setCustom(m)
+                        }}
+                        data-testid="focus-typed"
+                      />
+                      <Segmented<DurationUnit>
+                        label={t.unit}
+                        size="sm"
+                        value={unit}
+                        onChange={(u) => {
+                          setUnit(u)
+                          setTyped(durationText(custom, u, digits))
+                        }}
+                        options={[
+                          { value: 'minutes', label: t.unitMinutes },
+                          { value: 'hours', label: t.unitHours }
+                        ]}
+                      />
+                    </div>
+                    {typedValid ? null : (
+                      <p className={s.typedError} role="alert">
+                        {t.durationRange}
+                      </p>
+                    )}
+                  </>
                 ) : null}
               </div>
             )}
@@ -135,6 +179,7 @@ export function FocusPage(): React.JSX.Element {
                 variant="primary"
                 size="lg"
                 icon={<Play size={18} />}
+                disabled={!canStart}
                 onClick={() => void api.invoke('focus:start', { minutes })}
                 data-testid="focus-start"
               >

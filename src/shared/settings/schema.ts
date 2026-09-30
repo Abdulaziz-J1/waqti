@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { MAX_FOCUS_MINUTES } from '../focus'
 import { DEFAULT_CITY_ID } from '../prayer/cities'
 import { PRESET_DISTRACTION_SITES } from '../tracking/detect'
 
@@ -67,6 +68,15 @@ export const settingsSchema = section({
   pauseMedia: bool(true),
   /** Minutes before "صلّيت" becomes available. */
   minUnlockMinutes: int(0, 15, 5),
+  /** Seconds to hold «خروج طارئ»; longer than 10 s would stop being an emergency exit. */
+  emergencyHoldSeconds: int(3, 10, 3),
+  /** Once per prayer; `minutes` is the default the lock screen offers first. */
+  snooze: section({
+    enabled: bool(true),
+    minutes: int(1, 15, 5)
+  }),
+  /** Mute the sound while locked and put it back as it was afterwards. */
+  muteDuringLock: bool(true),
   smart: section({
     skipWhenAway: bool(true),
     deferInMeetings: bool(true)
@@ -77,10 +87,12 @@ export const settingsSchema = section({
       .array(z.string().min(1).max(100))
       .max(100)
       .catch([...PRESET_DISTRACTION_SITES]),
-    keywords: z.array(z.string().min(1).max(60)).max(100).catch([])
+    keywords: z.array(z.string().min(1).max(60)).max(100).catch([]),
+    /** Sites Waqti does not know, matched by name in browser titles (like keywords). */
+    customSites: z.array(z.string().min(1).max(60)).max(100).catch([])
   }),
   focus: section({
-    lastMinutes: int(1, 240, 25),
+    lastMinutes: int(1, MAX_FOCUS_MINUTES, 25),
     breakReminder: bool(true),
     breakMinutes: int(1, 60, 5)
   }),

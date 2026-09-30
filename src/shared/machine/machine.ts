@@ -24,7 +24,8 @@ export const DEFAULT_MACHINE_CONFIG: MachineConfig = {
   awayThresholdSec: 5 * 60,
   meetingRecheckMs: 60 * SECOND,
   meetingMaxMs: 30 * MINUTE,
-  snoozeMs: 5 * MINUTE,
+  snoozeMinMs: MINUTE,
+  snoozeMaxMs: 15 * MINUTE,
   hardMaxMs: 60 * MINUTE,
   resumeReminderMs: 20 * MINUTE,
   startupOfferMs: 10 * MINUTE,
@@ -78,7 +79,8 @@ export function lockView(p: Extract<PrayerState, { kind: 'locked' }>): LockView 
     until: p.until,
     minUnlockAt: p.minUnlockAt,
     hardUntil: p.hardUntil,
-    snoozeAvailable: !p.snoozeUsed,
+    snoozeEnabled: p.plan.snooze,
+    snoozeAvailable: p.plan.snooze && !p.snoozeUsed,
     chime: p.plan.chime
   }
 }
@@ -498,8 +500,17 @@ export function reduce(
       break
 
     case 'SNOOZE':
-      if (s.prayer.kind === 'locked' && !s.prayer.snoozeUsed && s.prayer.until > e.now) {
+      if (
+        s.prayer.kind === 'locked' &&
+        s.prayer.plan.snooze &&
+        !s.prayer.snoozeUsed &&
+        s.prayer.until > e.now
+      ) {
         const p = s.prayer
+        const snoozeMs = Math.min(
+          cfg.snoozeMaxMs,
+          Math.max(cfg.snoozeMinMs, Math.round(e.minutes) * MINUTE || cfg.snoozeMinMs)
+        )
         effects.push({ type: 'hideLock' })
         state = {
           ...s,
@@ -508,7 +519,7 @@ export function reduce(
             ref: p.ref,
             plan: p.plan,
             snoozedAt: e.now,
-            resumeAt: e.now + cfg.snoozeMs,
+            resumeAt: e.now + snoozeMs,
             remainingMs: p.until - e.now,
             minRemainingMs: Math.max(0, p.minUnlockAt - e.now)
           }

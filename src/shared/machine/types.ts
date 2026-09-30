@@ -23,6 +23,8 @@ export interface LockPlan {
   lockMs: number
   minUnlockMs: number
   chime: boolean
+  /** The once-per-prayer snooze is offered. */
+  snooze: boolean
 }
 
 export type PrayerOutcome = 'prayed' | 'ended' | 'emergency' | 'skipped'
@@ -147,7 +149,8 @@ export type MachineEvent =
   | { type: 'ADHAN_DUE'; now: number; ref: PrayerRef; locks: boolean; chime: boolean }
   | { type: 'PRAYER_DUE'; now: number; ref: PrayerRef; plan: LockPlan | null; ctx: TickContext }
   | { type: 'PRAYED'; now: number }
-  | { type: 'SNOOZE'; now: number }
+  /** Minutes chosen on the lock screen (clamped to the configured range). */
+  | { type: 'SNOOZE'; now: number; minutes: number }
   | { type: 'EMERGENCY_EXIT'; now: number }
   /** The independent safety timer fired: end the lock whatever happened. */
   | { type: 'FORCE_UNLOCK'; now: number }
@@ -178,6 +181,8 @@ export interface LockView {
   until: number
   minUnlockAt: number
   hardUntil: number
+  /** The snooze is turned on for this lock (it may already be used). */
+  snoozeEnabled: boolean
   snoozeAvailable: boolean
   chime: boolean
 }
@@ -226,7 +231,8 @@ export interface MachineConfig {
   awayThresholdSec: number
   meetingRecheckMs: number
   meetingMaxMs: number
-  snoozeMs: number
+  snoozeMinMs: number
+  snoozeMaxMs: number
   hardMaxMs: number
   resumeReminderMs: number
   startupOfferMs: number

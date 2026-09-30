@@ -5,19 +5,28 @@
  * main process so a failure here can never take the lock down with it.
  *
  * Vtable slots are read from Windows.Media.winmd and Windows.Foundation.winmd;
- * IInspectable takes slots 0–5 of every interface.
+ * IInspectable takes slots 0–5 of every interface. The mute uses Core Audio
+ * (mmdeviceapi.h, endpointvolume.h), classic COM where IUnknown takes 0–2.
  */
 import koffi from 'koffi'
 import {
   type MediaReply,
   type MediaRequest,
   type MediaSessionInfo,
+  releasesAfterPause,
   shouldPause
 } from '../shared/media'
 
 const IID_MANAGER_STATICS = '2050c4ee-11a0-57de-aed7-c97c70338245'
 const IID_ASYNC_INFO = '00000036-0000-0000-c000-000000000046'
 const MANAGER_CLASS = 'Windows.Media.Control.GlobalSystemMediaTransportControlsSessionManager'
+const CLSID_DEVICE_ENUMERATOR = 'bcde0395-e52f-467c-8e3d-c4579291692e'
+const IID_DEVICE_ENUMERATOR = 'a95664d2-9614-4f35-a746-de8db63617e6'
+const IID_ENDPOINT_VOLUME = '5cdf2c82-841e-4546-9722-0cf74078229a'
+const CLSCTX_INPROC_SERVER = 0x1
+const CLSCTX_ALL = 0x17
+const RENDER = 0
+const MULTIMEDIA = 1
 
 const SLOT = {
   queryInterface: 0,
@@ -33,12 +42,20 @@ const SLOT = {
   sourceAppId: 6,
   playbackInfo: 9,
   tryPause: 11,
+  tryStop: 12,
   /** IGlobalSystemMediaTransportControlsSessionPlaybackInfo */
   playbackStatus: 7,
   /** IAsyncInfo */
   asyncStatus: 7,
   /** IAsyncOperation<T> */
-  getResults: 8
+  getResults: 8,
+  /** IMMDeviceEnumerator */
+  defaultEndpoint: 4,
+  /** IMMDevice */
+  activate: 3,
+  /** IAudioEndpointVolume */
+  setMute: 14,
+  getMute: 15
 } as const
 
 const ASYNC_STARTED = 0
@@ -46,6 +63,7 @@ const ASYNC_COMPLETED = 1
 const RPC_E_CHANGED_MODE = 0x80010106 | 0
 
 const combase = koffi.load('combase.dll')
+const ole32 = koffi.load('ole32.dll')
 // Registers the GUID type that the declarations below use by name.
 koffi.struct('GUID', {
   Data1: 'uint32',
@@ -72,6 +90,17 @@ const QueryInterface = koffi.proto(
   'int __stdcall QueryInterface(void *self, GUID *iid, _Out_ void **out)'
 )
 const Release = koffi.proto('uint32 __stdcall Release(void *self)')
+const CoCreateInstance = ole32.func(
+  'int __stdcall CoCreateInstance(GUID *clsid, void *outer, uint32 ctx, GUID *iid, _Out_ void **out)'
+)
+const DefaultEndpoint = koffi.proto(
+  'int __stdcall DefaultEndpoint(void *self, int flow, int role, _Out_ void **out)'
+)
+const Activate = koffi.proto(
+  'int __stdcall Activate(void *self, GUID *iid, uint32 ctx, void *params, _Out_ void **out)'
+)
+const GetMute = koffi.proto('int __stdcall GetMute(void *self, _Out_ int *muted)')
+const SetMute = koffi.proto('int __stdcall SetMute(void *self, int muted, void *context)')
 
 type Ptr = unknown
 
@@ -148,12 +177,17 @@ async function settle(op: Ptr, what: string): Promise<void> {
   }
 }
 
+/** Joins the multithreaded apartment (WinRT and COM both need it). */
+function initRuntime(): void {
+  const init = RoInitialize(1) as number
+  if (init < 0 && init !== RPC_E_CHANGED_MODE) check(init, 'RoInitialize')
+}
+
 /** Runs `fn` on every current session; the session pointer is released afterwards. */
 async function forEachSession(
   fn: (session: Ptr, info: MediaSessionInfo) => Promise<void>
 ): Promise<void> {
-  const init = RoInitialize(1) as number
-  if (init < 0 && init !== RPC_E_CHANGED_MODE) check(init, 'RoInitialize')
+  initRuntime()
   const cls: Ptr[] = [null]
   check(
     WindowsCreateString(MANAGER_CLASS, MANAGER_CLASS.length, cls) as number,
@@ -194,21 +228,114 @@ async function forEachSession(
   }
 }
 
+/**
+ * Pauses every playing session. A browser shows Windows one session for all
+ * its tabs; after pausing it the session is stopped (see releasesAfterPause),
+ * the next playing tab takes it over, and the sessions are read again until
+ * nothing is left playing.
+ */
 async function pause(onlyAppId: string): Promise<string[]> {
   const paused: string[] = []
-  await forEachSession(async (session, info) => {
-    if (!shouldPause(info, onlyAppId)) return
-    const op = outPtr(session, SLOT.tryPause, 'TryPauseAsync')
-    try {
-      await settle(op, 'TryPauseAsync')
-      const ok = [0]
-      check(koffi.call(slot(op, SLOT.getResults), OutU8, op, ok) as number, 'TryPauseAsync results')
-      if (ok[0]) paused.push(info.appId)
-    } finally {
-      release(op)
-    }
-  })
+  for (let pass = 0; pass < 6; pass++) {
+    let pausedNow = 0
+    await forEachSession(async (session, info) => {
+      if (!shouldPause(info, onlyAppId)) return
+      const op = outPtr(session, SLOT.tryPause, 'TryPauseAsync')
+      try {
+        await settle(op, 'TryPauseAsync')
+        const ok = [0]
+        check(
+          koffi.call(slot(op, SLOT.getResults), OutU8, op, ok) as number,
+          'TryPauseAsync results'
+        )
+        if (ok[0]) {
+          paused.push(info.appId)
+          pausedNow++
+          if (releasesAfterPause(info.appId, onlyAppId)) await stop(session)
+        }
+      } finally {
+        release(op)
+      }
+    })
+    if (pausedNow === 0) break
+    await sleep(400)
+  }
   return paused
+}
+
+/** Stops a (paused) session so a browser hands its media session to the next playing tab. */
+async function stop(session: Ptr): Promise<void> {
+  const op = outPtr(session, SLOT.tryStop, 'TryStopAsync')
+  try {
+    await settle(op, 'TryStopAsync')
+  } finally {
+    release(op)
+  }
+}
+
+/** Runs `fn` with the default output's IAudioEndpointVolume. */
+function withOutputVolume<T>(fn: (volume: Ptr) => T): T {
+  initRuntime()
+  const enumerator: Ptr[] = [null]
+  check(
+    CoCreateInstance(
+      guid(CLSID_DEVICE_ENUMERATOR),
+      null,
+      CLSCTX_INPROC_SERVER,
+      guid(IID_DEVICE_ENUMERATOR),
+      enumerator
+    ) as number,
+    'MMDeviceEnumerator'
+  )
+  let device: Ptr = null
+  let volume: Ptr = null
+  try {
+    const d: Ptr[] = [null]
+    check(
+      koffi.call(
+        slot(enumerator[0], SLOT.defaultEndpoint),
+        DefaultEndpoint,
+        enumerator[0],
+        RENDER,
+        MULTIMEDIA,
+        d
+      ) as number,
+      'GetDefaultAudioEndpoint'
+    )
+    device = d[0]
+    const v: Ptr[] = [null]
+    check(
+      koffi.call(
+        slot(device, SLOT.activate),
+        Activate,
+        device,
+        guid(IID_ENDPOINT_VOLUME),
+        CLSCTX_ALL,
+        null,
+        v
+      ) as number,
+      'IAudioEndpointVolume'
+    )
+    volume = v[0]
+    return fn(volume)
+  } finally {
+    release(volume)
+    release(device)
+    release(enumerator[0])
+  }
+}
+
+function outputMuted(volume: Ptr): boolean {
+  const muted = [0]
+  check(koffi.call(slot(volume, SLOT.getMute), GetMute, volume, muted) as number, 'GetMute')
+  return muted[0] !== 0
+}
+
+function setOutputMuted(volume: Ptr, muted: boolean): void {
+  check(
+    koffi.call(slot(volume, SLOT.setMute), SetMute, volume, muted ? 1 : 0, null) as number,
+    'SetMute'
+  )
 }
 
 async function list(): Promise<MediaSessionInfo[]> {
@@ -221,8 +348,21 @@ async function list(): Promise<MediaSessionInfo[]> {
 
 async function handle(req: MediaRequest): Promise<MediaReply> {
   try {
-    if (req.kind === 'pause') return { kind: 'paused', appIds: await pause(req.onlyAppId) }
-    return { kind: 'sessions', sessions: await list() }
+    switch (req.kind) {
+      case 'pause':
+        return { kind: 'paused', appIds: await pause(req.onlyAppId) }
+      case 'list':
+        return { kind: 'sessions', sessions: await list() }
+      case 'mute':
+        return withOutputVolume((volume) => {
+          const wasMuted = outputMuted(volume)
+          if (!wasMuted) setOutputMuted(volume, true)
+          return { kind: 'muted', wasMuted }
+        })
+      case 'setMute':
+        withOutputVolume((volume) => setOutputMuted(volume, req.muted))
+        return { kind: 'done' }
+    }
   } catch (err) {
     return { kind: 'error', message: err instanceof Error ? err.message : String(err) }
   }

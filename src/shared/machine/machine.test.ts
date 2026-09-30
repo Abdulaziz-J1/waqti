@@ -5,6 +5,7 @@ import {
   describeState,
   focusRemaining,
   isAway,
+  lockView,
   reduce
 } from './machine'
 import type {
@@ -29,7 +30,12 @@ const MAGHRIB: PrayerRef = {
 }
 /** Asr whose lock comes 20 minutes after its adhan (the iqama). */
 const ASR_IQAMA: PrayerRef = { ...ASR, adhanAt: T0 - 20 * MINUTE }
-const PLAN: LockPlan = { lockMs: 15 * MINUTE, minUnlockMs: 5 * MINUTE, chime: true }
+const PLAN: LockPlan = {
+  lockMs: 15 * MINUTE,
+  minUnlockMs: 5 * MINUTE,
+  chime: true,
+  snooze: true
+}
 const CTX: TickContext = {
   idleSeconds: 0,
   screenLocked: false,
@@ -300,7 +306,7 @@ describe('lock exits', () => {
 describe('snooze', () => {
   it('locked → snoozed → locked with the remaining time, once per prayer', () => {
     const s = locked()
-    const r = reduce(s, { type: 'SNOOZE', now: T0 + 2 * MINUTE })
+    const r = reduce(s, { type: 'SNOOZE', now: T0 + 2 * MINUTE, minutes: 5 })
     expect(r.state.prayer.kind).toBe('snoozed')
     expect(types(r.effects)).toEqual(['hideLock'])
     // Still snoozed before 5 minutes.
@@ -312,13 +318,38 @@ describe('snooze', () => {
     expect(back.state.prayer.minUnlockAt).toBe(T0 + 7 * MINUTE + 3 * MINUTE)
     expect(back.state.prayer.snoozeUsed).toBe(true)
     // A second snooze is refused.
-    expect(reduce(back.state, { type: 'SNOOZE', now: T0 + 8 * MINUTE }).state).toBe(back.state)
+    expect(reduce(back.state, { type: 'SNOOZE', now: T0 + 8 * MINUTE, minutes: 5 }).state).toBe(
+      back.state
+    )
     const done = reduce(back.state, { type: 'PRAYED', now: T0 + 11 * MINUTE })
     expect(logs(done.effects)[0]).toMatchObject({ outcome: 'prayed', snoozed: true })
   })
 
   it('ignores snooze when not locked', () => {
-    expect(reduce(INITIAL_STATE, { type: 'SNOOZE', now: T0 }).effects).toEqual([])
+    expect(reduce(INITIAL_STATE, { type: 'SNOOZE', now: T0, minutes: 5 }).effects).toEqual([])
+  })
+
+  it('snoozes for the minutes chosen on the lock screen, within 1 to 15', () => {
+    const resumeAt = (minutes: number): number => {
+      const r = reduce(locked(), { type: 'SNOOZE', now: T0, minutes })
+      if (r.state.prayer.kind !== 'snoozed') throw new Error()
+      return r.state.prayer.resumeAt
+    }
+    expect(resumeAt(1)).toBe(T0 + MINUTE)
+    expect(resumeAt(10)).toBe(T0 + 10 * MINUTE)
+    expect(resumeAt(0)).toBe(T0 + MINUTE)
+    expect(resumeAt(99)).toBe(T0 + 15 * MINUTE)
+    expect(resumeAt(Number.NaN)).toBe(T0 + MINUTE)
+  })
+
+  it('offers no snooze when it is turned off', () => {
+    const s = run(INITIAL_STATE, due(T0, {}, { ...PLAN, snooze: false })).state
+    expect(reduce(s, { type: 'SNOOZE', now: T0 + MINUTE, minutes: 5 }).state).toBe(s)
+    if (s.prayer.kind !== 'locked') throw new Error()
+    expect(lockView(s.prayer).snoozeAvailable).toBe(false)
+    const on = locked()
+    if (on.prayer.kind !== 'locked') throw new Error()
+    expect(lockView(on.prayer).snoozeAvailable).toBe(true)
   })
 })
 
@@ -737,7 +768,7 @@ describe('helpers', () => {
   })
 
   it('supersede covers every in-progress prayer state', () => {
-    const snoozed = reduce(locked(), { type: 'SNOOZE', now: T0 + MINUTE }).state
+    const snoozed = reduce(locked(), { type: 'SNOOZE', now: T0 + MINUTE, minutes: 5 }).state
     expect(logs(reduce(snoozed, due(MAGHRIB.at, {}, PLAN, MAGHRIB)).effects)[0]).toMatchObject({
       reason: 'superseded'
     })

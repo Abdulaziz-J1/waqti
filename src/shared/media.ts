@@ -29,6 +29,21 @@ export function shouldPause(session: MediaSessionInfo, onlyAppId = ''): boolean 
   return session.status === PlaybackStatus.playing
 }
 
+/** AppUserModelIDs of Chromium browsers (a profile may add a suffix, e.g. "Brave.ABC…"). */
+const CHROMIUM_BROWSER = /^(chrome|msedge|brave|opera|vivaldi|yandex|arc)\b/i
+
+/**
+ * A Chromium browser shows Windows one media session for all its tabs, and a
+ * tab keeps that session after it is paused. Stopping it (which in these
+ * browsers pauses and keeps the position) hands the session to the next tab
+ * that is still playing, so that one can be paused too. Other players may
+ * reset to the start on stop, so they are only paused. `onlyAppId` is the
+ * E2E test's own player, an Electron (Chromium) window.
+ */
+export function releasesAfterPause(appId: string, onlyAppId = ''): boolean {
+  return CHROMIUM_BROWSER.test(appId) || (onlyAppId !== '' && appId === onlyAppId)
+}
+
 /** Whether any session in scope is playing (someone may be watching or listening). */
 export function anyPlaying(sessions: MediaSessionInfo[], onlyAppId = ''): boolean {
   return sessions.some((s) => shouldPause(s, onlyAppId))
@@ -41,9 +56,16 @@ export function statusName(status: number): string {
 }
 
 /** Messages between the main process and the media helper (a utility process). */
-export type MediaRequest = { kind: 'pause'; onlyAppId: string } | { kind: 'list' }
+export type MediaRequest =
+  | { kind: 'pause'; onlyAppId: string }
+  | { kind: 'list' }
+  /** Mutes the default output; the reply says whether it was muted before. */
+  | { kind: 'mute' }
+  | { kind: 'setMute'; muted: boolean }
 
 export type MediaReply =
   | { kind: 'paused'; appIds: string[] }
   | { kind: 'sessions'; sessions: MediaSessionInfo[] }
+  | { kind: 'muted'; wasMuted: boolean }
+  | { kind: 'done' }
   | { kind: 'error'; message: string }

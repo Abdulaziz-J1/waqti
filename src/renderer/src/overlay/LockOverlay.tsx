@@ -1,8 +1,9 @@
 import { motion } from 'motion/react'
-import { useEffect, useRef } from 'react'
-import { fmtCountdown, fmtDuration } from '@shared/format'
+import { useEffect, useRef, useState } from 'react'
+import { fmtCountdown, fmtDuration, fmtNum, minutesPhrase } from '@shared/format'
 import type { OverlayState } from '@shared/ipc'
 import { prayerLabel } from '@shared/machine/toasts'
+import { snoozeChoices } from '@shared/settings/plan'
 import { isNightLike } from '@shared/sky'
 import { lock as t } from '@shared/strings'
 import { Odometer } from '../components/Odometer'
@@ -27,6 +28,7 @@ export function LockOverlay({ state }: { state: OverlayState }): React.JSX.Eleme
   const wall = useWallNow(1000)
   const lock = state.lock
   const chimed = useRef<number | null>(null)
+  const [choosing, setChoosing] = useState(false)
 
   useEffect(() => {
     if (lock && state.primary && lock.chime && chimed.current !== lock.startedAt) {
@@ -42,8 +44,8 @@ export function LockOverlay({ state }: { state: OverlayState }): React.JSX.Eleme
   const unlockIn = Math.max(0, lock.minUnlockAt - now)
   const canPray = unlockIn <= 0
   const night = isNightLike(state.sky.period)
-  const act = (action: 'prayed' | 'snooze' | 'emergency'): void => {
-    void api.invoke('lock:action', { action })
+  const act = (action: 'prayed' | 'snooze' | 'emergency', minutes?: number): void => {
+    void api.invoke('lock:action', minutes === undefined ? { action } : { action, minutes })
   }
 
   return (
@@ -99,28 +101,58 @@ export function LockOverlay({ state }: { state: OverlayState }): React.JSX.Eleme
           />
         </div>
 
-        <div className={s.actions}>
-          <button
-            type="button"
-            className={s.prayed}
-            disabled={!canPray}
-            onClick={() => act('prayed')}
-            data-testid="lock-prayed"
-          >
-            {canPray ? t.prayed : t.prayedIn(fmtCountdown(unlockIn, state.digits))}
-          </button>
-          <button
-            type="button"
-            className={s.snooze}
-            disabled={!lock.snoozeAvailable}
-            onClick={() => act('snooze')}
-            data-testid="lock-snooze"
-          >
-            {lock.snoozeAvailable ? t.snooze : t.snoozeUsed}
-          </button>
-        </div>
+        {choosing && lock.snoozeAvailable ? (
+          <div className={s.snoozeChooser} role="group" aria-label={t.snoozeFor}>
+            <span className={s.snoozeTitle}>{t.snoozeFor}</span>
+            <div className={s.snoozeChoices}>
+              {snoozeChoices(state.snoozeMinutes).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  className={s.snoozeChoice}
+                  data-default={m === state.snoozeMinutes || undefined}
+                  autoFocus={m === state.snoozeMinutes}
+                  onClick={() => act('snooze', m)}
+                  data-testid={`lock-snooze-${m}`}
+                >
+                  {minutesPhrase(m, state.digits)}
+                </button>
+              ))}
+            </div>
+            <button type="button" className={s.snoozeBack} onClick={() => setChoosing(false)}>
+              {t.snoozeBack}
+            </button>
+          </div>
+        ) : (
+          <div className={s.actions}>
+            <button
+              type="button"
+              className={s.prayed}
+              disabled={!canPray}
+              onClick={() => act('prayed')}
+              data-testid="lock-prayed"
+            >
+              {canPray ? t.prayed : t.prayedIn(fmtCountdown(unlockIn, state.digits))}
+            </button>
+            {lock.snoozeEnabled ? (
+              <button
+                type="button"
+                className={s.snooze}
+                disabled={!lock.snoozeAvailable}
+                onClick={() => setChoosing(true)}
+                data-testid="lock-snooze"
+              >
+                {lock.snoozeAvailable ? t.snooze : t.snoozeUsed}
+              </button>
+            ) : null}
+          </div>
+        )}
 
-        <HoldButton holdMs={3000} hint={t.emergencyHint} onComplete={() => act('emergency')}>
+        <HoldButton
+          holdMs={state.emergencyHoldMs}
+          hint={t.emergencyHint(fmtNum(state.emergencyHoldMs / 1000, state.digits))}
+          onComplete={() => act('emergency')}
+        >
           {t.emergency}
         </HoldButton>
       </main>

@@ -9,7 +9,8 @@ import {
   lockDelayMinutesFor,
   lockPlanFor,
   machineConfigOf,
-  reminderMinutesFor
+  reminderMinutesFor,
+  snoozeChoices
 } from './plan'
 import { MINUTE } from '../time'
 
@@ -134,7 +135,8 @@ describe('plan resolution', () => {
     expect(lockPlanFor(s, 'asr', false)).toEqual({
       lockMs: 15 * MINUTE,
       minUnlockMs: 5 * MINUTE,
-      chime: true
+      chime: true,
+      snooze: true
     })
     expect(lockPlanFor(s, 'dhuhr', true)?.lockMs).toBe(40 * MINUTE)
     const off = applyPatch(s, { prayers: { asr: { lock: false } }, friday: { lock: false } })
@@ -161,6 +163,18 @@ describe('plan resolution', () => {
     expect(
       applyPatch(s, { prayers: { asr: { lockDelayMinutes: 90 } } }).prayers.asr.lockDelayMinutes
     ).toBe(20)
+  })
+
+  it('offers common snooze lengths plus the configured default', () => {
+    expect(snoozeChoices(5)).toEqual([1, 2, 3, 5, 10, 15])
+    expect(snoozeChoices(7)).toEqual([1, 2, 3, 5, 7, 10, 15])
+    expect(lockPlanFor(s, 'asr', false)?.snooze).toBe(true)
+    const off = applyPatch(s, { snooze: { enabled: false } })
+    expect(lockPlanFor(off, 'asr', false)?.snooze).toBe(false)
+    expect(forcedLockPlan(off, 'asr', false).snooze).toBe(false)
+    expect(s.emergencyHoldSeconds).toBe(3)
+    expect(applyPatch(s, { emergencyHoldSeconds: 30 }).emergencyHoldSeconds).toBe(3)
+    expect(applyPatch(s, { emergencyHoldSeconds: 10 }).emergencyHoldSeconds).toBe(10)
   })
 
   it('resolves reminders, adjustments and machine config', () => {

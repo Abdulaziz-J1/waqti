@@ -24,13 +24,14 @@ export function adjustmentsOf(s: Settings): Adjustments {
 /** How a prayer locks, or null when its lock is off. Friday Dhuhr uses the Friday settings. */
 export function lockPlanFor(s: Settings, prayer: PrayerId, isJumuah: boolean): LockPlan | null {
   const minUnlockMs = s.minUnlockMinutes * MINUTE
+  const snooze = s.snooze.enabled
   if (isJumuah) {
     if (!s.friday.lock) return null
-    return { lockMs: s.friday.lockMinutes * MINUTE, minUnlockMs, chime: s.chime }
+    return { lockMs: s.friday.lockMinutes * MINUTE, minUnlockMs, chime: s.chime, snooze }
   }
   const p = s.prayers[prayer]
   if (!p.lock) return null
-  return { lockMs: p.lockMinutes * MINUTE, minUnlockMs, chime: s.chime }
+  return { lockMs: p.lockMinutes * MINUTE, minUnlockMs, chime: s.chime, snooze }
 }
 
 /**
@@ -56,9 +57,15 @@ export function forcedLockPlan(s: Settings, prayer: PrayerId, isJumuah: boolean)
     lockPlanFor(s, prayer, isJumuah) ?? {
       lockMs: 15 * MINUTE,
       minUnlockMs: s.minUnlockMinutes * MINUTE,
-      chime: s.chime
+      chime: s.chime,
+      snooze: s.snooze.enabled
     }
   )
+}
+
+/** Snooze lengths the lock screen offers: the common ones plus the configured default. */
+export function snoozeChoices(defaultMinutes: number): number[] {
+  return [...new Set([1, 2, 3, 5, 10, 15, defaultMinutes])].sort((a, b) => a - b)
 }
 
 /** Minutes before the prayer's adhan for the reminder toast; 0 = no reminder. */

@@ -53,6 +53,48 @@ test('media: what is playing pauses when the lock starts', async () => {
   await app.close()
 })
 
+test('media: every playing tab pauses, not only the one Windows shows', async () => {
+  test.skip(process.platform !== 'win32', 'Windows media controls only')
+  const { app, win } = await launch({ WAQTI_MEDIA_PAUSE_APP: APP_ID })
+  await invoke(win, 'onboarding:complete', { launchAtStartup: false })
+  await invoke(win, 'settings:update', { smart: { skipWhenAway: false } })
+  const first = await startPlayer(win)
+  // A second window of the same app plays too, like a second browser tab.
+  await app.evaluate(async ({ BrowserWindow }, src) => {
+    const w = new BrowserWindow({ width: 320, height: 200, show: true })
+    await w.loadURL('about:blank')
+    await w.webContents.executeJavaScript(
+      `(() => { const a = new Audio(${JSON.stringify(src)}); a.loop = true; window.player = a; return a.play() })()`,
+      true
+    )
+    ;(globalThis as unknown as { second: typeof w }).second = w
+  }, silentWav())
+  const second = (): Promise<boolean> =>
+    app.evaluate(() =>
+      (
+        globalThis as unknown as { second: Electron.BrowserWindow }
+      ).second.webContents.executeJavaScript('window.player.paused')
+    ) as Promise<boolean>
+  await expect.poll(second, { timeout: 10_000 }).toBe(false)
+
+  await win.waitForTimeout(1500)
+  await invoke(win, 'debug:simulatePrayer', { prayer: 'asr' })
+  await expect.poll(first, { timeout: 15_000 }).toBe(true)
+  await expect.poll(second, { timeout: 15_000 }).toBe(true)
+  // Stopping a browser session pauses in place: both keep their position.
+  const position = await win.evaluate(
+    () => (globalThis as unknown as { player: HTMLAudioElement }).player.currentTime
+  )
+  const secondPosition = (await app.evaluate(() =>
+    (
+      globalThis as unknown as { second: Electron.BrowserWindow }
+    ).second.webContents.executeJavaScript('window.player.currentTime')
+  )) as number
+  expect(position).toBeGreaterThan(1)
+  expect(secondPosition).toBeGreaterThan(1)
+  await app.close()
+})
+
 test('media: watching without touching the keyboard is not away', async () => {
   test.skip(process.platform !== 'win32', 'Windows media controls only')
   const { app, win, dataDir } = await launch({ WAQTI_MEDIA_PAUSE_APP: APP_ID })

@@ -53,6 +53,22 @@
   gap: var(--sp-3);
 }
 
+/* Typed custom length: a number plus minutes or hours. */
+.typed {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sp-2);
+}
+
+.typedField {
+  inline-size: 150px;
+}
+
+.typedError {
+  color: var(--danger);
+  font-size: var(--fs-small);
+}
+
 .live {
   display: flex;
   gap: var(--sp-5);

@@ -68,6 +68,8 @@ export interface DistractionList {
   sites: string[]
   /** Extra keywords matched against browser titles (case-insensitive). */
   keywords: string[]
+  /** Sites Waqti does not know, by name; matched in browser titles like keywords. */
+  customSites: string[]
 }
 
 /** The preset site keywords offered in onboarding and the Focus screen. */
@@ -80,6 +82,42 @@ export const PRESET_DISTRACTION_SITES = [
   'instagram',
   'twitch'
 ] as const
+
+/** Other known social and entertainment sites offered by «إضافة موقع». */
+export const EXTRA_DISTRACTION_SITES = [
+  'reddit',
+  'facebook',
+  'discord',
+  'whatsapp',
+  'telegram',
+  'linkedin',
+  'shahid'
+] as const
+
+export type SiteInput = { kind: 'known'; id: string } | { kind: 'custom'; name: string }
+
+/**
+ * Turns what someone typed ("Reddit", "يوتيوب", "https://www.kick.com/x")
+ * into a known site id, or a custom site name matched in page titles. A
+ * domain keeps only its name ("kick.com" → "kick"), since titles carry the
+ * site's name, not its address. Null when nothing usable is left.
+ */
+export function siteFromInput(text: string): SiteInput | null {
+  let name = text.trim()
+  const host = /^(?:[a-z]+:\/\/)?(?:www\.)?([^/\s?#]+\.[a-z]{2,})(?:[/?#].*)?$/i.exec(name)
+  if (host) {
+    const parts = host[1]!.split('.')
+    name = parts.length >= 2 ? parts[parts.length - 2]! : parts[0]!
+  }
+  if (!name || name.length > 60) return null
+  const lower = lc(name)
+  const known = KNOWN_SITES.find(
+    (s) => s.id === lower || lc(s.label) === lower || s.match.some((re) => re.test(name))
+  )
+  if (known) return { kind: 'known', id: known.id }
+  // A one-letter custom name would match almost every page title.
+  return name.length >= 2 ? { kind: 'custom', name } : null
+}
 
 export interface DistractionMatch {
   kind: 'app' | 'site' | 'keyword'
@@ -110,6 +148,8 @@ export function matchDistraction(
     return { kind: 'site', label, process: fg.process, site }
   }
   const title = lc(fg.title ?? '')
+  const custom = list.customSites.find((n) => n.trim() && title.includes(lc(n.trim())))
+  if (custom) return { kind: 'site', label: custom.trim(), process: fg.process, site }
   const kw = list.keywords.find((k) => k.trim() && title.includes(lc(k.trim())))
   if (kw) return { kind: 'keyword', label: kw.trim(), process: fg.process, site }
   return null

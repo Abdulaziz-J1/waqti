@@ -48,19 +48,27 @@ test('prayer lock: overlay appears on simulate and the emergency exit closes it'
   await app.close()
 })
 
-test('prayer lock: snooze once, then صلّيت after the minimum time', async () => {
+test('prayer lock: snooze once for the chosen minutes, then صلّيت after the minimum time', async () => {
   const { app, win } = await launch()
   await invoke(win, 'onboarding:complete', { launchAtStartup: false })
   await invoke(win, 'settings:update', { minUnlockMinutes: 0, smart: { skipWhenAway: false } })
   await invoke(win, 'debug:simulatePrayer', { prayer: 'maghrib' })
   let overlay = await overlayWindow(app)
   const closed = overlay.waitForEvent('close')
+  // «أجّل» opens the choice of length; the default (5 minutes) is marked.
   await overlay.locator('[data-testid="lock-snooze"]').click()
+  await expect(overlay.locator('[data-testid="lock-snooze-5"]')).toHaveAttribute(
+    'data-default',
+    'true'
+  )
+  await overlay.locator('[data-testid="lock-snooze-2"]').click()
   await closed
-  expect((await invoke(win, 'app:snapshot')).machine.prayer.kind).toBe('snoozed')
+  const snoozed = (await invoke(win, 'app:snapshot')).machine.prayer
+  expect(snoozed.kind).toBe('snoozed')
+  if (snoozed.kind === 'snoozed') expect(snoozed.resumeAt - snoozed.snoozedAt).toBe(2 * 60_000)
 
   // Jump the scheduler clock past the snooze: the lock returns without a second snooze.
-  await advanceClock(win, 6)
+  await advanceClock(win, 3)
   overlay = await overlayWindow(app)
   await expect(overlay.locator('[data-testid="lock-snooze"]')).toBeDisabled()
   const closed2 = overlay.waitForEvent('close')
@@ -68,6 +76,56 @@ test('prayer lock: snooze once, then صلّيت after the minimum time', async (
   await closed2
   const snap = await invoke(win, 'app:snapshot')
   expect(snap.machine.prayer.kind).toBe('idle')
+  await app.close()
+})
+
+test('prayer lock: the sound is muted while locked and comes back after a snooze or an exit', async () => {
+  const { app, win } = await launch()
+  await invoke(win, 'onboarding:complete', { launchAtStartup: false })
+  // No chime: the mute then happens right away. A 4-second emergency hold is shown.
+  await invoke(win, 'settings:update', {
+    chime: false,
+    emergencyHoldSeconds: 4,
+    smart: { skipWhenAway: false }
+  })
+  const muted = async (): Promise<boolean | null> =>
+    (await invoke(win, 'debug:readout')).testOutputMuted
+  await invoke(win, 'debug:simulatePrayer', { prayer: 'isha' })
+  let overlay = await overlayWindow(app)
+  await expect(overlay.locator('[data-testid="emergency-exit"]')).toContainText('٤')
+  await expect.poll(muted).toBe(true)
+
+  let closed = overlay.waitForEvent('close')
+  await overlay.locator('[data-testid="lock-snooze"]').click()
+  await overlay.locator('[data-testid="lock-snooze-1"]').click()
+  await closed
+  await expect.poll(muted).toBe(false)
+
+  await advanceClock(win, 2)
+  overlay = await overlayWindow(app)
+  await expect.poll(muted).toBe(true)
+  closed = overlay.waitForEvent('close')
+  const box = await overlay.locator('[data-testid="emergency-exit"]').boundingBox()
+  await overlay.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2)
+  await overlay.mouse.down()
+  await closed
+  await overlay.mouse.up().catch(() => undefined)
+  await expect.poll(muted).toBe(false)
+  expect((await invoke(win, 'debug:readout')).soundMutedByLock).toBe(false)
+  await app.close()
+})
+
+test('prayer lock: no snooze button when snoozing is turned off', async () => {
+  const { app, win } = await launch()
+  await invoke(win, 'onboarding:complete', { launchAtStartup: false })
+  await invoke(win, 'settings:update', {
+    snooze: { enabled: false },
+    smart: { skipWhenAway: false }
+  })
+  await invoke(win, 'debug:simulatePrayer', { prayer: 'asr' })
+  const overlay = await overlayWindow(app)
+  await expect(overlay.locator('[data-testid="lock-prayed"]')).toBeVisible()
+  await expect(overlay.locator('[data-testid="lock-snooze"]')).toHaveCount(0)
   await app.close()
 })
 

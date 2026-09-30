@@ -19,9 +19,11 @@ import {
 } from './categorize'
 import {
   DEFAULT_MEETING_CONFIG,
+  EXTRA_DISTRACTION_SITES,
   PRESET_DISTRACTION_SITES,
   isInMeeting,
-  matchDistraction
+  matchDistraction,
+  siteFromInput
 } from './detect'
 import { meetingConfigSchema } from './meeting-schema'
 import type { ForegroundInfo } from './apps'
@@ -308,7 +310,12 @@ describe('meeting detection', () => {
 })
 
 describe('distraction matching', () => {
-  const list = { apps: ['steam.exe'], sites: [...PRESET_DISTRACTION_SITES], keywords: ['anime'] }
+  const list = {
+    apps: ['steam.exe'],
+    sites: [...PRESET_DISTRACTION_SITES, 'reddit'],
+    keywords: ['anime'],
+    customSites: ['Kick']
+  }
 
   it('matches apps, sites and keywords', () => {
     expect(matchDistraction(fg({ process: 'steam.exe', appName: 'Steam' }), list)).toMatchObject({
@@ -337,5 +344,43 @@ describe('distraction matching', () => {
       )
     ).toBeNull()
     expect(matchDistraction(null, list)).toBeNull()
+  })
+
+  it('matches added known sites and custom sites by name in the title', () => {
+    expect(
+      matchDistraction(fg({ process: 'brave.exe', title: 'r/gaming - Reddit - Brave' }), list)
+    ).toMatchObject({ kind: 'site', label: 'Reddit', site: 'reddit' })
+    expect(
+      matchDistraction(fg({ process: 'msedge.exe', title: 'Stream - Kick - Microsoft Edge' }), list)
+    ).toMatchObject({ kind: 'site', label: 'Kick' })
+    expect(
+      matchDistraction(fg({ process: 'notepad.exe', title: 'kick list.txt' }), list)
+    ).toBeNull()
+  })
+})
+
+describe('adding a site', () => {
+  it('recognises known sites by id, label, Arabic name or address', () => {
+    expect(siteFromInput('Reddit')).toEqual({ kind: 'known', id: 'reddit' })
+    expect(siteFromInput('  facebook ')).toEqual({ kind: 'known', id: 'facebook' })
+    expect(siteFromInput('يوتيوب')).toEqual({ kind: 'known', id: 'youtube' })
+    expect(siteFromInput('https://www.reddit.com/r/all')).toEqual({ kind: 'known', id: 'reddit' })
+    expect(siteFromInput('web.whatsapp.com')).toEqual({ kind: 'known', id: 'whatsapp' })
+    expect(siteFromInput('x.com')).toEqual({ kind: 'known', id: 'x' })
+  })
+
+  it('keeps anything else as a custom site name, without its domain ending', () => {
+    expect(siteFromInput('kick.com')).toEqual({ kind: 'custom', name: 'kick' })
+    expect(siteFromInput('https://www.anghami.com/playlist/1')).toEqual({
+      kind: 'custom',
+      name: 'anghami'
+    })
+    expect(siteFromInput('Crunchyroll')).toEqual({ kind: 'custom', name: 'Crunchyroll' })
+  })
+
+  it('rejects empty or too short input', () => {
+    expect(siteFromInput('')).toBeNull()
+    expect(siteFromInput('  a ')).toBeNull()
+    expect(EXTRA_DISTRACTION_SITES).not.toContain('youtube')
   })
 })

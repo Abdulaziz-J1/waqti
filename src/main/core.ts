@@ -11,6 +11,7 @@ import { Exporter } from './services/exporter'
 import { ForegroundService } from './services/foreground'
 import { IdleService } from './services/idle'
 import { log } from './services/logger'
+import { LockAudio, VirtualOutput } from './services/lock-audio'
 import { MediaService } from './services/media'
 import { MeetingConfigStore } from './services/meeting-config'
 import { getNative, type Native } from './services/native'
@@ -74,6 +75,10 @@ export interface CoreOptions {
 }
 
 const LOCK_MARKER = 'lock_active'
+/** Whether the output was muted before the current lock muted it ('1' / '0'). */
+const AUDIO_MARKER = 'audio_before_lock'
+/** The lock's chime (renderer lib/chime.ts) rings for about 4 s before the sound is muted. */
+const CHIME_MS = 4000
 const RELEASE_HIDDEN_WINDOW_MS = 60_000
 
 /**
@@ -98,6 +103,9 @@ export class WaqtiCore {
   readonly exporter: Exporter
   readonly overlays: OverlayManager
   readonly tray: TrayService
+  readonly lockAudio: LockAudio
+  /** The sound output in isolated test profiles, which never touch the machine's sound. */
+  readonly testOutput: VirtualOutput | null
 
   machine: MachineState = INITIAL_STATE
   mainWindow: BrowserWindow | null = null
@@ -150,6 +158,24 @@ export class WaqtiCore {
       setTrackingPaused: (paused) => this.settings.update({ tracking: { paused } }),
       quit: () => this.quit()
     })
+    this.testOutput = process.env['WAQTI_USER_DATA'] ? new VirtualOutput() : null
+    this.lockAudio = new LockAudio(
+      this.testOutput ?? {
+        mute: () => this.media.muteOutput(),
+        set: (muted) => this.media.setOutputMuted(muted)
+      },
+      {
+        read: () => {
+          const v = this.repo.getMeta(AUDIO_MARKER)
+          return v === null ? null : v === '1'
+        },
+        write: (before) =>
+          before === null
+            ? this.repo.deleteMeta(AUDIO_MARKER)
+            : this.repo.setMeta(AUDIO_MARKER, before ? '1' : '0')
+      },
+      (err) => log.warn('lock audio failed', err)
+    )
     this.settings.on('change', (next: Settings, prev: Settings) =>
       this.onSettingsChange(next, prev)
     )
@@ -165,6 +191,8 @@ export class WaqtiCore {
 
   start(): void {
     this.recoverInterruptedLock()
+    // Sound muted by a lock the app never got to finish comes back now.
+    void this.lockAudio.lockHidden()
     if (!this.opts.startHidden) this.showWindow()
     this.tray.create(this.trayState())
     this.applyLoginItem()
@@ -208,8 +236,12 @@ export class WaqtiCore {
   quit(): void {
     if (this.quitting) return
     this.quitting = true
-    this.shutdown()
-    app.quit()
+    // Give the sound back first if a lock muted it (at most 3 s).
+    const wait = new Promise((resolve) => setTimeout(resolve, 3000))
+    void Promise.race([this.lockAudio.lockHidden(), wait]).finally(() => {
+      this.shutdown()
+      app.quit()
+    })
   }
 
   /** Flushes everything; safe to call more than once. */
@@ -427,10 +459,13 @@ export class WaqtiCore {
         this.overlays.showLock(e.lock)
         // Every time the lock goes up (also after a snooze): only what plays gets paused.
         if (this.s.pauseMedia) this.media.pausePlaying()
+        if (this.s.muteDuringLock) void this.lockAudio.lockShown(e.lock.chime ? CHIME_MS : 0)
         this.repo.setMeta(LOCK_MARKER, JSON.stringify(e.lock.ref))
         return
       case 'hideLock':
         this.overlays.hideLock()
+        // Whatever ended the lock (prayed, emergency exit, snooze, time up), the sound comes back.
+        void this.lockAudio.lockHidden()
         this.repo.deleteMeta(LOCK_MARKER)
         return
       case 'showAdhan':
@@ -718,6 +753,8 @@ export class WaqtiCore {
       digits: this.s.general.digits,
       clock: this.s.general.clock,
       reduceMotion: this.s.appearance.reduceMotion,
+      emergencyHoldMs: this.s.emergencyHoldSeconds * 1000,
+      snoozeMinutes: this.s.snooze.minutes,
       primary
     }
   }
@@ -873,7 +910,9 @@ export class WaqtiCore {
       inMeeting: this.inMeeting,
       idleSeconds: this.idle.idleSeconds(),
       startupMs: this.startupMs,
-      intervals: this.repo.intervalCount()
+      intervals: this.repo.intervalCount(),
+      soundMutedByLock: this.repo.getMeta(AUDIO_MARKER) !== null,
+      testOutputMuted: this.testOutput?.muted ?? null
     }
   }
 }

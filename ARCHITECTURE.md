@@ -87,8 +87,8 @@ stateDiagram-v2
   offered --> locked: OFFER_ACCEPTED (toast clicked)
   offered --> idle: TICK after the window / log skipped:late-start
   locked --> idle: PRAYED (after the minimum time) / log prayed, resume focus
-  locked --> snoozed: SNOOZE (once per prayer) / hideLock
-  snoozed --> locked: TICK after 5 min / showLock with the remaining time
+  locked --> snoozed: SNOOZE minutes (once per prayer, 1–15 min, when enabled) / hideLock
+  snoozed --> locked: TICK after the chosen minutes / showLock with the remaining time
   locked --> idle: EMERGENCY_EXIT (3 s hold) / log emergency
   locked --> idle: TICK at the end of the duration / log ended:duration
   locked --> idle: TICK at 60 min or FORCE_UNLOCK / log ended:safety
@@ -101,6 +101,7 @@ Other rules handled by the reducer:
 - **Machine asleep at prayer time** — `RESUME` carries the prayers whose lock time passed while suspended: each lock-enabled one is logged `skipped:asleep`; if the latest was ≤ 20 minutes ago a short reminder toast is shown, otherwise nothing.
 - **A new prayer while another is still active** (only possible with extreme settings) — the older one is closed (`superseded`) before the new one is handled.
 - **Media** — every `showLock` (including the return after a snooze) asks `MediaService` to pause what is playing, when the setting is on: a short-lived utility process (`media-helper.ts`) calls the GSMTC WinRT API through koffi, pauses the sessions whose status is Playing (never media keys) and replies with the apps it paused, which main logs. Before a lock is skipped as away because of input idle time alone, main asks the same helper whether anything is playing and passes `mediaPlaying` in the context: someone watching a video is present.
+- **Sound** — every `showLock` also mutes the default output through the same helper (Core Audio), after the 4 s chime when it plays, and every `hideLock` restores the state from before; that state is kept in the `audio_before_lock` meta row, so a quit or crash mid-lock is undone on the next start. Test profiles use an in-memory output. In Chromium browsers, a paused session is also stopped so the next playing tab's session appears and is paused as well.
 - **App quit during a lock** — main keeps a `lock_active` marker in the database while a lock is shown; on the next start it is logged `ended:interrupted` and no overlay comes back.
 
 ### Focus region

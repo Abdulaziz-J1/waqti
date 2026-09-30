@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import type { Channel, EventName } from './ipc-channels'
 import type { AdhanView, MachineState, LockView, GuardView, PrayerLogEntry } from './machine/types'
+import { MAX_FOCUS_MINUTES } from './focus'
 import type { MediaSessionInfo } from './media'
 import type { DaySchedule, PrayerId } from './prayer/schedule'
 import type { Settings } from './settings/schema'
@@ -106,6 +107,10 @@ export interface OverlayState {
   digits: Settings['general']['digits']
   clock: Settings['general']['clock']
   reduceMotion: boolean
+  /** How long «خروج طارئ» must be held. */
+  emergencyHoldMs: number
+  /** The snooze length the lock screen offers first. */
+  snoozeMinutes: number
   /** Only the primary display plays the chime. */
   primary: boolean
 }
@@ -120,6 +125,10 @@ export interface DebugReadout {
   idleSeconds: number
   startupMs: number | null
   intervals: number
+  /** A lock has muted the sound and will restore it. */
+  soundMutedByLock: boolean
+  /** The stand-in output's state in isolated test profiles (null otherwise). */
+  testOutputMuted: boolean | null
 }
 
 export interface AppInfo {
@@ -171,10 +180,14 @@ export const requestSchemas = {
   'prayer:history': z.object({ from: dayKeySchema, to: dayKeySchema }),
   'today:get': z.undefined(),
   'reports:get': z.object({ kind: z.enum(['day', 'week', 'month']), anchor: dayKeySchema }),
-  'focus:start': z.object({ minutes: z.number().int().min(1).max(240) }),
+  'focus:start': z.object({ minutes: z.number().int().min(1).max(MAX_FOCUS_MINUTES) }),
   'focus:stop': z.undefined(),
   'focus:sessions': z.object({ from: dayKeySchema, to: dayKeySchema }),
-  'lock:action': z.object({ action: z.enum(['prayed', 'snooze', 'emergency']) }),
+  'lock:action': z.object({
+    action: z.enum(['prayed', 'snooze', 'emergency']),
+    /** Snooze length chosen on the lock screen. */
+    minutes: z.number().int().min(1).max(15).optional()
+  }),
   'guard:action': z.object({ action: z.enum(['back', 'snooze']) }),
   'adhan:close': z.undefined(),
   'overlay:state': z.undefined(),

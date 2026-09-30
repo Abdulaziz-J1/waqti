@@ -56,6 +56,18 @@ export class MediaService {
     }
   }
 
+  /** Mutes the default output; resolves whether it was muted before. */
+  async muteOutput(): Promise<boolean> {
+    const reply = await this.ask({ kind: 'mute' })
+    if (reply.kind === 'muted') return reply.wasMuted
+    throw new Error(reply.kind === 'error' ? reply.message : `unexpected ${reply.kind}`)
+  }
+
+  async setOutputMuted(muted: boolean): Promise<void> {
+    const reply = await this.ask({ kind: 'setMute', muted })
+    if (reply.kind === 'error') throw new Error(reply.message)
+  }
+
   /** Read-only: the sessions Windows lists right now (debug panel, E2E). */
   async sessions(): Promise<MediaSessionInfo[]> {
     if (process.platform !== 'win32') return []
