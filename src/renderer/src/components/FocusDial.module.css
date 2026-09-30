@@ -1,0 +1,295 @@
+@property --dial-fraction {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-5);
+}
+
+.dial {
+  position: relative;
+  flex-shrink: 0;
+  inline-size: 300px;
+  block-size: 300px;
+  display: grid;
+  place-items: center;
+}
+
+/* A soft halo of the hour's colour behind the dial. */
+.dial::before {
+  content: '';
+  position: absolute;
+  inset: 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--tint-soft), transparent 70%);
+  transform: scale(1.35);
+  pointer-events: none;
+}
+
+.svg {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+  pointer-events: none;
+  touch-action: none;
+}
+
+.stopA {
+  stop-color: var(--tint);
+}
+.stopB {
+  stop-color: var(--tint-2);
+}
+
+.tick {
+  stroke: var(--tint-text);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  opacity: 0.18;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.tick[data-major] {
+  stroke-width: 2.5;
+  opacity: 0.32;
+}
+
+.tick[data-lit] {
+  opacity: 0.9;
+}
+
+.track {
+  fill: none;
+  stroke: var(--surface-sunken);
+  stroke-width: 14;
+}
+
+/* Full hours beneath the hour being wound. */
+.lap {
+  fill: none;
+  stroke: var(--tint-2);
+  stroke-width: 14;
+  opacity: 0.3;
+}
+
+.arc {
+  fill: none;
+  stroke-width: 14;
+  stroke-linecap: round;
+  stroke-dasharray: var(--dial-fraction) 1;
+  transform: rotate(-90deg);
+  transform-origin: 160px 160px;
+  transform-box: view-box;
+  transition: --dial-fraction 700ms var(--ease-out);
+}
+
+.arc[data-empty] {
+  opacity: 0;
+}
+
+/* Running: the arc unwinds second by second. */
+.dial:not([data-idle]) .arc {
+  transition-duration: 1s;
+  transition-timing-function: linear;
+}
+
+.hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 52;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
+.hand {
+  transform: rotate(calc(var(--dial-turn) * 1turn));
+  transform-origin: 160px 160px;
+  transform-box: view-box;
+  transition: transform 700ms var(--ease-out);
+}
+
+.dial:not([data-idle]) .hand {
+  transition-duration: 1s;
+  transition-timing-function: linear;
+}
+
+.hand[data-knob] {
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.dial[data-dragging] .arc,
+.dial[data-dragging] .hand {
+  transition-duration: 60ms;
+}
+
+.dial[data-dragging] .hand {
+  cursor: grabbing;
+}
+
+.knob {
+  fill: var(--surface-2);
+  stroke: var(--tint);
+  stroke-width: 3;
+}
+
+.knobHalo {
+  fill: var(--tint-soft);
+  transition: transform var(--dur-base) var(--ease-out);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.hand[data-knob]:hover .knobHalo,
+.dial[data-dragging] .knobHalo {
+  transform: scale(1.35);
+}
+
+.dial:not([data-idle]) .knob {
+  fill: var(--tint-2);
+  stroke: none;
+}
+
+.dial[data-paused] .arc,
+.dial[data-paused] .knob {
+  stroke: var(--text-3);
+}
+
+.dial[data-paused] .tick[data-lit] {
+  opacity: 0.4;
+}
+
+/* Keyboard handle for the ring (the ring itself takes the pointer). */
+.slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  outline: none;
+}
+
+.slider::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--focus);
+  opacity: 0;
+  transform: scale(0.97);
+  transition:
+    opacity var(--dur-fast),
+    transform var(--dur-base) var(--ease-out);
+}
+
+.slider:focus-visible::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  max-inline-size: 210px;
+  text-align: center;
+}
+
+.stepWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.step {
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: 56px;
+  block-size: 56px;
+  border-radius: 50%;
+  color: var(--tint-text);
+  background: var(--surface-2);
+  box-shadow:
+    var(--shadow-1),
+    inset 0 0 0 1.5px color-mix(in srgb, var(--tint) 45%, transparent);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    opacity var(--dur-base);
+  touch-action: manipulation;
+}
+
+.step::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 35%, var(--tint-soft), transparent 75%);
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.step::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px solid var(--focus);
+  opacity: 0;
+  transform: scale(0.92);
+  transition:
+    opacity var(--dur-fast),
+    transform var(--dur-base) var(--ease-out);
+  pointer-events: none;
+}
+
+.step:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+.step:not(:disabled):hover::before {
+  opacity: 1;
+}
+
+.step:not(:disabled):active {
+  transform: scale(0.9);
+  transition-duration: 60ms;
+}
+
+.step:focus-visible::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.step:disabled {
+  opacity: 0.35;
+}
+
+.step svg {
+  position: relative;
+}
+
+.caption {
+  color: var(--text-3);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+}
+
+@media (max-width: 1100px) {
+  .dial {
+    inline-size: 260px;
+    block-size: 260px;
+  }
+  .row {
+    gap: var(--sp-3);
+  }
+}

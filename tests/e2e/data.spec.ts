@@ -27,7 +27,7 @@ test('settings: digits, recategorize, export, import and delete all', async () =
   const jsonPath = path.join(dataDir, 'export.json')
   const csvPath = path.join(dataDir, 'export.csv')
   // Demo rows are never exported, so create one real focus session to export.
-  await invoke(win, 'focus:start', { minutes: 25 })
+  await invoke(win, 'focus:start', { seconds: 25 * 60 })
   await invoke(win, 'focus:stop')
   for (const [file, format] of [
     [jsonPath, 'json'],

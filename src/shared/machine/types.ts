@@ -158,7 +158,9 @@ export type MachineEvent =
   | { type: 'RESUME'; now: number; missed: PlannedPrayer[] }
   | { type: 'APP_STARTED'; now: number; recent: PlannedPrayer | null }
   | { type: 'OFFER_ACCEPTED'; now: number }
-  | { type: 'FOCUS_START'; now: number; id: string; minutes: number; breakMinutes: number | null }
+  | { type: 'FOCUS_START'; now: number; id: string; seconds: number; breakMinutes: number | null }
+  /** Lengthen or shorten the running session (− / + beside the dial). */
+  | { type: 'FOCUS_ADJUST'; now: number; deltaMs: number }
   | { type: 'FOCUS_STOP'; now: number }
   | { type: 'DISTRACTION'; now: number; target: DistractionTarget }
   | { type: 'DISTRACTION_CLEARED'; now: number }

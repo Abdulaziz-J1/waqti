@@ -3,6 +3,7 @@ import {
   DEFAULT_MACHINE_CONFIG as CFG,
   INITIAL_STATE,
   describeState,
+  focusProgress,
   focusRemaining,
   isAway,
   lockView,
@@ -547,7 +548,7 @@ const startFocus = (
   type: 'FOCUS_START',
   now,
   id: 's1',
-  minutes,
+  seconds: minutes * 60,
   breakMinutes
 })
 
@@ -561,6 +562,56 @@ describe('focus sessions', () => {
     const save = r.effects[0]
     if (save?.type !== 'saveFocus') throw new Error()
     expect(save.record).toMatchObject({ completed: true, focusedMs: 25 * MINUTE })
+  })
+
+  it('starts a length set to the second, never under a minute', () => {
+    const planned = (seconds: number): number => {
+      const f = reduce(INITIAL_STATE, { ...startFocus(), seconds } as MachineEvent).state.focus
+      if (f.kind !== 'focus') throw new Error()
+      return f.session.plannedMs
+    }
+    expect(planned(25 * 60 + 30)).toBe(25 * MINUTE + 30 * SECOND)
+    expect(planned(10)).toBe(MINUTE)
+    expect(planned(Number.NaN)).toBe(MINUTE)
+  })
+
+  it('− and + move the end of a running or paused session, keeping a minute', () => {
+    const running = reduce(INITIAL_STATE, startFocus()).state
+    const longer = reduce(running, { type: 'FOCUS_ADJUST', now: F0, deltaMs: 5 * MINUTE }).state
+    if (longer.focus.kind !== 'focus') throw new Error()
+    expect(longer.focus.session.endsAt).toBe(F0 + 30 * MINUTE)
+    expect(longer.focus.session.plannedMs).toBe(30 * MINUTE)
+    // Never less than a minute left.
+    const nearEnd = reduce(longer, {
+      type: 'FOCUS_ADJUST',
+      now: F0 + 27 * MINUTE,
+      deltaMs: -5 * MINUTE
+    }).state
+    if (nearEnd.focus.kind !== 'focus') throw new Error()
+    expect(nearEnd.focus.session.endsAt).toBe(F0 + 28 * MINUTE)
+    // Paused for prayer: the remaining time moves instead.
+    const paused = reduce(running, due(F0 + 10 * MINUTE)).state
+    const more = reduce(paused, {
+      type: 'FOCUS_ADJUST',
+      now: F0 + 11 * MINUTE,
+      deltaMs: 5 * MINUTE
+    })
+    if (more.state.focus.kind !== 'focusPaused') throw new Error()
+    expect(more.state.focus.remainingMs).toBe(20 * MINUTE)
+    // Nothing to adjust, or nothing asked.
+    expect(reduce(INITIAL_STATE, { type: 'FOCUS_ADJUST', now: F0, deltaMs: MINUTE }).state).toBe(
+      INITIAL_STATE
+    )
+    expect(reduce(running, { type: 'FOCUS_ADJUST', now: F0, deltaMs: 0 }).state).toBe(running)
+  })
+
+  it('reports how far a session has run for the taskbar button', () => {
+    const running = reduce(INITIAL_STATE, startFocus()).state
+    expect(focusProgress(running.focus, F0 + 5 * MINUTE)).toEqual({ fraction: 0.2, paused: false })
+    expect(focusProgress(running.focus, F0 + 60 * MINUTE)).toEqual({ fraction: 1, paused: false })
+    const paused = reduce(running, due(F0 + 10 * MINUTE)).state
+    expect(focusProgress(paused.focus, F0 + 12 * MINUTE)).toEqual({ fraction: 0.4, paused: true })
+    expect(focusProgress(INITIAL_STATE.focus, F0)).toBeNull()
   })
 
   it('ignores a second start and supports stopping early', () => {

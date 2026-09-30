@@ -1,5 +1,5 @@
 import { motion } from 'motion/react'
-import { Check } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 import { forwardRef, useId, type InputHTMLAttributes, type ReactNode } from 'react'
 import { spring } from '../motion'
 import s from './Field.module.css'
@@ -58,29 +58,67 @@ interface ChipProps {
   onToggle: () => void
   children: ReactNode
   icon?: ReactNode
+  /** Edit mode: a × badge takes the chip off the list. */
+  onRemove?: () => void
+  removeLabel?: string
 }
 
-/** Selectable chip with a spring check mark. */
-export function Chip({ selected, onToggle, children, icon }: ChipProps): React.JSX.Element {
+/**
+ * Selectable chip with a spring check mark. Chips pop in and out and the row
+ * reflows smoothly (layout animations move them with transforms); in edit
+ * mode they sway a little and carry a × badge.
+ */
+export function Chip({
+  selected,
+  onToggle,
+  children,
+  icon,
+  onRemove,
+  removeLabel
+}: ChipProps): React.JSX.Element {
   return (
-    <button
-      type="button"
-      className={s.chip}
-      data-selected={selected || undefined}
-      aria-pressed={selected}
-      onClick={onToggle}
+    <motion.span
+      layout
+      className={s.chipWrap}
+      data-editing={onRemove ? true : undefined}
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.6 }}
+      transition={spring.snappy}
     >
-      {icon}
-      <span className={s.chipLabel}>{children}</span>
-      <motion.span
-        className={s.check}
-        initial={false}
-        animate={{ scale: selected ? 1 : 0, opacity: selected ? 1 : 0 }}
-        transition={spring.snappy}
-        aria-hidden
+      <button
+        type="button"
+        className={s.chip}
+        data-selected={selected || undefined}
+        aria-pressed={selected}
+        onClick={onToggle}
       >
-        <Check size={12} strokeWidth={3} />
-      </motion.span>
-    </button>
+        {icon}
+        <span className={s.chipLabel}>{children}</span>
+        <motion.span
+          className={s.check}
+          initial={false}
+          animate={{ scale: selected ? 1 : 0, opacity: selected ? 1 : 0 }}
+          transition={spring.snappy}
+          aria-hidden
+        >
+          <Check size={12} strokeWidth={3} />
+        </motion.span>
+      </button>
+      {onRemove ? (
+        <motion.button
+          type="button"
+          className={s.chipRemove}
+          aria-label={removeLabel}
+          onClick={onRemove}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          exit={{ scale: 0 }}
+          transition={spring.snappy}
+        >
+          <X size={12} strokeWidth={3} />
+        </motion.button>
+      ) : null}
+    </motion.span>
   )
 }

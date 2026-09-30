@@ -44,7 +44,7 @@ export function TodayPage(): React.JSX.Element {
   const data = today.data
 
   const startFocus = (): void => {
-    void api.invoke('focus:start', { minutes: snap.settings.focus.lastMinutes })
+    void api.invoke('focus:start', { seconds: snap.settings.focus.lastSeconds })
     go('focus')
   }
 
@@ -165,7 +165,9 @@ export function TodayPage(): React.JSX.Element {
               <p className={s.focusLine}>
                 {data && data.focus.sessions > 0
                   ? t.focusToday(fmt.sessions(data.focus.sessions), fmt.dur(data.focus.focusedMs))
-                  : t.focusPitch(fmt.minutes(snap.settings.focus.lastMinutes))}
+                  : t.focusPitch(
+                      fmt.dur(snap.settings.focus.lastSeconds * 1000, { round: 'round' })
+                    )}
               </p>
               <Button variant="primary" icon={<Play size={16} />} onClick={startFocus}>
                 {t.startFocus}

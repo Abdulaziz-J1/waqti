@@ -31,18 +31,18 @@
 }
 
 .option[data-active] {
-  color: var(--text-1);
-  font-weight: 600;
+  color: var(--tint-text);
+  font-weight: 700;
 }
 
 .indicator {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: var(--surface-2);
+  background: linear-gradient(var(--tint-soft), var(--tint-soft)), var(--surface-2);
   box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.08),
-    inset 0 0 0 1px var(--border);
+    inset 0 0 0 1.5px color-mix(in srgb, var(--tint) 45%, transparent);
 }
 
 .text {

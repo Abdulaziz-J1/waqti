@@ -76,6 +76,23 @@ export function prayersBetween(
     .map((ref) => ({ ref, plan: lockPlanFor(settings, ref.prayer, ref.isJumuah) }))
 }
 
+/**
+ * The first prayer that locks in (from, to]: a focus session running then
+ * pauses for it and carries on after the prayer.
+ */
+export function lockDuring(
+  schedules: DaySchedule[],
+  settings: Settings,
+  from: number,
+  to: number
+): PrayerRef | null {
+  return (
+    prayerRefs(schedules, settings).find(
+      (r) => r.at > from && r.at <= to && lockPlanFor(settings, r.prayer, r.isJumuah) !== null
+    ) ?? null
+  )
+}
+
 /** The latest prayer whose lock time is in [now − windowMs, now], if any (for the startup offer). */
 export function recentPrayer(
   schedules: DaySchedule[],

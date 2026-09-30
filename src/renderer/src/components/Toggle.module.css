@@ -39,8 +39,8 @@
 
 .track[data-on] {
   justify-content: flex-end;
-  background: var(--btn-primary-bg);
-  box-shadow: none;
+  background: linear-gradient(135deg, var(--tint), var(--tint-mid));
+  box-shadow: 0 4px 12px -6px var(--tint);
 }
 
 .knob {
@@ -52,7 +52,8 @@
 }
 
 .track[data-on] .knob {
-  background: var(--btn-primary-fg);
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
 }
 
 .track::after {

@@ -84,7 +84,7 @@
   inset-block: 9px;
   inline-size: 3px;
   border-radius: var(--r-pill);
-  background: var(--accent);
+  background: linear-gradient(var(--tint-2), var(--tint));
 }
 
 .icon,
@@ -147,7 +147,7 @@
   background: var(--success);
 }
 .status[data-status='paused'] .dot {
-  background: var(--accent);
+  background: var(--tint);
 }
 
 .pause {

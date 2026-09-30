@@ -70,8 +70,8 @@ test('focus session: guard, back to work, snooze, prayer pause and summary', asy
     await win.screenshot({ path: path.join(SHOTS, 'focus-running.png') })
   }
 
-  // Jump past the end: the session completes and the summary appears.
-  await advanceClock(win, 30)
+  // Jump past the end (30 minutes by default): the session completes and the summary appears.
+  await advanceClock(win, 32)
   await expect(win.getByRole('dialog')).toBeVisible({ timeout: 10_000 })
   await expect(win.getByRole('dialog')).toContainText('أحسنت')
   if (SHOTS) {

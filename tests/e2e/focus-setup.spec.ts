@@ -1,10 +1,11 @@
 import { expect, test } from '@playwright/test'
 import { invoke, launch } from './helpers'
 
-test('focus: add a known and an unknown site, then start a length typed in hours', async () => {
+test('focus: sites and apps as chips that switch off and come off the list', async () => {
   const { app, win } = await launch()
   await invoke(win, 'onboarding:complete', { launchAtStartup: false })
   await win.locator('[data-testid="nav-focus"]').click()
+  const distractions = async () => (await invoke(win, 'app:snapshot')).settings.distractions
 
   // «إضافة موقع»: switch on a known site and type any other one.
   await win.locator('[data-testid="add-site"]').click()
@@ -12,32 +13,108 @@ test('focus: add a known and an unknown site, then start a length typed in hours
   await dialog.getByRole('switch', { name: 'Reddit' }).click()
   await dialog.locator('[data-testid="site-input"]').fill('https://www.kick.com/some-stream')
   await dialog.locator('[data-testid="site-input"]').press('Enter')
-  await expect
-    .poll(async () => (await invoke(win, 'app:snapshot')).settings.distractions)
-    .toMatchObject({ customSites: ['kick'] })
-  expect((await invoke(win, 'app:snapshot')).settings.distractions.sites).toContain('reddit')
+  await expect.poll(distractions).toMatchObject({ customSites: ['kick'] })
+  expect((await distractions()).sites).toContain('reddit')
   await dialog.getByRole('button', { name: 'تم' }).click()
-  const editor = win.locator('#focus-distractions')
-  await expect(editor).toContainText('Reddit')
-  await expect(editor).toContainText('kick')
 
-  // A custom length typed as 2 hours.
-  await win.getByRole('radio', { name: 'مخصص' }).click()
-  await win.getByRole('radio', { name: 'ساعة' }).click()
-  await win.locator('[data-testid="focus-typed"]').fill('2')
-  await win.locator('[data-testid="focus-start"]').click()
+  // Each added site is a chip like YouTube's: pressing it switches it off, and it stays.
+  const chips = win.locator('[data-testid="site-chips"]')
+  const kick = chips.getByRole('button', { name: 'kick', exact: true })
+  await expect(kick).toHaveAttribute('aria-pressed', 'true')
+  await kick.click()
+  await expect(kick).toHaveAttribute('aria-pressed', 'false')
+  await expect.poll(distractions).toMatchObject({ customSites: [], listedCustomSites: ['kick'] })
+
+  // The pencil beside «مواقع»: × takes an added site off the list; presets stay.
+  await win.locator('[data-testid="edit-sites"]').click()
+  await expect(chips.getByRole('button', { name: 'حذف YouTube' })).toHaveCount(0)
+  await chips.getByRole('button', { name: 'حذف kick' }).click()
+  await expect(kick).toHaveCount(0)
+  await chips.getByRole('button', { name: 'حذف Reddit' }).click()
+  await expect.poll(distractions).toMatchObject({ listedCustomSites: [], listedSites: [] })
+  expect((await distractions()).sites).not.toContain('reddit')
+  // Nothing left to remove: edit mode ends and the pencil goes.
+  await expect(win.locator('[data-testid="edit-sites"]')).toHaveCount(0)
+  await expect(chips.getByRole('button', { name: 'YouTube', exact: true })).toBeVisible()
+  await app.close()
+})
+
+test('focus: the dial starts at 30 minutes, steps by 5, and the picker sets any length', async () => {
+  const { app, win } = await launch()
+  await invoke(win, 'onboarding:complete', { launchAtStartup: false })
+  await invoke(win, 'settings:update', {
+    distractions: { apps: [], sites: [], keywords: [], customSites: [] }
+  })
+  await win.locator('[data-testid="nav-focus"]').click()
+  const face = win.locator('[data-testid="focus-face"]')
+  await expect(face).toHaveAccessibleName(/٣٠ دقيقة/)
+
+  // − and + beside the dial: five minutes a press.
+  await win.locator('[data-testid="focus-more"]').click()
+  await expect(face).toHaveAccessibleName(/٣٥ دقيقة/)
+  await win.locator('[data-testid="focus-less"]').click()
+  await win.locator('[data-testid="focus-less"]').click()
+  await expect(face).toHaveAccessibleName(/٢٥ دقيقة/)
+
+  // The clock face opens the picker: hours, minutes and seconds wheels.
+  await face.click()
+  const picker = win.locator('[data-testid="time-picker"]')
+  await expect(picker).toBeVisible()
+  await picker.getByRole('spinbutton', { name: 'ساعة' }).press('ArrowUp')
+  await picker.getByRole('spinbutton', { name: 'ثانية' }).press('PageUp')
+  await picker.getByRole('spinbutton', { name: 'ثانية' }).press('PageUp')
+  await expect(picker.getByRole('spinbutton', { name: 'دقيقة' })).toHaveAttribute(
+    'aria-valuenow',
+    '25'
+  )
+  await picker.locator('[data-testid="time-picker-done"]').click()
+  await expect(picker).toHaveCount(0)
+
+  // Saved for next time (and for the tray), then started at 1:25:20.
   await expect
-    .poll(async () => {
-      const f = (await invoke(win, 'app:snapshot')).machine.focus
-      return f.kind === 'off' ? null : f.session.plannedMs
-    })
-    .toBe(120 * 60_000)
-  await win.locator('[data-testid="focus-stop"]').click()
+    .poll(async () => (await invoke(win, 'app:snapshot')).settings.focus.lastSeconds)
+    .toBe(3600 + 25 * 60 + 20)
+  await win.locator('[data-testid="focus-start"]').click()
+  const planned = async (): Promise<number | null> => {
+    const f = (await invoke(win, 'app:snapshot')).machine.focus
+    return f.kind === 'off' ? null : f.session.plannedMs
+  }
+  await expect.poll(planned).toBe((3600 + 25 * 60 + 20) * 1000)
 
-  // Out of range: the start button waits for a valid length.
-  await win.getByRole('radio', { name: 'مخصص' }).click()
-  await win.locator('[data-testid="focus-typed"]').fill('30')
-  await expect(win.locator('[data-testid="focus-start"]')).toBeDisabled()
-  await expect(win.getByRole('alert')).toContainText('٢٤ ساعة')
+  // During the session + moves the end five minutes later.
+  await expect(win.locator('[data-testid="focus-stop"]')).toBeVisible()
+  await win.locator('[data-testid="focus-more"]').click()
+  await expect.poll(planned).toBe((3600 + 30 * 60 + 20) * 1000)
+  await win.locator('[data-testid="focus-stop"]').click()
+  await expect(win.locator('[data-testid="focus-start"]')).toBeVisible()
+
+  // Dragging the ring like a kitchen timer: a quarter turn is 15 minutes.
+  const ring = await win.locator('[data-testid="focus-ring"]').boundingBox()
+  const cx = ring!.x + ring!.width / 2
+  const cy = ring!.y + ring!.height / 2
+  const r = (ring!.width / 2) * (124 / 160)
+  await win.mouse.move(cx + r, cy)
+  await win.mouse.down()
+  await win.mouse.move(cx + r * 0.7, cy + r * 0.7, { steps: 4 })
+  await win.mouse.move(cx, cy + r, { steps: 4 })
+  await win.mouse.up()
+  // From 1:25:20 the press lands on 1:15 (this hour's quarter) and the drag winds on to 1:30.
+  await expect(face).toHaveAccessibleName(/ساعة و٣٠ دقيقة/)
+  await app.close()
+})
+
+test('focus: a prayer inside the length is announced, with a length that ends at its adhan', async () => {
+  const { app, win } = await launch()
+  await invoke(win, 'onboarding:complete', { launchAtStartup: false })
+  await invoke(win, 'settings:update', { focus: { lastSeconds: 12 * 3600 } })
+  await win.locator('[data-testid="nav-focus"]').click()
+  const note = win.locator('[data-testid="focus-prayer-note"]')
+  await expect(note).toContainText(/الظهر|الجمعة/)
+  await note.getByRole('button').click()
+  // Ends with the Dhuhr adhan: under two hours from the pinned 10:00.
+  await expect
+    .poll(async () => (await invoke(win, 'app:snapshot')).settings.focus.lastSeconds)
+    .toBeLessThan(2 * 3600)
+  await expect(note).toHaveCount(0)
   await app.close()
 })

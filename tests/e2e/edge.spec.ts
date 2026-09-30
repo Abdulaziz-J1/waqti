@@ -28,7 +28,7 @@ test('quit during a lock: no stuck overlay on the next start, recorded as interr
 test('database corruption: restores the newest healthy backup and tells the user', async () => {
   const first = await launch()
   await invoke(first.win, 'onboarding:complete', { launchAtStartup: false })
-  await invoke(first.win, 'focus:start', { minutes: 25 })
+  await invoke(first.win, 'focus:start', { seconds: 25 * 60 })
   await invoke(first.win, 'focus:stop')
   await first.app.close()
 

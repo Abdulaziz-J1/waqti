@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { MAX_FOCUS_MINUTES } from '../focus'
+import { DEFAULT_FOCUS_SECONDS, MAX_FOCUS_SECONDS, MIN_FOCUS_SECONDS } from '../focus'
 import { DEFAULT_CITY_ID } from '../prayer/cities'
 import { PRESET_DISTRACTION_SITES } from '../tracking/detect'
 
@@ -89,10 +89,19 @@ export const settingsSchema = section({
       .catch([...PRESET_DISTRACTION_SITES]),
     keywords: z.array(z.string().min(1).max(60)).max(100).catch([]),
     /** Sites Waqti does not know, matched by name in browser titles (like keywords). */
-    customSites: z.array(z.string().min(1).max(60)).max(100).catch([])
+    customSites: z.array(z.string().min(1).max(60)).max(100).catch([]),
+    /**
+     * Added apps, sites and keywords stay on the list as chips while switched
+     * off; the lists above hold the ones that are on.
+     */
+    listedApps: z.array(z.string().min(1).max(200)).max(200).catch([]),
+    listedSites: z.array(z.string().min(1).max(100)).max(100).catch([]),
+    listedCustomSites: z.array(z.string().min(1).max(60)).max(100).catch([]),
+    listedKeywords: z.array(z.string().min(1).max(60)).max(100).catch([])
   }),
   focus: section({
-    lastMinutes: int(1, MAX_FOCUS_MINUTES, 25),
+    /** The length on the dial: the last one started, 30 minutes at first. */
+    lastSeconds: int(MIN_FOCUS_SECONDS, MAX_FOCUS_SECONDS, DEFAULT_FOCUS_SECONDS),
     breakReminder: bool(true),
     breakMinutes: int(1, 60, 5)
   }),

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dueBetween, prayersBetween, recentPrayer, refForToday } from './due'
+import { dueBetween, lockDuring, prayersBetween, recentPrayer, refForToday } from './due'
 import { buildDaySchedule } from './schedule'
 import { applyPatch, defaultSettings } from '../settings/schema'
 import { MINUTE } from '../time'
@@ -147,6 +147,18 @@ describe('missed and recent prayers', () => {
     expect(recentPrayer([sunday], s, sunday.times.asr + 4 * MINUTE, 10 * MINUTE)).toBeNull()
     expect(recentPrayer([sunday], s, iqama + 4 * MINUTE, 10 * MINUTE)?.ref.prayer).toBe('asr')
     expect(recentPrayer([sunday], s, iqama + 11 * MINUTE, 10 * MINUTE)).toBeNull()
+  })
+
+  it('finds the first lock a focus session would run into', () => {
+    const asr = sunday.times.asr
+    const iqama = asr + 20 * MINUTE
+    const hit = lockDuring([sunday], s, asr - 30 * MINUTE, asr + 30 * MINUTE)
+    expect(hit).toMatchObject({ prayer: 'asr', adhanAt: asr, at: iqama })
+    // Ends before the iqama: the session never pauses.
+    expect(lockDuring([sunday], s, asr - 30 * MINUTE, iqama - MINUTE)).toBeNull()
+    // A prayer without a lock does not interrupt a session.
+    const noAsr = applyPatch(s, { prayers: { asr: { lock: false } } })
+    expect(lockDuring([sunday], noAsr, asr - 30 * MINUTE, asr + 30 * MINUTE)).toBeNull()
   })
 
   it('builds a ref for today whose adhan and lock are the same moment', () => {

@@ -20,7 +20,7 @@ import { OverlayManager } from './services/overlays'
 import { Scheduler } from './services/scheduler'
 import type { SettingsStore } from './services/settings-store'
 import { Tracker } from './services/tracker'
-import { TrayService } from './services/tray'
+import { type TrayState, TrayService } from './services/tray'
 import { createMainWindow, loadPage, preloadPath, secureWindow } from './services/windows'
 import { paths } from './paths'
 import type {
@@ -36,6 +36,8 @@ import {
   DEFAULT_MACHINE_CONFIG,
   INITIAL_STATE,
   describeState,
+  focusProgress,
+  focusRemaining,
   reduce
 } from '../shared/machine/machine'
 import { renderToast } from '../shared/machine/toasts'
@@ -119,6 +121,8 @@ export class WaqtiCore {
   private inMeeting = false
   private tickTimer: NodeJS.Timeout | null = null
   private tickCount = 0
+  /** Last taskbar progress applied (see updateTaskbarProgress). */
+  private lastProgress: string | null = null
   private suspendedAt: number | null = null
   private dirtyTimer: NodeJS.Timeout | null = null
   private releaseTimer: NodeJS.Timeout | null = null
@@ -153,7 +157,7 @@ export class WaqtiCore {
     })
     this.tray = new TrayService(paths.resources, {
       open: () => this.showWindow(),
-      startFocus: () => this.startFocus(25),
+      startFocus: () => this.startFocus(this.s.focus.lastSeconds),
       stopFocus: () => this.dispatch({ type: 'FOCUS_STOP', now: this.clock.now() }),
       setTrackingPaused: (paused) => this.settings.update({ tracking: { paused } }),
       quit: () => this.quit()
@@ -415,6 +419,7 @@ export class WaqtiCore {
       }
     }
 
+    this.updateTaskbarProgress(now)
     if (this.tickCount % 5 === 0) {
       this.tray.update(this.trayState())
       this.updateTitleBar()
@@ -510,16 +515,16 @@ export class WaqtiCore {
     }
   }
 
-  startFocus(minutes: number): void {
+  startFocus(seconds: number): void {
     const s = this.s
     this.dispatch({
       type: 'FOCUS_START',
       now: this.clock.now(),
       id: randomUUID(),
-      minutes,
+      seconds,
       breakMinutes: s.focus.breakReminder ? s.focus.breakMinutes : null
     })
-    if (s.focus.lastMinutes !== minutes) this.settings.update({ focus: { lastMinutes: minutes } })
+    if (s.focus.lastSeconds !== seconds) this.settings.update({ focus: { lastSeconds: seconds } })
   }
 
   // ---------------------------------------------------------------------------
@@ -598,6 +603,28 @@ export class WaqtiCore {
       background: sky.mid,
       symbol: sky.tone === 'dark' ? '#EEF2F8' : '#1B2A41',
       tone: sky.tone
+    }
+  }
+
+  /**
+   * The taskbar button fills as a focus session runs (amber while it waits
+   * for a prayer), so a minimised Waqti still shows how far along it is.
+   */
+  private updateTaskbarProgress(now: number): void {
+    const w = this.mainWindow
+    if (!w || w.isDestroyed()) {
+      this.lastProgress = null
+      return
+    }
+    const p = focusProgress(this.machine.focus, now)
+    const key = p ? `${Math.round(p.fraction * 500)}:${p.paused}` : 'off'
+    if (key === this.lastProgress) return
+    this.lastProgress = key
+    try {
+      if (p) w.setProgressBar(p.fraction, { mode: p.paused ? 'paused' : 'normal' })
+      else w.setProgressBar(-1)
+    } catch {
+      // not supported on this platform
     }
   }
 
@@ -759,7 +786,7 @@ export class WaqtiCore {
     }
   }
 
-  private trayState(): { tooltip: string; focusRunning: boolean; trackingPaused: boolean } {
+  private trayState(): TrayState {
     const s = this.s
     let tooltip: string = trayStrings.tooltipFallback
     const next = nextEvent(this.scheduler.list(), this.clock.now(), true)
@@ -774,10 +801,18 @@ export class WaqtiCore {
       })
       tooltip = trayStrings.tooltipNext(name, inText)
     }
+    const left = focusRemaining(this.machine.focus, this.clock.now())
+    if (left !== null) {
+      const leftText = fmtDuration(left, s.general.digits, { round: 'ceil' })
+      tooltip = `${trayStrings.tooltipFocus(leftText)}\n${tooltip}`
+    }
     if (s.tracking.paused) tooltip = `${tooltip}\n${trayStrings.tooltipPaused}`
     return {
       tooltip,
       focusRunning: this.machine.focus.kind !== 'off',
+      focusLabel: trayStrings.focusStart(
+        fmtDuration(s.focus.lastSeconds * 1000, s.general.digits, { round: 'round' })
+      ),
       trackingPaused: s.tracking.paused
     }
   }

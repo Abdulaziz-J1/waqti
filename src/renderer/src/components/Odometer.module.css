@@ -34,6 +34,16 @@
   line-height: var(--odo-line);
 }
 
+.cell,
+.sep {
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.cell[data-dim],
+.sep[data-dim] {
+  opacity: 0.3;
+}
+
 :global(:root[data-reduce-motion]) .column {
   transition: none;
 }

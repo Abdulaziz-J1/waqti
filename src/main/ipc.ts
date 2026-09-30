@@ -106,8 +106,12 @@ export function registerIpc(core: WaqtiCore): void {
       data.activities = data.activities.map((a) => ({ ...a, icon: core.apps.icon(a.exePath) }))
       return data
     },
-    'focus:start': ({ minutes }) => {
-      core.startFocus(minutes)
+    'focus:start': ({ seconds }) => {
+      core.startFocus(seconds)
+      return null
+    },
+    'focus:adjust': ({ minutes }) => {
+      core.dispatch({ type: 'FOCUS_ADJUST', now: core.clock.now(), deltaMs: minutes * MINUTE })
       return null
     },
     'focus:stop': () => {

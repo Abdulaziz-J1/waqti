@@ -116,6 +116,10 @@ bdi,
   outline: none;
 }
 
+::selection {
+  background: color-mix(in srgb, var(--tint-2) 38%, transparent);
+}
+
 .visually-hidden {
   position: absolute;
   inline-size: 1px;
@@ -131,7 +135,7 @@ bdi,
   block-size: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
+  background: color-mix(in srgb, var(--tint) 34%, transparent);
   border-radius: var(--r-pill);
   border: 3px solid transparent;
   background-clip: padding-box;

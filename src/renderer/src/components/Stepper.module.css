@@ -40,8 +40,8 @@
     color var(--dur-fast);
 }
 .btn:not(:disabled):hover {
-  background: var(--surface-2);
-  color: var(--text-1);
+  background: var(--tint-soft);
+  color: var(--tint-text);
 }
 .btn:not(:disabled):active {
   transform: scale(0.92);

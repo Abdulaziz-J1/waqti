@@ -412,7 +412,7 @@ function onFocusStart(
   effects: Effect[]
 ): MachineState {
   if (s.focus.kind !== 'off') return s
-  const plannedMs = Math.max(1, Math.round(e.minutes)) * MINUTE
+  const plannedMs = Math.max(MINUTE, Math.round(e.seconds) * SECOND || MINUTE)
   const session: FocusSession = {
     id: e.id,
     startedAt: e.now,
@@ -434,6 +434,32 @@ function onFocusStart(
     }
   }
   return { ...s, focus: running }
+}
+
+/**
+ * − / + beside the running dial: moves the end by `deltaMs`, never leaving
+ * less than a minute to go. The planned length follows so the ring stays true.
+ */
+function onFocusAdjust(s: MachineState, now: number, deltaMs: number): MachineState {
+  const f = s.focus
+  if (f.kind === 'off' || !Number.isFinite(deltaMs) || deltaMs === 0) return s
+  if (f.kind === 'focusPaused') {
+    const remainingMs = Math.max(MINUTE, f.remainingMs + deltaMs)
+    const applied = remainingMs - f.remainingMs
+    return {
+      ...s,
+      focus: {
+        ...f,
+        remainingMs,
+        session: { ...f.session, plannedMs: f.session.plannedMs + applied }
+      }
+    }
+  }
+  const endsAt = Math.max(now + MINUTE, f.session.endsAt + deltaMs)
+  const applied = endsAt - f.session.endsAt
+  if (applied === 0) return s
+  const session = { ...f.session, endsAt, plannedMs: f.session.plannedMs + applied }
+  return { ...s, focus: { ...f, session } }
 }
 
 function onFocusStop(s: MachineState, now: number, effects: Effect[]): MachineState {
@@ -561,6 +587,10 @@ export function reduce(
       state = onFocusStart(s, e, effects)
       break
 
+    case 'FOCUS_ADJUST':
+      state = onFocusAdjust(s, e.now, e.deltaMs)
+      break
+
     case 'FOCUS_STOP':
       state = onFocusStop(s, e.now, effects)
       break
@@ -664,4 +694,21 @@ export function focusRemaining(f: FocusState, now: number): number | null {
   if (f.kind === 'off') return null
   if (f.kind === 'focusPaused') return f.remainingMs
   return Math.max(0, f.session.endsAt - now)
+}
+
+/**
+ * How far the session has run (0…1) for the taskbar button's progress bar,
+ * and whether it is paused; null when no session.
+ */
+export function focusProgress(
+  f: FocusState,
+  now: number
+): { fraction: number; paused: boolean } | null {
+  const remaining = focusRemaining(f, now)
+  if (f.kind === 'off' || remaining === null) return null
+  const planned = Math.max(1, f.session.plannedMs)
+  return {
+    fraction: Math.min(1, Math.max(0, (planned - remaining) / planned)),
+    paused: f.kind === 'focusPaused'
+  }
 }

@@ -1,0 +1,212 @@
+.pop {
+  position: absolute;
+  z-index: 40;
+  inset-block-start: calc(100% + 14px);
+  inset-inline: -260px;
+  margin-inline: auto;
+  inline-size: 380px;
+  padding: var(--sp-4);
+  border-radius: var(--r-xl);
+  background:
+    radial-gradient(120% 70% at 50% 0%, var(--tint-soft), transparent 60%), var(--surface-2);
+  box-shadow:
+    var(--shadow-2),
+    inset 0 0 0 1px var(--border);
+  transform-origin: 50% 0;
+  text-align: start;
+  cursor: default;
+}
+
+.caret {
+  position: absolute;
+  inset-block-start: -7px;
+  inset-inline: 0;
+  margin-inline: auto;
+  inline-size: 14px;
+  block-size: 14px;
+  border-start-start-radius: 3px;
+  background: linear-gradient(var(--tint-soft), var(--tint-soft)), var(--surface-2);
+  box-shadow:
+    inset 1px 1px 0 var(--border),
+    inset -1px -1px 0 transparent;
+  transform: rotate(45deg);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+.words {
+  color: var(--tint-text);
+  font-size: var(--fs-small);
+  font-weight: 600;
+}
+
+/* Laid out like the clock face: hours on the left, seconds on the right. */
+.wheels {
+  position: relative;
+  display: flex;
+  direction: ltr;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2px;
+  margin-block: var(--sp-3);
+}
+
+.band {
+  position: absolute;
+  inset-inline: 10px;
+  inset-block-start: 80px;
+  block-size: 40px;
+  border-radius: var(--r-md);
+  background: var(--tint-soft);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tint) 35%, transparent);
+  pointer-events: none;
+}
+
+.wheelWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.wheel {
+  position: relative;
+  inline-size: 76px;
+  block-size: 200px;
+  padding-block: 80px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  border-radius: var(--r-md);
+  outline: none;
+  mask-image: linear-gradient(transparent, #000 32%, #000 68%, transparent);
+}
+
+.wheel::-webkit-scrollbar {
+  display: none;
+}
+
+.wheelWrap:has(.wheel:focus-visible) .unit {
+  color: var(--tint-text);
+}
+
+.wheel:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--focus);
+  mask-image: none;
+}
+
+.item {
+  display: block;
+  block-size: 40px;
+  line-height: 40px;
+  text-align: center;
+  scroll-snap-align: center;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  user-select: none;
+  animation: wheel-item linear both;
+  animation-timeline: view();
+}
+
+.item[data-selected] {
+  color: var(--tint-text);
+  font-weight: 700;
+}
+
+/* Numbers swell as they pass through the band (scroll-driven, transform and opacity only). */
+@keyframes wheel-item {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.78);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+.colon {
+  display: grid;
+  place-items: center;
+  block-size: 200px;
+  padding-block-end: 4px;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-3);
+}
+
+.unit {
+  color: var(--text-3);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  transition: color var(--dur-fast);
+}
+
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+  padding-block-start: var(--sp-3);
+  border-block-start: 1px solid var(--border);
+}
+
+.preset {
+  position: relative;
+  padding-block: 4px;
+  padding-inline: 10px;
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+  box-shadow: inset 0 0 0 1px var(--border);
+  color: var(--text-2);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    background-color var(--dur-base),
+    color var(--dur-base);
+}
+
+.preset:hover {
+  color: var(--text-1);
+  transform: translateY(-1px);
+}
+
+.preset:active {
+  transform: scale(0.95);
+}
+
+.preset:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.preset[data-selected] {
+  background: linear-gradient(135deg, var(--tint), var(--tint-mid));
+  box-shadow: none;
+  color: var(--tint-fg);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-block-start: var(--sp-3);
+}

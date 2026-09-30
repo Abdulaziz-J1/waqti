@@ -49,7 +49,11 @@ export function useSkyTheme(): SkyInfo {
     first.current = false
     lastTheme.current = theme
     const dur = reduced || fast ? '1.2s' : 'var(--dur-sky)'
-    root.style.transition = `--sky-top ${dur} linear, --sky-mid ${dur} linear, --sky-horizon ${dur} linear`
+    // The tint follows the light/dark tone, which flips at once, so it fades quickly.
+    root.style.transition = [
+      ...['--sky-top', '--sky-mid', '--sky-horizon'].map((v) => `${v} ${dur} linear`),
+      ...['--tint', '--tint-2', '--tint-text'].map((v) => `${v} 1.2s ease`)
+    ].join(', ')
     if (theme === 'sky') {
       root.style.setProperty('--sky-top', sky.colors.top)
       root.style.setProperty('--sky-mid', sky.colors.mid)

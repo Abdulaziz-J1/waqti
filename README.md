@@ -13,7 +13,7 @@
 كثير منا طلاب وموظفين نقعد ساعات على الكمبيوتر، ونكتشف آخر اليوم إن نصه راح بين يوتيوب ووسائل التواصل، أو إن الصلاة دخلت ونحن مندمجين. وقتي يحل الثلاث مشاكل مع بعض:
 
 - **يعرف وين يروح وقتك:** يسجّل تلقائياً التطبيقات والمواقع اللي تستخدمها، ويصنّفها (دراسة وعمل، تواصل، ترفيه، أخرى)، ويعطيك تقارير يومية وأسبوعية وشهرية.
-- **يساعدك تركّز:** جلسات تركيز (٢٥ / ٥٠ / ٩٠ دقيقة أو مدة تختارها). لو فتحت تطبيق أو موقع يشتتك، يطلع لك تذكير لطيف ترجع لشغلك.
+- **يساعدك تركّز:** جلسات تركيز بأي مدة تختارها من ساعة مثل مؤقت المطبخ. لو فتحت تطبيق أو موقع يشتتك، يطلع لك تذكير لطيف ترجع لشغلك.
 - **يوقف كل شي وقت الصلاة:** بتقويم أم القرى. يذكّرك قبل الأذان، ووقت الأذان يجيك تنبيه قصير، ووقت الإقامة تنقفل الشاشة بهدوء على كل الشاشات ويوقف الفيديو والصوت الشغّال، مع دائرة تنفّس والوقت المتبقي. وتقدر تطلع متى ما احتجت.
 
 ## المميزات
@@ -23,8 +23,11 @@
 - قفل ذكي: ما يقفل إذا كنت بعيد عن الجهاز (وإذا فيه فيديو أو صوت شغّال يعتبرك موجود)، ويأجّل إذا كنت في اجتماع (Teams وZoom وWebex وGoogle Meet وعرض PowerPoint)، ويذكّرك إذا صحّى الجهاز من النوم بعد الأذان.
 - زر «صلّيت» بعد وقت أدنى، وتأجيل مرة وحدة تختار مدته من شاشة القفل (من دقيقة إلى ١٥، وتقدر تطفيه)، وخروج طارئ بالضغط المطوّل (٣ إلى ١٠ ثواني حسب إعدادك).
 - وقت القفل يوقف كل الفيديوهات والأصوات الشغّالة ويكتم الصوت، ويرجّع الصوت زي ما كان إذا انتهى القفل أو أجّلته أو خرجت.
-- التركيز: مدد جاهزة أو مدة تكتبها بالدقائق أو الساعات (لين ٢٤ ساعة)، وتضيف أي تطبيق أو موقع للمشتتات.
-- تصميم «سماء اليوم»: ألوان التطبيق تتبع وقت اليوم من الفجر لليل، وقوس في صفحة اليوم فيه الشمس والقمر ومواقيت الصلاة.
+- التركيز: ساعة تسحب حلقتها مثل مؤقت المطبخ (كل لفّة ساعة)، أو − و + بخمس دقائق (اضغط مطوّل وتسرع)، أو تضغط على الوقت `٠٠:٣٠:٠٠` وتختار الساعات والدقائق والثواني من قائمة. تبدأ بـ ٣٠ دقيقة، وتتذكّر آخر مدة.
+- أثناء الجلسة: − و + يقدّمون نهايتها أو يأخرونها، وأيقونة وقتي في شريط المهام تتعبّى مع الجلسة.
+- إذا كانت صلاة بتجي في نص الجلسة يقولك، ويعطيك زر «خلها تخلص مع أذان …».
+- المشتتات شرائح تشغّلها وتطفيها بضغطة (المواقع والتطبيقات والكلمات)، والقلم جنب العنوان يحذف اللي أضفته. تضيف أي تطبيق أو موقع.
+- تصميم «سماء اليوم»: ألوان التطبيق تتبع وقت اليوم من الفجر لليل، حتى الأزرار والمفاتيح والشرائح (ذهبي بالليل، وردي وقت الفجر والمغرب، أزرق بالنهار، كهرماني وقت العصر)، وقوس في صفحة اليوم فيه الشمس والقمر ومواقيت الصلاة.
 - خصوصية كاملة: إيقاف التتبع، استثناء تطبيقات، عدم حفظ عناوين النوافذ، مدة احتفاظ، تصدير (JSON وCSV)، وحذف كل شي.
 
 <table>
@@ -57,7 +60,7 @@
 ## الاستخدام
 
 - **اليوم:** وقتك اليوم حسب التصنيف، أكثر التطبيقات، وشريط يومك ساعة بساعة، والعد التنازلي للصلاة الجاية.
-- **التركيز:** اختر مدة واضغط «ابدأ التركيز»، وعدّل قائمة المشتتات.
+- **التركيز:** حدد المدة (اسحب الحلقة، أو − و +، أو اضغط على الوقت) واضغط «ابدأ التركيز». شغّل أو طفّ المشتتات من شرائحها، والقلم جنب «مواقع» أو «تطبيقات» يحذف.
 - **التقارير:** يوم / أسبوع / شهر، مع مقارنة بالفترة السابقة. اضغط على تصنيف أي تطبيق لتغييره، والتغيير يطبق على كل السجل.
 - **الصلاة:** المواقيت، القفل ومدته لكل صلاة، التعديل، الجمعة، التذكير، القواعد الذكية، وسجل الأسبوع.
 - **الإعدادات:** الأرقام (٠١٢ أو 012)، نظام الساعة، السمة، تقليل الحركة، الخصوصية، التصنيفات، والبيانات.
@@ -87,7 +90,7 @@ npm run dev
 
 ## قيود معروفة (بصراحة)
 
-- **إيقاف الفيديو والصوت وقت القفل** يشتغل مع البرامج اللي تسجّل نفسها عند ويندوز (المتصفحات وSpotify ومشغّل الوسائط). البرامج اللي ما تسجّل (مثل VLC 3) تكمل، وشاشة القفل تغطيها.
+- **إيقاف الفيديو والصوت وقت القفل** يشتغل مع البرامج اللي تسجّل نفسها عند ويندوز (المتصفحات ومشغّل الوسائط وغيرها). البرامج اللي ما تسجّل (مثل VLC 3) تكمل، وشاشة القفل تغطيها.
 - **الذاكرة والنافذة مفتوحة:** حوالي ٢٩٠ ميجا على صفحة اليوم (نافذة Electron الفاضية لحالها ١٣٣ ميجا). في الخلفية وهو الاستخدام المعتاد: حوالي ١٤٠ ميجا. التفاصيل في PROGRESS.md.
 - **المثبّت غير موقّع**، فيطلع تحذير SmartScreen أول مرة.
 - **ويندوز فقط.** الكود ما ينهار على الأنظمة الثانية، لكن التتبع والقفل مصممين لويندوز.
@@ -115,7 +118,7 @@ Students and office workers in Saudi Arabia spend hours a day on a PC. Waqti ans
 ## What it does
 
 - **Automatic time tracking** — the foreground app is sampled once a second, merged into intervals, and grouped into categories (study & work, communication, entertainment, other, plus your own). Browser sites (YouTube, Netflix, …) are recognised from window titles. Re-categorising an app updates all history because rules are applied at query time.
-- **Focus sessions** — 25/50/90 minutes or a custom length typed in minutes or hours (up to 24 hours). Distractions are apps, known sites, any other site by name, and title keywords. If a distracting app or site comes to the foreground, a dimmed Focus Guard asks you to get back to work (it can minimise the distracting window) or allows a recorded 5-minute snooze. Sessions pause for prayer and end with a short summary.
+- **Focus sessions** — any length up to 23:59:59 on a kitchen-timer dial (drag the ring, one turn an hour; − / + by five minutes, hold to repeat; or pick hours, minutes and seconds from the clock face). 30 minutes at first, then the last length. During a session − / + move its end and the taskbar button fills with it. A prayer that would fall inside the session is announced, with a one-click length that ends at its adhan. Distractions are on/off chips (edit mode removes the added ones). Distractions are apps, known sites, any other site by name, and title keywords. If a distracting app or site comes to the foreground, a dimmed Focus Guard asks you to get back to work (it can minimise the distracting window) or allows a recorded 5-minute snooze. Sessions pause for prayer and end with a short summary.
 - **Prayer reminders and lock** — Umm al-Qura times (Shafi Asr, +30 min Isha in Ramadan, Friday handled as Jumuah, ±15 min per-prayer adjustment) for 19 Saudi cities or custom coordinates. A toast before each adhan, a 10-second notice at the adhan, and at the iqama — a per-prayer delay after the adhan (Fajr 25, Dhuhr/Asr/Isha 20, Maghrib 10 minutes by default, with Ramadan values for Fajr and Maghrib; Jumuah locks with its adhan) — a calm full-screen lock on every display with a breathing circle and the time remaining, which also pauses any video or audio that is playing. "صلّيت" unlocks after a minimum time; one snooze whose length (1–15 minutes) is chosen on the lock screen and which can be turned off; and a press-and-hold emergency exit (3–10 seconds) that is always available. The sound is muted while locked and restored exactly afterwards. It never locks when you are away (no input for 5 minutes and nothing playing, or Windows locked), defers during meetings (Teams, Zoom, Webex, Google Meet, PowerPoint slideshows), reminds you after waking from sleep, and has a hard 60-minute safety limit.
 - **Reports** — day/week/month with stacked bars (time flows right-to-left), a category donut, top apps and sites, focus statistics and a comparison with the previous period.
 - **Privacy** — pause tracking, exclude apps, don't store window titles, retention (30/90/365 days or forever), JSON/CSV export, JSON import, delete everything.
@@ -143,7 +146,7 @@ Documentation: [ARCHITECTURE.md](ARCHITECTURE.md) (processes, the lock/focus sta
 
 ## Honest limitations
 
-- **Media pause at the lock covers apps that report to Windows' media controls** (browsers, Spotify, Media Player). It pauses only sessions that are playing, through the official Global System Media Transport Controls (WinRT called with koffi in a separate utility process) — never blind media keys. Apps that don't report (e.g. VLC 3) keep playing behind the lock.
+- **Media pause at the lock covers apps that report to Windows' media controls** (browsers, Media Player and others). It pauses only sessions that are playing, through the official Global System Media Transport Controls (WinRT called with koffi in a separate utility process) — never blind media keys. Apps that don't report (e.g. VLC 3) keep playing behind the lock.
 - **Memory with the window open** is ~290 MB on the Today screen (an empty Electron window alone uses 133 MB). In typical use Waqti lives in the tray, releases its window after 60 seconds, and idles at ~140 MB with ~0 % CPU.
 - **Unsigned installer** — SmartScreen warns on first run.
 - **Windows only.** The code does not crash elsewhere, but tracking and the lock are built for Windows.

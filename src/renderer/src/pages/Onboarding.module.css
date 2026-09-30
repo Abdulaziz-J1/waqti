@@ -47,7 +47,7 @@
 .segFill {
   display: block;
   block-size: 100%;
-  background: var(--accent);
+  background: linear-gradient(to left, var(--tint), var(--tint-2));
   transform-origin: right center;
 }
 

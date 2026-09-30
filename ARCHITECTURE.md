@@ -121,6 +121,7 @@ stateDiagram-v2
   focusPaused --> focus: lock ends / toast «رجعنا للتركيز»
   focus --> focusPaused: SUSPEND
   focusPaused --> focus: RESUME (no lock active)
+  focus --> focus: FOCUS_ADJUST (− / +) / move the end, keep a minute
   focus --> off: TICK at the end / save, summary, toast, break reminder
   guard --> off: TICK at the end
   focus --> off: FOCUS_STOP / save (not completed)
@@ -201,7 +202,7 @@ sequenceDiagram
   participant P as Preload bridge
   participant M as Main IPC router
   participant S as Service / state machine
-  R->>P: waqti.invoke('focus:start', { minutes: 25 })
+  R->>P: waqti.invoke('focus:start', { seconds: 1800 })
   P->>P: channel in the whitelist?
   P->>M: ipcRenderer.invoke
   M->>M: sender URL is the app? payload passes zod?

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import type { Channel, EventName } from './ipc-channels'
 import type { AdhanView, MachineState, LockView, GuardView, PrayerLogEntry } from './machine/types'
-import { MAX_FOCUS_MINUTES } from './focus'
+import { MAX_FOCUS_SECONDS, MIN_FOCUS_SECONDS } from './focus'
 import type { MediaSessionInfo } from './media'
 import type { DaySchedule, PrayerId } from './prayer/schedule'
 import type { Settings } from './settings/schema'
@@ -180,7 +180,10 @@ export const requestSchemas = {
   'prayer:history': z.object({ from: dayKeySchema, to: dayKeySchema }),
   'today:get': z.undefined(),
   'reports:get': z.object({ kind: z.enum(['day', 'week', 'month']), anchor: dayKeySchema }),
-  'focus:start': z.object({ minutes: z.number().int().min(1).max(MAX_FOCUS_MINUTES) }),
+  'focus:start': z.object({
+    seconds: z.number().int().min(MIN_FOCUS_SECONDS).max(MAX_FOCUS_SECONDS)
+  }),
+  'focus:adjust': z.object({ minutes: z.number().int().min(-60).max(60) }),
   'focus:stop': z.undefined(),
   'focus:sessions': z.object({ from: dayKeySchema, to: dayKeySchema }),
   'lock:action': z.object({
@@ -247,6 +250,7 @@ export interface ResponseMap {
   'today:get': TodayData
   'reports:get': ReportData
   'focus:start': null
+  'focus:adjust': null
   'focus:stop': null
   'focus:sessions': FocusSessionRecord[]
   'lock:action': null

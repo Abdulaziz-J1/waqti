@@ -22,7 +22,7 @@
   box-shadow:
     var(--shadow-2),
     inset 0 0 0 1px var(--border);
-  border-inline-start: 3px solid var(--accent);
+  border-inline-start: 3px solid var(--tint);
 }
 
 .toast[data-tone='error'] {

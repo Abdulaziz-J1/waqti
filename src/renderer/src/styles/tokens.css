@@ -19,6 +19,24 @@
   initial-value: #eaf2f8;
 }
 
+/* The tint: the colour of the hour on every control (switches, buttons,
+   chips, rings, focus outlines). Registered so it cross-fades with the sky. */
+@property --tint {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #2b6698;
+}
+@property --tint-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #5aa0d6;
+}
+@property --tint-text {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1f5686;
+}
+
 :root {
   /* Core palette */
   --c-night: #101a33;
@@ -96,15 +114,19 @@
   --accent: #d9b26f;
   --accent-text: #7a5210;
   --accent-soft: rgba(217, 178, 111, 0.22);
-  --btn-primary-bg: #1b2a41;
-  --btn-primary-fg: #ffffff;
-  --btn-primary-glow: rgba(255, 255, 255, 0.22);
-  --focus: #3e4a89;
+  /* Midday blue; the sky theme changes it per period below. */
+  --tint: #2b6698;
+  --tint-2: #5aa0d6;
+  --tint-text: #1f5686;
+  --tint-fg: #ffffff;
+  --tint-soft: color-mix(in srgb, var(--tint-2) 18%, transparent);
+  --btn-primary-glow: rgba(255, 255, 255, 0.24);
+  --focus: var(--tint-text);
   --danger: #a8324a;
   --danger-soft: rgba(168, 50, 74, 0.1);
   --success: #2a7a54;
   --glow: rgba(255, 244, 214, 0.55);
-  --edge-light: rgba(217, 178, 111, 0.75);
+  --edge-light: color-mix(in srgb, var(--tint-2) 80%, transparent);
   --shadow-1: 0 1px 2px rgba(27, 42, 65, 0.06), 0 8px 24px rgba(27, 42, 65, 0.06);
   --shadow-2: 0 12px 40px rgba(27, 42, 65, 0.16);
   --scrim: rgba(16, 26, 51, 0.36);
@@ -128,21 +150,57 @@
   --accent: #d9b26f;
   --accent-text: #e8c98c;
   --accent-soft: rgba(217, 178, 111, 0.16);
-  --btn-primary-bg: #d9b26f;
-  --btn-primary-fg: #1b2a41;
+  /* Night gold; dawn and dusk warm it to rose below. */
+  --tint: #d9b26f;
+  --tint-2: #f1d7a2;
+  --tint-text: #e8c98c;
+  --tint-fg: #1b2a41;
+  --tint-soft: color-mix(in srgb, var(--tint-2) 16%, transparent);
   --btn-primary-glow: rgba(255, 255, 255, 0.35);
-  --focus: #e8c98c;
+  --focus: var(--tint-text);
   --danger: #f08a9c;
   --danger-soft: rgba(240, 138, 156, 0.12);
   --success: #7fd3a6;
   --glow: rgba(217, 178, 111, 0.22);
-  --edge-light: rgba(232, 201, 140, 0.7);
+  --edge-light: color-mix(in srgb, var(--tint-2) 70%, transparent);
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.18);
   --shadow-2: 0 16px 48px rgba(0, 0, 0, 0.4);
   --scrim: rgba(5, 9, 20, 0.55);
   --chart-surface: #16213f;
   --chart-grid: rgba(255, 255, 255, 0.07);
   color-scheme: dark;
+}
+
+/* The sky theme tints controls with the period's colour (text on each tint
+   meets WCAG AA). Night and midday use the tone defaults above. */
+:root[data-theme='sky'][data-period='dawn'] {
+  --tint: #e6a592;
+  --tint-2: #f6d0b0;
+  --tint-text: #f2bfae;
+  --tint-fg: #1c2350;
+}
+:root[data-theme='sky'][data-period='morning'] {
+  --tint: #2a6f8f;
+  --tint-2: #6fb8d9;
+  --tint-text: #1d5670;
+  --tint-fg: #ffffff;
+}
+:root[data-theme='sky'][data-period='asr'] {
+  --tint: #a2641c;
+  --tint-2: #e3ab5a;
+  --tint-text: #7d4a0f;
+  --tint-fg: #ffffff;
+}
+:root[data-theme='sky'][data-period='dusk'] {
+  --tint: #ee8fa0;
+  --tint-2: #f7c28e;
+  --tint-text: #f5b0bc;
+  --tint-fg: #2b2d5c;
+}
+
+/* A middle stop for gradients that keeps text on them readable. */
+:root {
+  --tint-mid: color-mix(in oklab, var(--tint) 62%, var(--tint-2));
 }
 
 /* Static themes pin the sky */

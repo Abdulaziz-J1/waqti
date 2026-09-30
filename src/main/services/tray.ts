@@ -7,6 +7,8 @@ import { log } from './logger'
 export interface TrayState {
   tooltip: string
   focusRunning: boolean
+  /** «ابدأ تركيز ٣٠ دقيقة»: the length on the Focus dial. */
+  focusLabel: string
   trackingPaused: boolean
 }
 
@@ -49,18 +51,24 @@ export class TrayService {
       l &&
       l.tooltip === state.tooltip &&
       l.focusRunning === state.focusRunning &&
+      l.focusLabel === state.focusLabel &&
       l.trackingPaused === state.trackingPaused
     ) {
       return
     }
     if (!l || l.tooltip !== state.tooltip) this.tray.setToolTip(state.tooltip)
-    if (!l || l.focusRunning !== state.focusRunning || l.trackingPaused !== state.trackingPaused) {
+    if (
+      !l ||
+      l.focusRunning !== state.focusRunning ||
+      l.focusLabel !== state.focusLabel ||
+      l.trackingPaused !== state.trackingPaused
+    ) {
       this.tray.setContextMenu(
         Menu.buildFromTemplate([
           { label: t.open, click: () => this.actions.open() },
           state.focusRunning
             ? { label: t.stopFocus, click: () => this.actions.stopFocus() }
-            : { label: t.focus25, click: () => this.actions.startFocus() },
+            : { label: state.focusLabel, click: () => this.actions.startFocus() },
           {
             label: state.trackingPaused ? t.resumeTracking : t.pauseTracking,
             click: () => this.actions.setTrackingPaused(!state.trackingPaused)

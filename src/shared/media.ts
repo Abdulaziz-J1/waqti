@@ -15,7 +15,7 @@ export const PlaybackStatus = {
 } as const
 
 export interface MediaSessionInfo {
-  /** The app's AppUserModelID, e.g. "Spotify.exe" or "chrome". */
+  /** The app's AppUserModelID, e.g. "chrome" or "vlc.exe". */
   appId: string
   status: number
 }

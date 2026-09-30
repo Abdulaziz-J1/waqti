@@ -15,6 +15,7 @@ export const CHANNELS = [
   'today:get',
   'reports:get',
   'focus:start',
+  'focus:adjust',
   'focus:stop',
   'focus:sessions',
   'lock:action',

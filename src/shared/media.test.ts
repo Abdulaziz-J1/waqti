@@ -17,14 +17,14 @@ describe('media pause decisions', () => {
 
   it('can be limited to one app (the E2E test pauses only its own player)', () => {
     const own = { appId: 'com.waqti.desktop.dev', status: PlaybackStatus.playing }
-    const user = { appId: 'Spotify.exe', status: PlaybackStatus.playing }
+    const user = { appId: 'MediaPlayer.exe', status: PlaybackStatus.playing }
     expect(shouldPause(own, 'com.waqti.desktop.dev')).toBe(true)
     expect(shouldPause(user, 'com.waqti.desktop.dev')).toBe(false)
   })
 
   it('tells whether anything in scope is playing', () => {
     const paused = { appId: 'Brave', status: PlaybackStatus.paused }
-    const playing = { appId: 'Spotify.exe', status: PlaybackStatus.playing }
+    const playing = { appId: 'MediaPlayer.exe', status: PlaybackStatus.playing }
     expect(anyPlaying([])).toBe(false)
     expect(anyPlaying([paused])).toBe(false)
     expect(anyPlaying([paused, playing])).toBe(true)
@@ -41,7 +41,11 @@ describe('media pause decisions', () => {
     ]) {
       expect(releasesAfterPause(id)).toBe(true)
     }
-    for (const id of ['Spotify.exe', 'Microsoft.ZuneMusic_8wekyb3d8bbwe!Microsoft.ZuneMusic', '']) {
+    for (const id of [
+      'MediaPlayer.exe',
+      'Microsoft.ZuneMusic_8wekyb3d8bbwe!Microsoft.ZuneMusic',
+      ''
+    ]) {
       expect(releasesAfterPause(id)).toBe(false)
     }
     expect(releasesAfterPause('com.waqti.desktop.dev', 'com.waqti.desktop.dev')).toBe(true)

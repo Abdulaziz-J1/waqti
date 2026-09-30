@@ -334,7 +334,7 @@ export function PrayerPage(): React.JSX.Element {
                 />
               </SettingRow>
             ) : null}
-            <SettingRow label={t.emergencyHold} hint={t.emergencyHoldHint}>
+            <SettingRow label={t.emergencyHold}>
               <Stepper
                 label={t.emergencyHold}
                 value={settings.emergencyHoldSeconds}

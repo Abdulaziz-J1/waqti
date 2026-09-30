@@ -57,7 +57,7 @@
 }
 
 .row[data-next] {
-  background: var(--accent-soft);
+  background: var(--tint-soft);
 }
 
 .row[data-next]::before {
@@ -67,7 +67,7 @@
   inset-block: 10px;
   inline-size: 3px;
   border-radius: var(--r-pill);
-  background: var(--accent);
+  background: linear-gradient(var(--tint-2), var(--tint));
 }
 
 .row[data-muted] .prayer,
