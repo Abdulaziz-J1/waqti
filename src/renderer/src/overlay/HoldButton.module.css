@@ -42,7 +42,7 @@
 
 .fill {
   fill: none;
-  stroke: #f5d08a;
+  stroke: var(--tint-2);
   stroke-width: 3.5;
   stroke-linecap: round;
 }

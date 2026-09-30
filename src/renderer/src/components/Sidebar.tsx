@@ -1,21 +1,27 @@
 import { motion } from 'motion/react'
-import { Pause, Play } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
+import { useEffect } from 'react'
 import type { Page } from '@shared/ipc'
 import { app, nav, trackingStatus } from '@shared/strings'
 import { siteLabel } from '@shared/tracking/sites'
 import { api } from '../lib/api'
 import { PAGES, go, useNav } from '../lib/nav'
-import { useSnapshot } from '../lib/store'
+import { updateSettings, useSnapshot } from '../lib/store'
 import { spring } from '../motion'
 import { LogoMark, NavIcon } from './NavIcons'
 import s from './Sidebar.module.css'
 
-/** Right-hand sidebar (RTL). The active indicator slides between items. */
+/**
+ * Right-hand sidebar (RTL). The active indicator slides between items. It
+ * folds to a rail of icons (the handle on its edge, or Ctrl+B): the logo, the
+ * pages and the tracking switch with its light stay; names show as tips.
+ */
 export function Sidebar(): React.JSX.Element {
   const { page } = useNav()
   const snap = useSnapshot()
   const t = snap.tracking
   const paused = snap.settings.tracking.paused
+  const collapsed = snap.settings.appearance.sidebarCollapsed
   const status = paused ? 'paused' : t.reason
   const current = t.current
     ? t.current.site
@@ -23,10 +29,36 @@ export function Sidebar(): React.JSX.Element {
       : t.current.appName
     : null
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.ctrlKey && !e.shiftKey && !e.altKey && e.code === 'KeyB') {
+        e.preventDefault()
+        void updateSettings({ appearance: { sidebarCollapsed: !collapsed } })
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [collapsed])
+
+  const toggleLabel = collapsed ? nav.expand : nav.collapse
+  const pauseLabel = paused ? trackingStatus.resume : trackingStatus.pause
+
   return (
-    <aside className={s.sidebar}>
+    <aside className={s.sidebar} data-collapsed={collapsed || undefined}>
+      <button
+        type="button"
+        className={s.toggle}
+        aria-label={toggleLabel}
+        aria-expanded={!collapsed}
+        title={toggleLabel}
+        onClick={() => void updateSettings({ appearance: { sidebarCollapsed: !collapsed } })}
+        data-testid="sidebar-toggle"
+      >
+        {collapsed ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
+      </button>
+
       <div className={s.brand}>
-        <LogoMark size={32} />
+        <LogoMark size={30} />
         <span className={s.name}>{app.name}</span>
       </div>
 
@@ -35,12 +67,13 @@ export function Sidebar(): React.JSX.Element {
           {PAGES.map((p: Page) => {
             const active = p === page
             return (
-              <li key={p}>
+              <li key={p} className={s.entry}>
                 <button
                   type="button"
                   className={s.item}
                   data-active={active || undefined}
                   aria-current={active ? 'page' : undefined}
+                  aria-label={nav[p]}
                   onClick={() => go(p)}
                   data-testid={`nav-${p}`}
                 >
@@ -56,35 +89,46 @@ export function Sidebar(): React.JSX.Element {
                   <span className={s.icon}>
                     <NavIcon page={p} />
                   </span>
-                  <span className={s.label}>{nav[p]}</span>
+                  <span className={s.label} aria-hidden>
+                    {nav[p]}
+                  </span>
                 </button>
+                <span className={s.tip} aria-hidden>
+                  {nav[p]}
+                </span>
               </li>
             )
           })}
         </ul>
       </nav>
 
-      <div className={s.status} data-status={status}>
-        <div className={s.statusText}>
-          <span className={s.dot} aria-hidden />
-          <div className={s.statusLines}>
-            <span>{trackingStatus[status]}</span>
-            {current && !paused ? (
-              <span className={s.current}>
-                <bdi>{current}</bdi>
-              </span>
-            ) : null}
+      <div className={s.statusWrap}>
+        <div className={s.status} data-status={status}>
+          <div className={s.statusText}>
+            <span className={s.dot} role="img" aria-label={trackingStatus[status]} />
+            <div className={s.statusLines} aria-hidden={collapsed || undefined}>
+              <span>{trackingStatus[status]}</span>
+              {current && !paused ? (
+                <span className={s.current}>
+                  <bdi>{current}</bdi>
+                </span>
+              ) : null}
+            </div>
           </div>
+          <button
+            type="button"
+            className={s.pause}
+            aria-label={pauseLabel}
+            title={pauseLabel}
+            onClick={() => void api.invoke('tracking:setPaused', { paused: !paused })}
+            data-testid="tracking-toggle"
+          >
+            {paused ? <Play size={15} /> : <Pause size={15} />}
+          </button>
         </div>
-        <button
-          type="button"
-          className={s.pause}
-          aria-label={paused ? trackingStatus.resume : trackingStatus.pause}
-          title={paused ? trackingStatus.resume : trackingStatus.pause}
-          onClick={() => void api.invoke('tracking:setPaused', { paused: !paused })}
-        >
-          {paused ? <Play size={15} /> : <Pause size={15} />}
-        </button>
+        <span className={s.tip} aria-hidden>
+          {trackingStatus[status]}
+        </span>
       </div>
     </aside>
   )

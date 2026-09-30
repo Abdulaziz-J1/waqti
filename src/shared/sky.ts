@@ -5,6 +5,16 @@ export const PERIODS = ['night', 'dawn', 'morning', 'day', 'asr', 'dusk'] as con
 export type PeriodId = (typeof PERIODS)[number]
 export type Tone = 'light' | 'dark'
 
+/**
+ * The palette that colours controls (`data-tint`): the sky period in the sky
+ * theme, midday blue in the static light theme and night gold in the dark one.
+ */
+export function tintOf(theme: 'sky' | 'light' | 'dark', period: PeriodId): PeriodId {
+  if (theme === 'light') return 'day'
+  if (theme === 'dark') return 'night'
+  return period
+}
+
 export interface SkyPalette {
   top: string
   mid: string

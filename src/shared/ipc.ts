@@ -103,6 +103,8 @@ export interface OverlayState {
   adhan: AdhanView | null
   /** Sky colours of the prayer period, for the lock background. */
   sky: SkyPalette & { period: PeriodId }
+  /** The control colours, as in the app (`tintOf` the theme and the period). */
+  tint: PeriodId
   clockOffsetMs: number
   digits: Settings['general']['digits']
   clock: Settings['general']['clock']

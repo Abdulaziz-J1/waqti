@@ -8,7 +8,7 @@ import { DebugPanel } from './components/DebugPanel'
 import { Toaster } from './components/Toaster'
 import { useNav } from './lib/nav'
 import { useReducedMotion, useSkyTheme } from './lib/sky'
-import { useSnapshot } from './lib/store'
+import { useSettings, useSnapshot } from './lib/store'
 import { ToneContext } from './lib/tone'
 import { api } from './lib/api'
 import { pageVariants } from './motion'
@@ -35,8 +35,9 @@ const PAGE_COMPONENTS: Record<Page, React.ComponentType> = {
 function Shell(): React.JSX.Element {
   const { page, dir } = useNav()
   const Current = PAGE_COMPONENTS[page]
+  const collapsed = useSettings().appearance.sidebarCollapsed
   return (
-    <div className={s.shell}>
+    <div className={s.shell} data-collapsed={collapsed || undefined}>
       <Sidebar />
       <main className={s.main}>
         <div className={s.titlebar} aria-hidden />

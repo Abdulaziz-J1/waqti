@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { BLEND_HALF_WINDOW, PALETTES, isNightLike, mixHex, periodAt, skyAt } from './sky'
+import { BLEND_HALF_WINDOW, PALETTES, isNightLike, mixHex, periodAt, skyAt, tintOf } from './sky'
 import { buildDaySchedule } from './prayer/schedule'
 import { MINUTE } from './time'
 
@@ -15,6 +15,15 @@ describe('periods', () => {
     expect(periodAt(s, t.asr + MINUTE)).toBe('asr')
     expect(periodAt(s, t.maghrib + MINUTE)).toBe('dusk')
     expect(periodAt(s, t.isha + MINUTE)).toBe('night')
+  })
+})
+
+describe('control tint', () => {
+  it('follows the period in the sky theme and stays put in the static ones', () => {
+    expect(tintOf('sky', 'dusk')).toBe('dusk')
+    expect(tintOf('sky', 'asr')).toBe('asr')
+    expect(tintOf('light', 'dusk')).toBe('day')
+    expect(tintOf('dark', 'morning')).toBe('night')
   })
 })
 

@@ -73,7 +73,7 @@
 }
 
 .close:focus-visible {
-  outline: 2px solid #f5d08a;
+  outline: 2px solid var(--tint-2);
   outline-offset: 2px;
 }
 
@@ -83,7 +83,7 @@
   inset-inline: 0;
   inset-block-end: 0;
   block-size: 3px;
-  background: #f5d08a;
+  background: linear-gradient(to left, var(--tint), var(--tint-2));
   transform-origin: right center;
   animation-name: drain;
   animation-timing-function: linear;

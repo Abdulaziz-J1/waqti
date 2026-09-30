@@ -1,5 +1,5 @@
 import { useEffect, useRef, useSyncExternalStore } from 'react'
-import { PALETTES, type PeriodId, type Tone, skyAt } from '@shared/sky'
+import { PALETTES, type PeriodId, type Tone, skyAt, tintOf } from '@shared/sky'
 import { useNow } from './now'
 import { useSnapshot } from './store'
 
@@ -44,6 +44,7 @@ export function useSkyTheme(): SkyInfo {
     root.dataset['theme'] = theme
     root.dataset['tone'] = tone
     root.dataset['period'] = sky.period
+    root.dataset['tint'] = tintOf(theme, sky.period)
     root.toggleAttribute('data-reduce-motion', reduced)
     const fast = first.current || lastTheme.current !== theme
     first.current = false

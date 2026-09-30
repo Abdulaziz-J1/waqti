@@ -68,7 +68,7 @@
 
 .badge {
   font-weight: 500;
-  color: var(--accent-text);
+  color: var(--tint-text);
 }
 
 .row {

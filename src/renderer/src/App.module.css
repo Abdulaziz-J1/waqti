@@ -4,6 +4,16 @@
   block-size: 100%;
   display: grid;
   grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  transition: --sidebar-w 300ms var(--ease-out);
+}
+
+/* The folded sidebar: just wide enough that its icons stay where they were. */
+.shell[data-collapsed] {
+  --sidebar-w: 71px;
+}
+
+:global(:root[data-reduce-motion]) .shell {
+  transition: none;
 }
 
 .main {

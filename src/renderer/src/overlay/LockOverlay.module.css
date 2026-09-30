@@ -112,14 +112,18 @@
 }
 
 .circle {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04) 70%);
-  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.35);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--tint-2) 22%, transparent),
+    rgba(255, 255, 255, 0.04) 70%
+  );
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tint-2) 55%, rgba(255, 255, 255, 0.3));
   animation: breathe 8s ease-in-out infinite;
 }
 
 .circleCore {
   inset: 38%;
-  background: rgba(255, 244, 214, 0.55);
+  background: color-mix(in srgb, var(--tint-2) 60%, rgba(255, 255, 255, 0.5));
   filter: blur(6px);
   animation: breatheCore 8s ease-in-out infinite;
 }
@@ -234,8 +238,11 @@
 }
 
 .prayed {
-  background: #f5d08a;
-  color: #1b2a41;
+  background: linear-gradient(135deg, var(--tint), var(--tint-mid));
+  color: var(--tint-fg);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 12px 30px -12px var(--tint);
 }
 
 .snooze {
@@ -296,8 +303,8 @@
 }
 
 .snoozeChoice[data-default] {
-  background: rgba(245, 208, 138, 0.22);
-  box-shadow: inset 0 0 0 1.5px #f5d08a;
+  background: color-mix(in srgb, var(--tint-2) 24%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--tint-2);
 }
 
 .snoozeChoice:hover {

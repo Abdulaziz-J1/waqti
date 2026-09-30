@@ -32,7 +32,7 @@
 .icon {
   flex-shrink: 0;
   margin-block-start: 3px;
-  color: var(--accent-text);
+  color: var(--tint-text);
 }
 
 .toast[data-tone='error'] .icon {
@@ -47,7 +47,7 @@
 
 .action {
   flex-shrink: 0;
-  color: var(--accent-text);
+  color: var(--tint-text);
   font-weight: 600;
   font-size: var(--fs-small);
 }

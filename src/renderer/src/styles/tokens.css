@@ -19,6 +19,13 @@
   initial-value: #eaf2f8;
 }
 
+/* The sidebar folds to a rail by animating its width (App.module.css). */
+@property --sidebar-w {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 236px;
+}
+
 /* The tint: the colour of the hour on every control (switches, buttons,
    chips, rings, focus outlines). Registered so it cross-fades with the sky. */
 @property --tint {
@@ -112,9 +119,8 @@
   --border: rgba(27, 42, 65, 0.1);
   --border-strong: rgba(27, 42, 65, 0.2);
   --accent: #d9b26f;
-  --accent-text: #7a5210;
   --accent-soft: rgba(217, 178, 111, 0.22);
-  /* Midday blue; the sky theme changes it per period below. */
+  /* Midday blue until data-tint is set (see below). */
   --tint: #2b6698;
   --tint-2: #5aa0d6;
   --tint-text: #1f5686;
@@ -148,9 +154,8 @@
   --border: rgba(255, 255, 255, 0.1);
   --border-strong: rgba(255, 255, 255, 0.2);
   --accent: #d9b26f;
-  --accent-text: #e8c98c;
   --accent-soft: rgba(217, 178, 111, 0.16);
-  /* Night gold; dawn and dusk warm it to rose below. */
+  /* Night gold until data-tint is set (see below). */
   --tint: #d9b26f;
   --tint-2: #f1d7a2;
   --tint-text: #e8c98c;
@@ -171,27 +176,41 @@
   color-scheme: dark;
 }
 
-/* The sky theme tints controls with the period's colour (text on each tint
-   meets WCAG AA). Night and midday use the tone defaults above. */
-:root[data-theme='sky'][data-period='dawn'] {
+/* The tint follows the hour: `data-tint` is the sky period, or day / night for
+   the static light / dark themes (shared/sky.ts tintOf). The same palette
+   colours the lock, guard and adhan windows. Text on each tint meets WCAG AA;
+   --tint-text is for light surfaces in day periods and dark ones at night. */
+:root[data-tint='night'] {
+  --tint: #d9b26f;
+  --tint-2: #f1d7a2;
+  --tint-text: #e8c98c;
+  --tint-fg: #1b2a41;
+}
+:root[data-tint='dawn'] {
   --tint: #e6a592;
   --tint-2: #f6d0b0;
   --tint-text: #f2bfae;
   --tint-fg: #1c2350;
 }
-:root[data-theme='sky'][data-period='morning'] {
+:root[data-tint='morning'] {
   --tint: #2a6f8f;
   --tint-2: #6fb8d9;
   --tint-text: #1d5670;
   --tint-fg: #ffffff;
 }
-:root[data-theme='sky'][data-period='asr'] {
+:root[data-tint='day'] {
+  --tint: #2b6698;
+  --tint-2: #5aa0d6;
+  --tint-text: #1f5686;
+  --tint-fg: #ffffff;
+}
+:root[data-tint='asr'] {
   --tint: #a2641c;
   --tint-2: #e3ab5a;
   --tint-text: #7d4a0f;
   --tint-fg: #ffffff;
 }
-:root[data-theme='sky'][data-period='dusk'] {
+:root[data-tint='dusk'] {
   --tint: #ee8fa0;
   --tint-2: #f7c28e;
   --tint-text: #f5b0bc;

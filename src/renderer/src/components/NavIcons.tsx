@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import type { Page } from '@shared/ipc'
 
 const common = {
@@ -59,27 +60,40 @@ export function NavIcon({ page }: { page: Page }): React.JSX.Element {
   }
 }
 
-/** The Waqti mark: the day's arc with the sun on it. */
-export function LogoMark({ size = 30 }: { size?: number }): React.JSX.Element {
+/**
+ * The Waqti mark: the day's arc with the sun on it. The same drawing as
+ * build/icon.svg, which makes the app, taskbar and tray icons.
+ */
+export function LogoMark({
+  size = 30,
+  className
+}: {
+  size?: number
+  className?: string
+}): React.JSX.Element {
+  const id = useId().replace(/[^a-zA-Z0-9_-]/g, '')
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden>
+    <svg width={size} height={size} viewBox="0 0 32 32" className={className} aria-hidden>
       <defs>
-        <linearGradient id="logo-sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#3E4A89" />
-          <stop offset="1" stopColor="#101A33" />
+        <linearGradient id={`${id}-tile`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#36428C" />
+          <stop offset="1" stopColor="#1D2459" />
         </linearGradient>
+        <radialGradient id={`${id}-glow`} cx="21" cy="14.5" r="8.5" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#FFE6A8" stopOpacity="0.5" />
+          <stop offset="1" stopColor="#FFE6A8" stopOpacity="0" />
+        </radialGradient>
       </defs>
-      <rect width="32" height="32" rx="9" fill="url(#logo-sky)" />
+      <rect x="1" y="1" width="30" height="30" rx="8" fill={`url(#${id}-tile)`} />
+      <circle cx="21" cy="14.5" r="8.5" fill={`url(#${id}-glow)`} />
       <path
-        d="M6 22a10 10 0 0 1 20 0"
+        d="M6 23 A10 10 0 0 1 26 23"
         fill="none"
         stroke="#EAF2F8"
-        strokeWidth="1.8"
+        strokeWidth="2.6"
         strokeLinecap="round"
-        opacity=".85"
       />
-      <path d="M5 22.5h22" stroke="#EAF2F8" strokeWidth="1.4" strokeLinecap="round" opacity=".35" />
-      <circle cx="21.2" cy="14.4" r="3" fill="#D9B26F" />
+      <circle cx="21" cy="14.5" r="4.2" fill="#F5D08A" />
     </svg>
   )
 }

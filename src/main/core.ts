@@ -60,7 +60,7 @@ import {
   reminderMinutesFor
 } from '../shared/settings/plan'
 import type { Settings } from '../shared/settings/schema'
-import { PALETTES, skyAt } from '../shared/sky'
+import { PALETTES, skyAt, tintOf } from '../shared/sky'
 import { fmtDuration } from '../shared/format'
 import { prayerNames, toasts, tray as trayStrings } from '../shared/strings'
 import { MINUTE, addDays, dayKey, dayStartMs } from '../shared/time'
@@ -776,6 +776,7 @@ export class WaqtiCore {
       guard,
       adhan,
       sky: { ...sky.colors, period: sky.period },
+      tint: tintOf(this.s.appearance.theme, sky.period),
       clockOffsetMs: this.clock.offsetMs,
       digits: this.s.general.digits,
       clock: this.s.general.clock,

@@ -1,6 +1,7 @@
-// Generates every icon size from the original SVGs in build/.
-//   build/icon.svg -> build/icon.png (512), build/icon.ico (16–256), resources/icon.png (256)
-//   build/tray.svg -> resources/tray.png (16) and resources/tray@2x.png (32)
+// Generates every icon size from the one original mark, build/icon.svg:
+//   build/icon.png (512), build/icon.ico (16–256), resources/icon.png (256),
+//   resources/tray.png (16) and resources/tray@2x.png (32).
+// The logo inside the app (NavIcons LogoMark) draws the same shapes.
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -19,15 +20,14 @@ function render(svgFile, size) {
 }
 
 const icon = path.join(build, 'icon.svg')
-const tray = path.join(build, 'tray.svg')
 
 fs.writeFileSync(path.join(build, 'icon.png'), render(icon, 512))
 fs.writeFileSync(path.join(resources, 'icon.png'), render(icon, 256))
-fs.writeFileSync(path.join(resources, 'tray.png'), render(tray, 16))
-fs.writeFileSync(path.join(resources, 'tray@2x.png'), render(tray, 32))
+fs.writeFileSync(path.join(resources, 'tray.png'), render(icon, 16))
+fs.writeFileSync(path.join(resources, 'tray@2x.png'), render(icon, 32))
 
 const icoSizes = [16, 24, 32, 48, 64, 128, 256]
-const ico = await pngToIco(icoSizes.map((s) => render(s <= 32 ? tray : icon, s)))
+const ico = await pngToIco(icoSizes.map((s) => render(icon, s)))
 fs.writeFileSync(path.join(build, 'icon.ico'), ico)
 
 console.log(

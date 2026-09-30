@@ -122,7 +122,9 @@ export const settingsSchema = section({
   }),
   appearance: section({
     theme: z.enum(['sky', 'light', 'dark']).catch('sky'),
-    reduceMotion: bool(false)
+    reduceMotion: bool(false),
+    /** The sidebar shows only the icons, the logo and the tracking switch. */
+    sidebarCollapsed: bool(false)
   })
 })
 

@@ -145,7 +145,9 @@ export const nav = {
   reports: 'التقارير',
   prayer: 'الصلاة',
   settings: 'الإعدادات',
-  label: 'التنقل الرئيسي'
+  label: 'التنقل الرئيسي',
+  collapse: 'تصغير القائمة (Ctrl+B)',
+  expand: 'توسيع القائمة (Ctrl+B)'
 } as const
 
 export const common = {

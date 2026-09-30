@@ -4,6 +4,7 @@ import { fmtClock } from '@shared/format'
 import type { OverlayState } from '@shared/ipc'
 import { prayerLabel } from '@shared/machine/toasts'
 import { adhan as t } from '@shared/strings'
+import { LogoMark } from '../components/NavIcons'
 import { api } from '../lib/api'
 import { playChime } from '../lib/chime'
 import s from './AdhanNotice.module.css'
@@ -43,17 +44,7 @@ export function AdhanNotice({ state }: { state: OverlayState }): React.JSX.Eleme
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       >
-        <svg className={s.glyph} viewBox="0 0 32 32" aria-hidden>
-          <rect x="1" y="1" width="30" height="30" rx="9" fill="#2B3570" />
-          <path
-            d="M6 23 A10 10 0 0 1 26 23"
-            fill="none"
-            stroke="#EAF2F8"
-            strokeWidth="2.6"
-            strokeLinecap="round"
-          />
-          <circle cx="21" cy="14.5" r="4.2" fill="#F5D08A" />
-        </svg>
+        <LogoMark className={s.glyph} />
         <div className={s.text}>
           <p className={s.title}>{t.title(prayerLabel(view.ref))}</p>
           {view.lockAt !== null ? (

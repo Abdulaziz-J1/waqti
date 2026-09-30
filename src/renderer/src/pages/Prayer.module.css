@@ -96,7 +96,7 @@
   font-family: var(--font-body);
   font-size: var(--fs-micro);
   font-weight: 600;
-  color: var(--accent-text);
+  color: var(--tint-text);
   padding-inline: 8px;
   border-radius: var(--r-pill);
   background: var(--surface-2);
@@ -183,7 +183,7 @@
 }
 
 .sliderValue {
-  color: var(--accent-text);
+  color: var(--tint-text);
   font-weight: 600;
 }
 
@@ -254,7 +254,7 @@
 }
 
 .snoozed {
-  color: var(--accent-text);
+  color: var(--tint-text);
 }
 
 .entryTime {

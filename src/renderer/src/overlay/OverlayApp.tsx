@@ -20,6 +20,7 @@ export function OverlayApp(): React.JSX.Element | null {
     if (!state) return
     const root = document.documentElement
     root.dataset['tone'] = 'dark'
+    root.dataset['tint'] = state.tint
     root.toggleAttribute('data-reduce-motion', state.reduceMotion)
     if (state.kind === 'guard' || state.kind === 'adhan') {
       root.style.background = 'transparent'

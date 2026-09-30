@@ -32,7 +32,7 @@ describe('settings schema', () => {
     expect(s.minUnlockMinutes).toBe(5)
     expect(s.distractions.sites).toContain('youtube')
     expect(s.general).toMatchObject({ digits: 'arab', clock: '12h', closeToTray: true })
-    expect(s.appearance).toEqual({ theme: 'sky', reduceMotion: false })
+    expect(s.appearance).toEqual({ theme: 'sky', reduceMotion: false, sidebarCollapsed: false })
     expect(s.tracking).toMatchObject({ idleMinutes: 3, storeTitles: true, retentionDays: 365 })
   })
 

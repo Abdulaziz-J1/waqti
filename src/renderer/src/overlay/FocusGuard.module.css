@@ -25,7 +25,7 @@
 .art {
   inline-size: 64px;
   block-size: 64px;
-  color: #f5d08a;
+  color: var(--tint-2);
 }
 
 .title {
@@ -40,7 +40,7 @@
 
 .target {
   font-weight: 700;
-  color: #f5d08a;
+  color: var(--tint-2);
 }
 
 .actions {
@@ -66,8 +66,9 @@
 }
 
 .back {
-  background: #f5d08a;
-  color: #1b2a41;
+  background: linear-gradient(135deg, var(--tint), var(--tint-mid));
+  color: var(--tint-fg);
+  box-shadow: 0 10px 26px -12px var(--tint);
 }
 
 .snooze {
