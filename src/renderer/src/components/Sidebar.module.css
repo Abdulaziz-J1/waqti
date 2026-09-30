@@ -271,6 +271,11 @@
     transform var(--dur-base) var(--ease-out);
 }
 
+/* Tips slide in from the rail: from the right in Arabic, the left in English. */
+:global([dir='ltr']) .tip {
+  transform: translate(-6px, -50%);
+}
+
 /* ---- Folded: a rail of icons. Its width is --sidebar-w (App.module.css);
    the icons keep their place while the names are clipped and fade. ---- */
 

@@ -5,6 +5,7 @@ import type { Page } from '@shared/ipc'
 import { app, nav, trackingStatus } from '@shared/strings'
 import { siteLabel } from '@shared/tracking/sites'
 import { api } from '../lib/api'
+import { rtl } from '../lib/language'
 import { PAGES, go, useNav } from '../lib/nav'
 import { updateSettings, useSnapshot } from '../lib/store'
 import { spring } from '../motion'
@@ -12,7 +13,7 @@ import { LogoMark, NavIcon } from './NavIcons'
 import s from './Sidebar.module.css'
 
 /**
- * Right-hand sidebar (RTL). The active indicator slides between items. It
+ * The sidebar on the reading-start side (right in Arabic, left in English). The active indicator slides between items. It
  * folds to a rail of icons (the handle on its edge, or Ctrl+B): the logo, the
  * pages and the tracking switch with its light stay; names show as tips.
  */
@@ -129,7 +130,8 @@ export function Sidebar(): React.JSX.Element {
         onClick={() => void updateSettings({ appearance: { sidebarCollapsed: !collapsed } })}
         data-testid="sidebar-toggle"
       >
-        {collapsed ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
+        {/* Points the way the edge will move: toward the window side the sidebar is on to fold. */}
+        {collapsed === rtl() ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
       </button>
     </aside>
   )

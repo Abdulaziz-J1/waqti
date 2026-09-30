@@ -44,7 +44,8 @@
 .timerSub {
   color: var(--text-2);
   font-size: var(--fs-small);
-  max-inline-size: 190px;
+  max-inline-size: 210px;
+  text-wrap: balance;
 }
 
 /* The clock face opens the time picker right under it. */

@@ -1,6 +1,6 @@
 import { DEFAULT_MACHINE_CONFIG } from '../machine/machine'
 import type { LockPlan, MachineConfig } from '../machine/types'
-import { CITIES, DEFAULT_CITY_ID, findCity } from '../prayer/cities'
+import { CITIES, DEFAULT_CITY_ID, cityName, findCity } from '../prayer/cities'
 import type { Adjustments, LatLng, PrayerId } from '../prayer/schedule'
 import { MINUTE } from '../time'
 import type { Settings } from './schema'
@@ -84,5 +84,6 @@ export function machineConfigOf(s: Settings): MachineConfig {
 /** Arabic label of the configured location. */
 export function locationLabel(s: Settings, customLabel: string): string {
   if (s.location.kind === 'custom') return s.location.label || customLabel
-  return findCity(s.location.cityId)?.name ?? customLabel
+  const city = findCity(s.location.cityId)
+  return city ? cityName(city) : customLabel
 }

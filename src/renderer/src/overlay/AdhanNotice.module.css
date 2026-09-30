@@ -83,8 +83,8 @@
   inset-inline: 0;
   inset-block-end: 0;
   block-size: 3px;
-  background: linear-gradient(to left, var(--tint), var(--tint-2));
-  transform-origin: right center;
+  background: linear-gradient(var(--toward-end), var(--tint), var(--tint-2));
+  transform-origin: var(--origin-start);
   animation-name: drain;
   animation-timing-function: linear;
   animation-fill-mode: forwards;

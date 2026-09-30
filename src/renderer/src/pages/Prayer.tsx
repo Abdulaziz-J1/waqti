@@ -3,7 +3,7 @@ import { prayerLabel } from '@shared/machine/toasts'
 import type { PrayerLogEntry } from '@shared/machine/types'
 import { type PrayerId, nextEvent } from '@shared/prayer/schedule'
 import { locationLabel } from '@shared/settings/plan'
-import { common, prayerNames, prayerPage as t } from '@shared/strings'
+import { common, prayerNames, prayerPage as t, units } from '@shared/strings'
 import { addDays, dayKey, dayStart, isFriday } from '@shared/time'
 import { Divider } from '../components/Divider'
 import { EmptyState } from '../components/EmptyState'
@@ -31,7 +31,7 @@ function Signed({ v, fmt }: { v: number; fmt: Fmt }): React.JSX.Element {
         {v > 0 ? '+' : '−'}
         {fmt.num(Math.abs(v))}
       </span>{' '}
-      د
+      {units.minuteShort}
     </span>
   )
 }

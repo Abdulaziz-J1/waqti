@@ -1,10 +1,12 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { Menu, Tray, nativeImage } from 'electron'
-import { tray as t } from '../../shared/strings'
+import { type Lang, tray as t } from '../../shared/strings'
 import { log } from './logger'
 
 export interface TrayState {
+  /** The menu is rebuilt in the new language when it changes. */
+  lang: Lang
   tooltip: string
   focusRunning: boolean
   /** «ابدأ تركيز ٣٠ دقيقة»: the length on the Focus dial. */
@@ -20,7 +22,7 @@ export interface TrayActions {
   quit: () => void
 }
 
-/** Tray icon with an Arabic menu and a live "next prayer" tooltip. */
+/** Tray icon with a menu in the interface language and a live "next prayer" tooltip. */
 export class TrayService {
   private tray: Tray | null = null
   private last: TrayState | null = null
@@ -49,6 +51,7 @@ export class TrayService {
     const l = this.last
     if (
       l &&
+      l.lang === state.lang &&
       l.tooltip === state.tooltip &&
       l.focusRunning === state.focusRunning &&
       l.focusLabel === state.focusLabel &&
@@ -59,6 +62,7 @@ export class TrayService {
     if (!l || l.tooltip !== state.tooltip) this.tray.setToolTip(state.tooltip)
     if (
       !l ||
+      l.lang !== state.lang ||
       l.focusRunning !== state.focusRunning ||
       l.focusLabel !== state.focusLabel ||
       l.trackingPaused !== state.trackingPaused

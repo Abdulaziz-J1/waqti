@@ -16,8 +16,8 @@
 .part {
   flex-basis: 0;
   min-inline-size: 4px;
-  /* RTL: parts grow from the right */
-  transform-origin: right center;
+  /* Parts grow from the reading start */
+  transform-origin: var(--origin-start);
 }
 
 .legend {

@@ -116,6 +116,8 @@ export const settingsSchema = section({
     retentionDays: z.union([z.literal(30), z.literal(90), z.literal(365), z.literal(0)]).catch(365)
   }),
   general: section({
+    /** Interface language; English also turns the layout left to right. */
+    language: z.enum(['ar', 'en']).catch('ar'),
     launchAtStartup: bool(true),
     closeToTray: bool(true),
     closeHintShown: bool(false),

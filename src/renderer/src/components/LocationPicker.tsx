@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CITIES, isValidCoordinate } from '@shared/prayer/cities'
+import { CITIES, cityName, cityRegion, isValidCoordinate } from '@shared/prayer/cities'
 import type { LocationSetting } from '@shared/settings/schema'
 import { prayerPage as t } from '@shared/strings'
 import { Button } from './Button'
@@ -22,7 +22,7 @@ export function LocationPicker({ value, onChange }: LocationPickerProps): React.
   const [error, setError] = useState<string | null>(null)
 
   const options = [
-    ...CITIES.map((c) => ({ value: c.id, label: c.name, hint: c.region })),
+    ...CITIES.map((c) => ({ value: c.id, label: cityName(c), hint: cityRegion(c) })),
     { value: CUSTOM, label: t.customCoords }
   ]
 

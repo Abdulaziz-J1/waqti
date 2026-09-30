@@ -30,6 +30,7 @@
 - تصميم «سماء اليوم»: ألوان التطبيق تتبع وقت اليوم من الفجر لليل، حتى الأزرار والمفاتيح والشرائح ورموز القائمة وشاشة القفل (ذهبي بالليل، وردي وقت الفجر والمغرب، أزرق بالنهار، كهرماني وقت العصر)، وقوس في صفحة اليوم فيه الشمس والقمر ومواقيت الصلاة.
 - القائمة الجانبية تنطوي لشريط رموز (الزر على طرفها أو Ctrl+B)، ويبقى فيها اللوغو ومفتاح التتبع مع لمبته: خضراء وقت التتبع وحمراء إذا وقّفته.
 - لوغو واحد في كل مكان: الأيقونة في شريط المهام، والاختصار، وجنب الساعة، وداخل التطبيق.
+- عربي وإنجليزي: تختار اللغة وقت التثبيت أو في أول شاشة، وتقدر تغيّرها من الإعدادات. مع الإنجليزي ينقلب التطبيق كله من اليسار لليمين (القائمة، الرسوم، قوس السماء، شاشة القفل).
 - خصوصية كاملة: إيقاف التتبع، استثناء تطبيقات، عدم حفظ عناوين النوافذ، مدة احتفاظ، تصدير (JSON وCSV)، وحذف كل شي.
 
 <table>
@@ -51,11 +52,11 @@
 
 ١. نزّل `Waqti-Setup-1.0.0.exe` من صفحة الإصدارات (Releases).
 
-٢. شغّله. المثبّت **غير موقّع رقمياً**، فويندوز بيعرض رسالة «Windows protected your PC» (SmartScreen). اضغط **More info (مزيد من المعلومات)** ثم **Run anyway (تشغيل على أي حال)**.
+٢. شغّله. أول شي يسألك عن اللغة (العربية أو English)، والتطبيق يفتح بنفس اللغة. المثبّت **غير موقّع رقمياً**، فويندوز بيعرض رسالة «Windows protected your PC» (SmartScreen). اضغط **More info (مزيد من المعلومات)** ثم **Run anyway (تشغيل على أي حال)**.
 
 ٣. التثبيت للمستخدم الحالي فقط (ما يحتاج صلاحيات مدير)، ويضيف اختصار على سطح المكتب وفي قائمة ابدأ.
 
-٤. أول تشغيل يمشي معك ٥ خطوات: مدينتك، قفل الصلاة، المشتتات، والتشغيل مع ويندوز.
+٤. أول تشغيل يمشي معك ٥ خطوات: الترحيب (وفيه اختيار اللغة)، مدينتك، قفل الصلاة، المشتتات، والتشغيل مع ويندوز.
 
 **إلغاء التثبيت:** من إعدادات ويندوز ← التطبيقات. بيسألك إذا تبي تحذف بياناتك أو تحتفظ فيها.
 
@@ -111,7 +112,14 @@ MIT — انظر [LICENSE](LICENSE). خط الواجهة «خط ثمانية» �
 
 **Waqti knows where your computer time goes, helps you focus, and pauses everything at prayer time.**
 
-A Windows 10/11 desktop app with a fully Arabic, right-to-left interface. It works completely offline and keeps every byte of data on your machine.
+A Windows 10/11 desktop app in Arabic (right to left) and English (left to right). It works completely offline and keeps every byte of data on your machine.
+
+<table>
+<tr>
+<td><img src="docs/screenshots/en-today.png" alt="Today in English" /></td>
+<td><img src="docs/screenshots/en-focus.png" alt="Focus in English" /></td>
+</tr>
+</table>
 
 ## Why it exists
 
@@ -122,12 +130,13 @@ Students and office workers in Saudi Arabia spend hours a day on a PC. Waqti ans
 - **Automatic time tracking** — the foreground app is sampled once a second, merged into intervals, and grouped into categories (study & work, communication, entertainment, other, plus your own). Browser sites (YouTube, Netflix, …) are recognised from window titles. Re-categorising an app updates all history because rules are applied at query time.
 - **Focus sessions** — any length up to 23:59:59 on a kitchen-timer dial (drag the ring, one turn an hour; − / + by five minutes, hold to repeat; or pick hours, minutes and seconds from the clock face). 30 minutes at first, then the last length. During a session − / + move its end and the taskbar button fills with it. A prayer that would fall inside the session is announced, with a one-click length that ends at its adhan. Distractions are on/off chips (edit mode removes the added ones). Distractions are apps, known sites, any other site by name, and title keywords. If a distracting app or site comes to the foreground, a dimmed Focus Guard asks you to get back to work (it can minimise the distracting window) or allows a recorded 5-minute snooze. Sessions pause for prayer and end with a short summary.
 - **Prayer reminders and lock** — Umm al-Qura times (Shafi Asr, +30 min Isha in Ramadan, Friday handled as Jumuah, ±15 min per-prayer adjustment) for 19 Saudi cities or custom coordinates. A toast before each adhan, a 10-second notice at the adhan, and at the iqama — a per-prayer delay after the adhan (Fajr 25, Dhuhr/Asr/Isha 20, Maghrib 10 minutes by default, with Ramadan values for Fajr and Maghrib; Jumuah locks with its adhan) — a calm full-screen lock on every display with a breathing circle and the time remaining, which also pauses any video or audio that is playing. "صلّيت" unlocks after a minimum time; one snooze whose length (1–15 minutes) is chosen on the lock screen and which can be turned off; and a press-and-hold emergency exit (3–10 seconds) that is always available. The sound is muted while locked and restored exactly afterwards. It never locks when you are away (no input for 5 minutes and nothing playing, or Windows locked), defers during meetings (Teams, Zoom, Webex, Google Meet, PowerPoint slideshows), reminds you after waking from sleep, and has a hard 60-minute safety limit.
-- **Reports** — day/week/month with stacked bars (time flows right-to-left), a category donut, top apps and sites, focus statistics and a comparison with the previous period.
+- **Arabic and English** — chosen in the installer or on the first screen, and changeable in Settings. English turns the whole app left to right (sidebar, charts, the Sky Arc, the lock screen); numbers, dates, plurals and durations follow the language.
+- **Reports** — day/week/month with stacked bars (time flows in the reading direction), a category donut, top apps and sites, focus statistics and a comparison with the previous period.
 - **Privacy** — pause tracking, exclude apps, don't store window titles, retention (30/90/365 days or forever), JSON/CSV export, JSON import, delete everything.
 
 ## Install
 
-1. Download `Waqti-Setup-1.0.0.exe` from Releases and run it.
+1. Download `Waqti-Setup-1.0.0.exe` from Releases and run it. It first asks for a language (Arabic or English); Waqti opens in that language.
 2. The installer is **not code-signed**, so Windows SmartScreen shows "Windows protected your PC". Click **More info**, then **Run anyway**.
 3. It installs per-user (no admin rights), with desktop and Start menu shortcuts. The uninstaller asks whether to keep your data.
 

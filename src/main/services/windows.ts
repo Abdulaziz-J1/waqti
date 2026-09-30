@@ -1,5 +1,6 @@
 import path from 'node:path'
 import { BrowserWindow, type WebContents } from 'electron'
+import { app as appStrings } from '../../shared/strings'
 import { log } from './logger'
 
 const DEV_URL = process.env['ELECTRON_RENDERER_URL']
@@ -53,7 +54,7 @@ export function createMainWindow(opts: MainWindowOptions): BrowserWindow {
     minWidth: 960,
     minHeight: 640,
     show: false,
-    title: 'وقتي',
+    title: appStrings.name,
     icon: opts.icon,
     backgroundColor: opts.background,
     titleBarStyle: 'hidden',

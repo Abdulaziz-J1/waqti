@@ -5,6 +5,11 @@
   max-block-size: 340px;
 }
 
+/* In English time runs left to right, so the day's arc rises on the left. */
+:global([dir='ltr']) .svg {
+  transform: scaleX(-1);
+}
+
 .svg {
   display: block;
   inline-size: 100%;

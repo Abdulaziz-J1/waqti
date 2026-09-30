@@ -85,7 +85,7 @@ export function ReportsPage(): React.JSX.Element {
                 aria-label={t.prev}
                 title={t.prev}
                 onClick={() => move(-1)}
-                icon={<ChevronRight size={18} />}
+                icon={<ChevronLeft size={18} className="icon-directional" />}
               />
               <Button
                 variant="ghost"
@@ -94,7 +94,7 @@ export function ReportsPage(): React.JSX.Element {
                 title={t.next}
                 disabled={isCurrent}
                 onClick={() => move(1)}
-                icon={<ChevronLeft size={18} />}
+                icon={<ChevronRight size={18} className="icon-directional" />}
               />
             </div>
             <Segmented<RangeKind>

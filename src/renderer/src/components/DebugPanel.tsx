@@ -276,7 +276,10 @@ export function DebugPanel(): React.JSX.Element {
                 </dd>
                 <dt>{t.cpu}</dt>
                 <dd className="num">
-                  {fmt.num(readout.cpuPercent, { maximumFractionDigits: 1 })}٪
+                  {fmt.num(readout.cpuPercent / 100, {
+                    style: 'percent',
+                    maximumFractionDigits: 1
+                  })}
                 </dd>
                 <dt>{t.memory}</dt>
                 <dd className="num">

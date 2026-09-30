@@ -9,6 +9,7 @@ import { siteLabel } from '@shared/tracking/sites'
 import { AppPicker } from '../components/AppPicker'
 import { Button } from '../components/Button'
 import { Dialog } from '../components/Dialog'
+import { LanguageSwitch } from '../components/LanguageSwitch'
 import { SettingRow, TextField } from '../components/Field'
 import { PageHeader } from '../components/PageHeader'
 import { Panel } from '../components/Panel'
@@ -29,6 +30,9 @@ function General({ settings }: { settings: Settings }): React.JSX.Element {
   const g = settings.general
   return (
     <Panel title={t.sections.general}>
+      <SettingRow label={t.language} hint={t.languageHint}>
+        <LanguageSwitch label={t.language} />
+      </SettingRow>
       <Toggle
         label={t.launchAtStartup}
         hint={t.launchAtStartupHint}
@@ -40,18 +44,21 @@ function General({ settings }: { settings: Settings }): React.JSX.Element {
         checked={g.closeToTray}
         onChange={(v) => void updateSettings({ general: { closeToTray: v } })}
       />
-      <SettingRow label={t.digits}>
-        <Segmented<'arab' | 'latn'>
-          label={t.digits}
-          size="sm"
-          value={g.digits}
-          onChange={(v) => void updateSettings({ general: { digits: v } })}
-          options={[
-            { value: 'arab', label: t.digitsArab },
-            { value: 'latn', label: <span dir="ltr">{t.digitsLatn}</span> }
-          ]}
-        />
-      </SettingRow>
+      {/* English always uses 0123; the choice is for Arabic. */}
+      {g.language === 'ar' ? (
+        <SettingRow label={t.digits}>
+          <Segmented<'arab' | 'latn'>
+            label={t.digits}
+            size="sm"
+            value={g.digits}
+            onChange={(v) => void updateSettings({ general: { digits: v } })}
+            options={[
+              { value: 'arab', label: t.digitsArab },
+              { value: 'latn', label: <span dir="ltr">{t.digitsLatn}</span> }
+            ]}
+          />
+        </SettingRow>
+      ) : null}
       <SettingRow label={t.clock}>
         <Segmented<'12h' | '24h'>
           label={t.clock}

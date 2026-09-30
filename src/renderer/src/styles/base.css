@@ -59,6 +59,12 @@ h1 {
   font-size: var(--fs-h1);
   font-kerning: normal;
 }
+
+/* The Arabic tweaks above do not apply to English text. */
+:root[lang='en'] {
+  font-kerning: normal;
+  word-spacing: normal;
+}
 h2 {
   font-size: var(--fs-h2);
 }
@@ -118,6 +124,17 @@ bdi,
 
 :focus {
   outline: none;
+}
+
+/* Where things grow from: the reading start (right in Arabic, left in
+   English). Fills, bars and progress use these instead of physical sides. */
+:root {
+  --origin-start: right center;
+  --toward-end: to left;
+}
+:root[dir='ltr'] {
+  --origin-start: left center;
+  --toward-end: to right;
 }
 
 ::selection {

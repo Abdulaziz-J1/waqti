@@ -10,7 +10,7 @@ import { invoke, launch } from './helpers'
 async function draggableSpotsOnHandle(win: Page): Promise<number> {
   return win.evaluate(() => {
     const handle = document.querySelector('[data-testid="sidebar-toggle"]')!.getBoundingClientRect()
-    const regions = [...document.querySelectorAll('*')].flatMap((el) => {
+    const regions = Array.from(document.querySelectorAll('*')).flatMap((el) => {
       const cs = getComputedStyle(el)
       const v = cs.getPropertyValue('-webkit-app-region')
       if ((v !== 'drag' && v !== 'no-drag') || cs.visibility !== 'visible') return []

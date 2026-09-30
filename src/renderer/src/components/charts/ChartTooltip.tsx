@@ -1,5 +1,6 @@
 import { motion } from 'motion/react'
 import s from './charts.module.css'
+import { dirOf, lang } from '@shared/strings'
 
 interface ChartTooltipProps {
   title: string
@@ -12,7 +13,7 @@ export function ChartTooltip({ title, total, rows }: ChartTooltipProps): React.J
   return (
     <motion.div
       className={s.tip}
-      dir="rtl"
+      dir={dirOf(lang)}
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.14 }}

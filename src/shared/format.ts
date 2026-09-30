@@ -1,5 +1,5 @@
 import { HOUR, MINUTE, SECOND, type DayKey, dayStart } from './time'
-import { compare as compareStrings, units } from './strings'
+import { compare as compareStrings, lang, units } from './strings'
 
 export type Digits = 'arab' | 'latn'
 export type ClockStyle = '12h' | '24h'
@@ -17,11 +17,22 @@ export interface FormatPrefs {
 
 const numberFormats = new Map<string, Intl.NumberFormat>()
 
+/** English always uses Western digits; the ٠١٢ / 012 choice is for Arabic. */
+function digitsFor(digits: Digits): Digits {
+  return lang === 'en' ? 'latn' : digits
+}
+
+/** The Intl locale of the interface language. */
+function localeBase(): string {
+  return lang === 'en' ? 'en-US' : 'ar-SA'
+}
+
 function numberFormat(digits: Digits, opts: Intl.NumberFormatOptions = {}): Intl.NumberFormat {
-  const key = `${digits}|${JSON.stringify(opts)}`
+  const d = digitsFor(digits)
+  const key = `${lang}|${d}|${JSON.stringify(opts)}`
   let nf = numberFormats.get(key)
   if (!nf) {
-    nf = new Intl.NumberFormat(`ar-SA-u-nu-${digits}`, { useGrouping: false, ...opts })
+    nf = new Intl.NumberFormat(`${localeBase()}-u-nu-${d}`, { useGrouping: false, ...opts })
     numberFormats.set(key, nf)
   }
   return nf
@@ -43,7 +54,7 @@ export function fmtPercent(ratio: number, digits: Digits): string {
 
 /** Replaces ASCII digits in an arbitrary string with the chosen digit set. */
 export function localizeDigits(s: string, digits: Digits): string {
-  if (digits === 'latn') return s
+  if (digitsFor(digits) === 'latn') return s
   return s.replace(/[0-9]/g, (d) => String.fromCharCode(0x0660 + Number(d)))
 }
 
@@ -51,7 +62,7 @@ export function localizeDigits(s: string, digits: Digits): string {
 // Plurals
 // ---------------------------------------------------------------------------
 
-const pluralRules = new Intl.PluralRules('ar')
+const pluralRules = { ar: new Intl.PluralRules('ar'), en: new Intl.PluralRules('en') }
 
 interface UnitForms {
   one: string
@@ -62,14 +73,20 @@ interface UnitForms {
   other?: string
 }
 
-/** Arabic count phrase: دقيقة / دقيقتان / ٣ دقائق / ١١ دقيقة / ١٠٠ دقيقة. */
+/**
+ * Count phrase. Arabic: دقيقة / دقيقتان / ٣ دقائق / ١١ دقيقة / ١٠٠ دقيقة.
+ * English: 1 minute / 2 minutes.
+ */
 export function countPhrase(
   n: number,
   forms: UnitForms,
   digits: Digits,
   gramCase: GramCase = 'nom'
 ): string {
-  const cat = pluralRules.select(n)
+  if (lang === 'en') {
+    return `${fmtNum(n, digits)} ${pluralRules.en.select(n) === 'one' ? forms.one : forms.many}`
+  }
+  const cat = pluralRules.ar.select(n)
   switch (cat) {
     case 'one':
       return forms.one
@@ -120,7 +137,7 @@ export function fmtDuration(ms: number, digits: Digits, opts: DurationOptions = 
   const parts: string[] = []
   if (h > 0) parts.push(hoursPhrase(h, digits, gramCase))
   if (m > 0) parts.push(minutesPhrase(m, digits, gramCase))
-  return parts.join(` ${units.and}`)
+  return parts.join(units.and)
 }
 
 /** Compact duration for chart ticks and dense tables: "٢ س ١٥ د", "٤٥ د". */
@@ -139,8 +156,9 @@ export function fmtHoursAxis(ms: number, digits: Digits): string {
   return `${fmtNum(h, digits, { maximumFractionDigits: h < 10 ? 1 : 0 })} ${units.hourShort}`
 }
 
-/** Attaches the preposition ب: "بساعتين", "بـ٣ ساعات". */
+/** "By" a duration: Arabic attaches ب ("بساعتين", "بـ٣ ساعات"), English says "by 2 hours". */
 export function withBi(phrase: string): string {
+  if (lang === 'en') return `by ${phrase}`
   return /^[0-9٠-٩]/.test(phrase) ? `بـ${phrase}` : `ب${phrase}`
 }
 
@@ -180,6 +198,12 @@ export function fmtHourLabel(hour: number, prefs: FormatPrefs): string {
 }
 
 const dateFormats = new Map<string, Intl.DateTimeFormat>()
+
+/** A date locale in the interface language: calendar plus digits. */
+function dateLocale(calendar: 'islamic-umalqura' | 'gregory', digits: Digits): string {
+  return `${localeBase()}-u-ca-${calendar}-nu-${digitsFor(digits)}`
+}
+
 function dateFormat(locale: string, opts: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
   const key = `${locale}|${JSON.stringify(opts)}`
   let df = dateFormats.get(key)
@@ -190,9 +214,9 @@ function dateFormat(locale: string, opts: Intl.DateTimeFormatOptions): Intl.Date
   return df
 }
 
-/** Umm al-Qura Hijri date: "١٦ ربيع الآخر ١٤٤٨ هـ". */
+/** Umm al-Qura Hijri date: "١٦ ربيع الآخر ١٤٤٨ هـ" / "Rabiʻ II 16, 1448 AH". */
 export function fmtHijri(at: number, digits: Digits): string {
-  return dateFormat(`ar-SA-u-ca-islamic-umalqura-nu-${digits}`, {
+  return dateFormat(dateLocale('islamic-umalqura', digits), {
     day: 'numeric',
     month: 'long',
     year: 'numeric'
@@ -216,9 +240,9 @@ export function hijriParts(at: number): HijriParts {
   return { year: get('year'), month: get('month'), day: get('day') }
 }
 
-/** Gregorian date with weekday: "الأحد، ٢٧ سبتمبر ٢٠٢٦". */
+/** Gregorian date with weekday: "الأحد، ٢٧ سبتمبر ٢٠٢٦" / "Sunday, September 27, 2026". */
 export function fmtGregorian(at: number, digits: Digits): string {
-  return dateFormat(`ar-SA-u-ca-gregory-nu-${digits}`, {
+  return dateFormat(dateLocale('gregory', digits), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -226,14 +250,14 @@ export function fmtGregorian(at: number, digits: Digits): string {
   }).format(at)
 }
 
-/** "٢٧ سبتمبر" */
+/** "٢٧ سبتمبر" / "September 27" */
 export function fmtDayMonth(at: number, digits: Digits): string {
-  return dateFormat(`ar-SA-u-ca-gregory-nu-${digits}`, { day: 'numeric', month: 'long' }).format(at)
+  return dateFormat(dateLocale('gregory', digits), { day: 'numeric', month: 'long' }).format(at)
 }
 
-/** "الأحد" */
+/** "الأحد" / "Sunday" */
 export function fmtWeekday(at: number): string {
-  return dateFormat('ar-SA-u-ca-gregory', { weekday: 'long' }).format(at)
+  return dateFormat(dateLocale('gregory', 'latn'), { weekday: 'long' }).format(at)
 }
 
 /** Short day label for chart axes: weekday for ≤ 7 days, day/month otherwise. */
@@ -243,12 +267,16 @@ export function fmtDayAxis(key: DayKey, digits: Digits, long: boolean): string {
   return `${fmtNum(d.getDate(), digits)}/${fmtNum(d.getMonth() + 1, digits)}`
 }
 
-/** A day range label: "٢١ – ٢٧ سبتمبر" or "٢٨ أغسطس – ٢٧ سبتمبر". */
+/**
+ * A day range label: "٢١ – ٢٧ سبتمبر" / "September 21 – 27", or
+ * "٢٨ أغسطس – ٢٧ سبتمبر" / "August 28 – September 27".
+ */
 export function fmtDayRange(from: DayKey, to: DayKey, digits: Digits): string {
   const a = dayStart(from)
   const b = dayStart(to)
   if (from === to) return fmtDayMonth(a.getTime(), digits)
   if (a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear()) {
+    if (lang === 'en') return `${fmtDayMonth(a.getTime(), digits)} – ${fmtNum(b.getDate(), digits)}`
     return `${fmtNum(a.getDate(), digits)} – ${fmtDayMonth(b.getTime(), digits)}`
   }
   return `${fmtDayMonth(a.getTime(), digits)} – ${fmtDayMonth(b.getTime(), digits)}`

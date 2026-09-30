@@ -1,4 +1,5 @@
 import { CATEGORY_SLOTS } from '../palette'
+import { categoryNames } from '../strings'
 
 export type BuiltinCategoryId = 'work' | 'social' | 'fun' | 'other'
 
@@ -9,11 +10,23 @@ export interface Category {
   builtin: boolean
 }
 
+/** A built-in category whose name is read in the interface language when used. */
+function builtin(id: BuiltinCategoryId, slot: number): Category {
+  return {
+    id,
+    get name(): string {
+      return categoryNames[id]
+    },
+    color: CATEGORY_SLOTS[slot]!.light,
+    builtin: true
+  }
+}
+
 export const BUILTIN_CATEGORIES: readonly Category[] = [
-  { id: 'work', name: 'دراسة وعمل', color: CATEGORY_SLOTS[0]!.light, builtin: true },
-  { id: 'social', name: 'تواصل', color: CATEGORY_SLOTS[1]!.light, builtin: true },
-  { id: 'fun', name: 'ترفيه', color: CATEGORY_SLOTS[2]!.light, builtin: true },
-  { id: 'other', name: 'أخرى', color: CATEGORY_SLOTS[3]!.light, builtin: true }
+  builtin('work', 0),
+  builtin('social', 1),
+  builtin('fun', 2),
+  builtin('other', 3)
 ]
 
 /** Colours offered for user-created categories (palette slots 5–8). */

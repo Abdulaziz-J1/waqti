@@ -2,11 +2,14 @@ import { useSyncExternalStore } from 'react'
 import type { AppSnapshot } from '@shared/ipc'
 import type { Settings, SettingsPatch } from '@shared/settings/schema'
 import { api } from './api'
+import { applyLanguage } from './language'
 
 let snapshot: AppSnapshot | null = null
 const listeners = new Set<() => void>()
 
 function emit(): void {
+  // The language switches before anything renders with the new snapshot.
+  if (snapshot) applyLanguage(snapshot.settings.general.language)
   for (const l of listeners) l()
 }
 

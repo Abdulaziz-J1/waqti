@@ -1,3 +1,5 @@
+import { app as appStrings } from '../strings'
+
 /** Friendly names for common Windows apps, keyed by lowercase executable name. */
 export const KNOWN_APPS: Readonly<Record<string, string>> = {
   'code.exe': 'Visual Studio Code',
@@ -39,8 +41,7 @@ export const KNOWN_APPS: Readonly<Record<string, string>> = {
   'spotify.exe': 'Spotify',
   'vlc.exe': 'VLC',
   'explorer.exe': 'File Explorer',
-  'notepad.exe': 'Notepad',
-  'waqti.exe': 'وقتي'
+  'notepad.exe': 'Notepad'
 }
 
 /** Descriptions that name a host process rather than the app the user sees. */
@@ -58,6 +59,7 @@ export function processNameOf(exePathOrName: string): string {
  */
 export function friendlyAppName(processName: string, description?: string | null): string {
   const lower = processName.toLowerCase()
+  if (lower === 'waqti.exe') return appStrings.name
   const desc = description?.trim() ?? ''
   if (desc && !GENERIC_DESCRIPTIONS.has(desc.toLowerCase()) && desc.length <= 60) return desc
   const known = KNOWN_APPS[lower]

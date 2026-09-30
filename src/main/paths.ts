@@ -23,6 +23,10 @@ export const paths = {
   get backups(): string {
     return path.join(app.getPath('userData'), 'backups')
   },
+  /** Written by the installer with the language chosen there; read once, then removed. */
+  get installerLanguage(): string {
+    return path.join(app.getPath('userData'), 'installer-language')
+  },
   get settings(): string {
     return path.join(app.getPath('userData'), 'settings.json')
   },

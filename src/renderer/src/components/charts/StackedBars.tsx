@@ -14,6 +14,7 @@ import { useReducedMotion } from '../../lib/sky'
 import { useCatColor } from '../../lib/tone'
 import { ChartTooltip } from './ChartTooltip'
 import s from './charts.module.css'
+import { rtl } from '../../lib/language'
 
 export interface StackRow {
   key: string
@@ -54,8 +55,8 @@ function segmentPath(x: number, y: number, w: number, h: number, top: boolean): 
 }
 
 /**
- * Stacked bars by category. Time runs right-to-left (the X axis is reversed)
- * and the value axis sits on the right, matching the RTL layout.
+ * Stacked bars by category. Time runs in the reading direction: right to left
+ * in Arabic (the X axis reversed, values on the right), left to right in English.
  */
 export function StackedBars({
   rows,
@@ -79,6 +80,7 @@ export function StackedBars({
   const ticks = niceHourTicks(maxMs)
   const names = new Map(used.map((c) => [c.id, c.name]))
   const colors = new Map(used.map((c) => [c.id, color(c.color)]))
+  const isRtl = rtl()
 
   return (
     <div className={s.chart} dir="ltr" style={{ blockSize: height }}>
@@ -91,7 +93,7 @@ export function StackedBars({
           <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
           <XAxis
             dataKey="label"
-            reversed
+            reversed={isRtl}
             tickLine={false}
             axisLine={{ stroke: 'var(--border-strong)' }}
             tick={{ fill: 'var(--text-3)', fontSize: 12 }}
@@ -99,7 +101,7 @@ export function StackedBars({
             minTickGap={8}
           />
           <YAxis
-            orientation="right"
+            orientation={isRtl ? 'right' : 'left'}
             width={50}
             tickLine={false}
             axisLine={false}

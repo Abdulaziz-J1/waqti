@@ -105,6 +105,8 @@ export interface OverlayState {
   sky: SkyPalette & { period: PeriodId }
   /** The control colours, as in the app (`tintOf` the theme and the period). */
   tint: PeriodId
+  /** Interface language (and so the reading direction) of the overlay. */
+  lang: Settings['general']['language']
   clockOffsetMs: number
   digits: Settings['general']['digits']
   clock: Settings['general']['clock']

@@ -5,6 +5,7 @@ import {
   type RawForeground,
   normalizeForeground
 } from '../../shared/tracking/apps'
+import { app as appStrings } from '../../shared/strings'
 import { log } from './logger'
 import type { Native } from './native'
 
@@ -93,7 +94,7 @@ export class ForegroundService {
     const info = normalizeForeground(r)
     if (self) {
       info.process = 'waqti.exe'
-      info.appName = 'وقتي'
+      info.appName = appStrings.name
     }
     // Only PowerPoint needs the window class (slideshow detection).
     if (info.process === 'powerpnt.exe' && info.hwnd && info.className == null) {

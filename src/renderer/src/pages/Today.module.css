@@ -131,7 +131,7 @@
   display: block;
   block-size: 100%;
   border-radius: inherit;
-  transform-origin: right center;
+  transform-origin: var(--origin-start);
 }
 
 .rowValue {

@@ -2,6 +2,7 @@ import { MotionConfig } from 'motion/react'
 import { useEffect, useState } from 'react'
 import type { OverlayState } from '@shared/ipc'
 import { api } from '../lib/api'
+import { applyLanguage } from '../lib/language'
 import { AdhanNotice } from './AdhanNotice'
 import { FocusGuard } from './FocusGuard'
 import { LockOverlay } from './LockOverlay'
@@ -11,8 +12,13 @@ export function OverlayApp(): React.JSX.Element | null {
   const [state, setState] = useState<OverlayState | null>(null)
 
   useEffect(() => {
-    const off = api.on('overlay:state', setState)
-    void api.invoke('overlay:state').then(setState)
+    // The language switches before the new state renders.
+    const receive = (next: OverlayState): void => {
+      applyLanguage(next.lang)
+      setState(next)
+    }
+    const off = api.on('overlay:state', receive)
+    void api.invoke('overlay:state').then(receive)
     return off
   }, [])
 

@@ -21,16 +21,20 @@ export const ease = {
   inOut: [0.65, 0, 0.35, 1]
 } as const
 
+/** +1 when the reading end is to the right (English), −1 when it is to the left (Arabic). */
+export const endSide = (): number => (document.documentElement.dir === 'rtl' ? -1 : 1)
+
 /**
- * Page transition: short crossfade with an 8 px slide. In RTL, "forward"
- * (moving down the sidebar) enters from the inline end, which is the left.
+ * Page transition: short crossfade with an 8 px slide. "Forward" (moving
+ * down the sidebar) enters from the reading end: the left in Arabic, the
+ * right in English.
  */
 export const pageVariants: Variants = {
-  enter: (dir: number) => ({ opacity: 0, x: dir >= 0 ? -8 : 8 }),
+  enter: (dir: number) => ({ opacity: 0, x: (dir >= 0 ? 8 : -8) * endSide() }),
   center: { opacity: 1, x: 0, transition: { duration: duration.page, ease: ease.out } },
   exit: (dir: number) => ({
     opacity: 0,
-    x: dir >= 0 ? 8 : -8,
+    x: (dir >= 0 ? -8 : 8) * endSide(),
     transition: { duration: duration.fast, ease: ease.inOut }
   })
 }

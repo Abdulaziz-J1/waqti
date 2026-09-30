@@ -22,9 +22,9 @@
 .fill {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to left, var(--tint), var(--tint-2));
-  /* RTL: grows from the right */
-  transform-origin: right center;
+  background: linear-gradient(var(--toward-end), var(--tint), var(--tint-2));
+  /* Grows from the reading start */
+  transform-origin: var(--origin-start);
 }
 
 .lane {

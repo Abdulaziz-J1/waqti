@@ -62,7 +62,13 @@ import {
 import type { Settings } from '../shared/settings/schema'
 import { PALETTES, skyAt, tintOf } from '../shared/sky'
 import { fmtDuration } from '../shared/format'
-import { prayerNames, toasts, tray as trayStrings } from '../shared/strings'
+import {
+  app as appStrings,
+  prayerNames,
+  setLanguage,
+  toasts,
+  tray as trayStrings
+} from '../shared/strings'
 import { MINUTE, addDays, dayKey, dayStartMs } from '../shared/time'
 import { isInMeeting, matchDistraction } from '../shared/tracking/detect'
 import { generateDemo } from '../shared/demo/generate'
@@ -555,6 +561,12 @@ export class WaqtiCore {
 
   private onSettingsChange(next: Settings, prev: Settings): void {
     const now = this.clock.now()
+    if (next.general.language !== prev.general.language) {
+      // Tray menu, toasts, window titles and overlays all read the strings live.
+      setLanguage(next.general.language)
+      const w = this.mainWindow
+      if (w && !w.isDestroyed()) w.setTitle(appStrings.name)
+    }
     if (
       JSON.stringify(next.location) !== JSON.stringify(prev.location) ||
       JSON.stringify(next.prayers) !== JSON.stringify(prev.prayers)
@@ -777,6 +789,7 @@ export class WaqtiCore {
       adhan,
       sky: { ...sky.colors, period: sky.period },
       tint: tintOf(this.s.appearance.theme, sky.period),
+      lang: this.s.general.language,
       clockOffsetMs: this.clock.offsetMs,
       digits: this.s.general.digits,
       clock: this.s.general.clock,
@@ -810,6 +823,7 @@ export class WaqtiCore {
     if (s.tracking.paused) tooltip = `${tooltip}\n${trayStrings.tooltipPaused}`
     return {
       tooltip,
+      lang: s.general.language,
       focusRunning: this.machine.focus.kind !== 'off',
       focusLabel: trayStrings.focusStart(
         fmtDuration(s.focus.lastSeconds * 1000, s.general.digits, { round: 'round' })

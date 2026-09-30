@@ -13,6 +13,7 @@ import { useReducedMotion } from '../../lib/sky'
 import { useCatColor } from '../../lib/tone'
 import { ChartTooltip } from './ChartTooltip'
 import s from './charts.module.css'
+import { dirOf, lang } from '@shared/strings'
 
 interface DonutProps {
   totals: CategoryTotal[]
@@ -88,7 +89,7 @@ export function Donut({ totals, centerLabel }: DonutProps): React.JSX.Element {
             />
           </PieChart>
         </ResponsiveContainer>
-        <div className={s.donutCenter} dir="rtl">
+        <div className={s.donutCenter} dir={dirOf(lang)}>
           <span className={s.donutValue}>{fmt.durShort(sum)}</span>
           <span className={s.donutLabel}>{centerLabel}</span>
         </div>

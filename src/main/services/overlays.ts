@@ -1,6 +1,7 @@
 import { BrowserWindow, screen, type Display } from 'electron'
 import type { OverlayKind, OverlayState } from '../../shared/ipc'
 import type { AdhanView, GuardView, LockView } from '../../shared/machine/types'
+import { app as appStrings } from '../../shared/strings'
 import { log } from './logger'
 
 export interface OverlayDeps {
@@ -130,7 +131,7 @@ export class OverlayManager {
       skipTaskbar: true,
       hasShadow: false,
       alwaysOnTop: true,
-      title: 'وقتي',
+      title: appStrings.name,
       webPreferences: {
         preload: this.deps.preload,
         contextIsolation: true,

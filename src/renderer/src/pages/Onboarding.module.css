@@ -47,8 +47,8 @@
 .segFill {
   display: block;
   block-size: 100%;
-  background: linear-gradient(to left, var(--tint), var(--tint-2));
-  transform-origin: right center;
+  background: linear-gradient(var(--toward-end), var(--tint), var(--tint-2));
+  transform-origin: var(--origin-start);
 }
 
 .body {
@@ -169,4 +169,10 @@
   padding-block: var(--sp-4);
   padding-inline: var(--sp-7);
   border-block-start: 1px solid var(--border);
+}
+
+/* العربية / English above the welcome title. */
+.language {
+  margin-block: var(--sp-2);
+  -webkit-app-region: no-drag;
 }

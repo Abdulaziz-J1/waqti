@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import type { RunningApp } from '@shared/ipc'
 import type { DaySchedule } from '@shared/prayer/schedule'
@@ -11,6 +11,7 @@ import { AppIcon } from '../components/AppIcon'
 import { Button } from '../components/Button'
 import { Chip } from '../components/Field'
 import { LocationPicker } from '../components/LocationPicker'
+import { LanguageSwitch } from '../components/LanguageSwitch'
 import { LogoMark } from '../components/NavIcons'
 import { Stepper } from '../components/Stepper'
 import { Switch, Toggle } from '../components/Toggle'
@@ -18,15 +19,20 @@ import { api } from '../lib/api'
 import { requestEntrance } from '../lib/entrance'
 import { useFmt } from '../lib/fmt'
 import { updateSettings, useSettings } from '../lib/store'
-import { spring } from '../motion'
+import { endSide, spring } from '../motion'
 import s from './Onboarding.module.css'
 
 const STEPS = 5
 
+/** Steps slide in from the reading end and leave toward the start. */
 const slide = {
-  enter: (dir: number) => ({ opacity: 0, x: dir >= 0 ? -24 : 24 }),
+  enter: (dir: number) => ({ opacity: 0, x: (dir >= 0 ? 24 : -24) * endSide() }),
   center: { opacity: 1, x: 0, transition: spring.gentle },
-  exit: (dir: number) => ({ opacity: 0, x: dir >= 0 ? 24 : -24, transition: { duration: 0.16 } })
+  exit: (dir: number) => ({
+    opacity: 0,
+    x: (dir >= 0 ? -24 : 24) * endSide(),
+    transition: { duration: 0.16 }
+  })
 }
 
 function PrayerPreview({ schedule }: { schedule: DaySchedule | null }): React.JSX.Element {
@@ -159,6 +165,9 @@ export function Onboarding(): React.JSX.Element {
                   >
                     <LogoMark size={84} />
                   </motion.div>
+                  <div className={s.language}>
+                    <LanguageSwitch label={t.language} size="md" />
+                  </div>
                   <h1 className={s.title}>{t.welcomeTitle}</h1>
                   <p className={s.lead}>{t.welcomeBody}</p>
                   <p className={s.small}>{t.welcomePrivacy}</p>
@@ -271,7 +280,7 @@ export function Onboarding(): React.JSX.Element {
             <Button
               variant="primary"
               size="lg"
-              icon={<ArrowLeft size={18} />}
+              icon={<ArrowRight size={18} className="icon-directional" />}
               onClick={() => goTo(step + 1)}
               data-testid="onboarding-next"
             >

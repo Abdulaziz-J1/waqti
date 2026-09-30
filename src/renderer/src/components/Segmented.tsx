@@ -2,6 +2,7 @@ import { motion } from 'motion/react'
 import { useId, useRef, type KeyboardEvent, type ReactNode } from 'react'
 import { spring } from '../motion'
 import s from './Segmented.module.css'
+import { rtl } from '../lib/language'
 
 interface Option<T extends string> {
   value: T
@@ -28,8 +29,10 @@ export function Segmented<T extends string>({
   const refs = useRef<Array<HTMLButtonElement | null>>([])
 
   const onKey = (e: KeyboardEvent, i: number): void => {
-    // RTL: the left arrow moves forward (to the next option).
-    const delta = e.key === 'ArrowLeft' ? 1 : e.key === 'ArrowRight' ? -1 : 0
+    // The arrow toward the reading end moves forward (left in Arabic, right in English).
+    const forward = rtl() ? 'ArrowLeft' : 'ArrowRight'
+    const back = rtl() ? 'ArrowRight' : 'ArrowLeft'
+    const delta = e.key === forward ? 1 : e.key === back ? -1 : 0
     if (!delta) return
     e.preventDefault()
     const next = (i + delta + options.length) % options.length

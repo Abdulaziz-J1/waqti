@@ -52,7 +52,11 @@ nsis:
   installerIcon: build/icon.ico
   uninstallerIcon: build/icon.ico
   include: build/installer.nsh
+  # The installer asks Arabic or English (Arabic first); customInstall hands the
+  # choice to the app, which opens in that language (src/main/index.ts).
   language: '1025'
-  installerLanguages: [ar_SA]
+  installerLanguages: [ar_SA, en_US]
+  multiLanguageInstaller: true
+  displayLanguageSelector: true
   unicode: true
 publish: null

@@ -1,5 +1,5 @@
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
-import { Suspense, lazy, useEffect } from 'react'
+import { Fragment, Suspense, lazy, useEffect } from 'react'
 import type { Page } from '@shared/ipc'
 import { SkyBackground } from './components/SkyBackground'
 import { Sidebar } from './components/Sidebar'
@@ -85,7 +85,10 @@ export function App(): React.JSX.Element {
     <ToneContext.Provider value={sky.tone}>
       <MotionConfig reducedMotion={reduced ? 'always' : 'never'}>
         <SkyBackground night={night} />
-        {snap.settings.onboarded ? <Shell /> : <Onboarding />}
+        {/* A new language remounts the screens so every string and direction is fresh. */}
+        <Fragment key={snap.settings.general.language}>
+          {snap.settings.onboarded ? <Shell /> : <Onboarding />}
+        </Fragment>
       </MotionConfig>
     </ToneContext.Provider>
   )

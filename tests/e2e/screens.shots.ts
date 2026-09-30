@@ -57,3 +57,24 @@ for (const [period, hh, mm] of [
     await app.close()
   })
 }
+
+test('screenshots (English)', async () => {
+  fs.mkdirSync(OUT, { recursive: true })
+  const { app, win } = await launch()
+  await win.setViewportSize({ width: 1280, height: 820 })
+  await invoke(win, 'debug:setOffset', { minutes: offsetTo(13, 10) })
+  await app.evaluate(({ BrowserWindow }) => {
+    const w = BrowserWindow.getAllWindows()[0]
+    w?.show()
+    w?.moveTop()
+    w?.focus()
+  })
+  await invoke(win, 'settings:update', { general: { language: 'en' } })
+  await invoke(win, 'onboarding:complete', { launchAtStartup: false })
+  await invoke(win, 'debug:seed', { range: 'week' })
+  for (const page of ['today', 'focus'] as const) {
+    await win.locator(`[data-testid="nav-${page}"]`).click()
+    await shot(win, `en-${page}.png`)
+  }
+  await app.close()
+})

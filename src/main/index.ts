@@ -8,9 +8,34 @@ import { Repo } from './services/db/repo'
 import { SettingsStore } from './services/settings-store'
 import { WaqtiCore } from './core'
 import { registerIpc } from './ipc'
-import { toasts } from '../shared/strings'
+import {
+  type Lang,
+  app as appStrings,
+  errorScreen,
+  LANGS,
+  setLanguage,
+  toasts
+} from '../shared/strings'
 
 const APP_ID = 'com.waqti.desktop'
+
+/**
+ * The installer asks for a language and leaves it in a small file; the first
+ * start after installing makes it the interface language, then removes it.
+ */
+function applyInstallerLanguage(settings: SettingsStore): void {
+  try {
+    if (!fs.existsSync(paths.installerLanguage)) return
+    const chosen = fs.readFileSync(paths.installerLanguage, 'utf8').trim()
+    fs.rmSync(paths.installerLanguage, { force: true })
+    if ((LANGS as readonly string[]).includes(chosen)) {
+      settings.update({ general: { language: chosen as Lang } })
+      log.info(`language from the installer: ${chosen}`)
+    }
+  } catch (err) {
+    log.warn('installer language unreadable', err)
+  }
+}
 
 configureUserData()
 log.init(paths.logs)
@@ -70,6 +95,8 @@ if (!app.requestSingleInstanceLock()) {
       const settings = new SettingsStore(paths.settings)
       const status = settings.load()
       if (status !== 'ok') log.info(`settings ${status}`)
+      applyInstallerLanguage(settings)
+      setLanguage(settings.get().general.language)
 
       const opened = openWithRecovery(paths.db, paths.backups)
       if (opened.status !== 'ok') {
@@ -99,7 +126,7 @@ if (!app.requestSingleInstanceLock()) {
       startPerfLog()
     } catch (err) {
       log.error('fatal startup error', err)
-      dialog.showErrorBox('وقتي', 'ما قدر وقتي يشتغل. أعد تشغيل الجهاز وجرّب مرة ثانية.')
+      dialog.showErrorBox(appStrings.name, errorScreen.startFailed)
       app.exit(1)
     }
   })
