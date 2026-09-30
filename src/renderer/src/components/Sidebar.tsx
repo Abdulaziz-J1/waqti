@@ -13,9 +13,10 @@ import { LogoMark, NavIcon } from './NavIcons'
 import s from './Sidebar.module.css'
 
 /**
- * The sidebar on the reading-start side (right in Arabic, left in English). The active indicator slides between items. It
- * folds to a rail of icons (the handle on its edge, or Ctrl+B): the logo, the
- * pages and the tracking switch with its light stay; names show as tips.
+ * The sidebar on the reading-start side (right in Arabic, left in English).
+ * The active indicator slides between items. It folds to a rail of icons (the
+ * handle on its edge, or Ctrl+B): the logo, the pages and the tracking switch
+ * with its light stay.
  */
 export function Sidebar(): React.JSX.Element {
   const { page } = useNav()
@@ -56,7 +57,7 @@ export function Sidebar(): React.JSX.Element {
           {PAGES.map((p: Page) => {
             const active = p === page
             return (
-              <li key={p} className={s.entry}>
+              <li key={p}>
                 <button
                   type="button"
                   className={s.item}
@@ -82,42 +83,34 @@ export function Sidebar(): React.JSX.Element {
                     {nav[p]}
                   </span>
                 </button>
-                <span className={s.tip} aria-hidden>
-                  {nav[p]}
-                </span>
               </li>
             )
           })}
         </ul>
       </nav>
 
-      <div className={s.statusWrap}>
-        <div className={s.status} data-status={status}>
-          <div className={s.statusText}>
-            <span className={s.dot} role="img" aria-label={trackingStatus[status]} />
-            <div className={s.statusLines} aria-hidden={collapsed || undefined}>
-              <span>{trackingStatus[status]}</span>
-              {current && !paused ? (
-                <span className={s.current}>
-                  <bdi>{current}</bdi>
-                </span>
-              ) : null}
-            </div>
+      <div className={s.status} data-status={status}>
+        <div className={s.statusText}>
+          <span className={s.dot} role="img" aria-label={trackingStatus[status]} />
+          <div className={s.statusLines} aria-hidden={collapsed || undefined}>
+            <span>{trackingStatus[status]}</span>
+            {current && !paused ? (
+              <span className={s.current}>
+                <bdi>{current}</bdi>
+              </span>
+            ) : null}
           </div>
-          <button
-            type="button"
-            className={s.pause}
-            aria-label={pauseLabel}
-            title={pauseLabel}
-            onClick={() => void api.invoke('tracking:setPaused', { paused: !paused })}
-            data-testid="tracking-toggle"
-          >
-            {paused ? <Play size={15} /> : <Pause size={15} />}
-          </button>
         </div>
-        <span className={s.tip} aria-hidden>
-          {trackingStatus[status]}
-        </span>
+        <button
+          type="button"
+          className={s.pause}
+          aria-label={pauseLabel}
+          title={pauseLabel}
+          onClick={() => void api.invoke('tracking:setPaused', { paused: !paused })}
+          data-testid="tracking-toggle"
+        >
+          {paused ? <Play size={15} /> : <Pause size={15} />}
+        </button>
       </div>
       {/* Last in the sidebar on purpose: window-drag regions are applied in
           document order, so nothing after it can turn part of it into a drag area. */}

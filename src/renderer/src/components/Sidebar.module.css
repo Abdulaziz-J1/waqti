@@ -78,10 +78,6 @@
   gap: 2px;
 }
 
-.entry {
-  position: relative;
-}
-
 .item {
   position: relative;
   inline-size: 100%;
@@ -155,12 +151,8 @@
   color: var(--tint-text);
 }
 
-.statusWrap {
-  position: relative;
-  margin-block-start: auto;
-}
-
 .status {
+  margin-block-start: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -243,50 +235,14 @@
   box-shadow: 0 0 0 2px var(--focus);
 }
 
-/* Names beside the icons while folded. */
-.tip {
-  position: absolute;
-  z-index: 4;
-  inset-block-start: 50%;
-  inset-inline-start: calc(100% + 16px);
-  padding-block: 4px;
-  padding-inline: 10px;
-  border-radius: var(--r-sm);
-  background: var(--surface-2);
-  box-shadow:
-    var(--shadow-2),
-    inset 0 0 0 1px var(--border);
-  color: var(--text-1);
-  font-size: var(--fs-small);
-  font-weight: 600;
-  white-space: nowrap;
-  pointer-events: none;
-  /* Tips sit over the page: they must never become window-drag areas. */
-  -webkit-app-region: no-drag;
-  opacity: 0;
-  visibility: hidden;
-  transform: translate(6px, -50%);
-  transition:
-    opacity var(--dur-fast),
-    transform var(--dur-base) var(--ease-out);
-}
-
-/* Tips slide in from the rail: from the right in Arabic, the left in English. */
-:global([dir='ltr']) .tip {
-  transform: translate(-6px, -50%);
-}
-
 /* ---- Folded: a rail of icons. Its width is --sidebar-w (App.module.css);
-   the icons keep their place while the names are clipped and fade. ---- */
+   the icons keep their place while the names are clipped and fade (no tips:
+   unfold the sidebar to read the names). ---- */
 
 .sidebar[data-collapsed] .name,
 .sidebar[data-collapsed] .label,
 .sidebar[data-collapsed] .statusLines {
   opacity: 0;
-}
-
-.sidebar[data-collapsed] .tip {
-  visibility: visible;
 }
 
 /* The clipped name still has a box beyond the rail; once faded it is hidden
@@ -296,14 +252,6 @@
   transition:
     opacity var(--dur-base) var(--ease-out),
     visibility 0s linear var(--dur-base);
-}
-
-.sidebar[data-collapsed] .entry:hover .tip,
-.sidebar[data-collapsed] .entry:focus-within .tip,
-.sidebar[data-collapsed] .statusWrap:hover .tip,
-.sidebar[data-collapsed] .statusWrap:focus-within .tip {
-  opacity: 1;
-  transform: translate(0, -50%);
 }
 
 .sidebar[data-collapsed] .status {
