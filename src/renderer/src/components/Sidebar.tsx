@@ -45,18 +45,6 @@ export function Sidebar(): React.JSX.Element {
 
   return (
     <aside className={s.sidebar} data-collapsed={collapsed || undefined}>
-      <button
-        type="button"
-        className={s.toggle}
-        aria-label={toggleLabel}
-        aria-expanded={!collapsed}
-        title={toggleLabel}
-        onClick={() => void updateSettings({ appearance: { sidebarCollapsed: !collapsed } })}
-        data-testid="sidebar-toggle"
-      >
-        {collapsed ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
-      </button>
-
       <div className={s.brand}>
         <LogoMark size={30} />
         <span className={s.name}>{app.name}</span>
@@ -130,6 +118,19 @@ export function Sidebar(): React.JSX.Element {
           {trackingStatus[status]}
         </span>
       </div>
+      {/* Last in the sidebar on purpose: window-drag regions are applied in
+          document order, so nothing after it can turn part of it into a drag area. */}
+      <button
+        type="button"
+        className={s.toggle}
+        aria-label={toggleLabel}
+        aria-expanded={!collapsed}
+        title={toggleLabel}
+        onClick={() => void updateSettings({ appearance: { sidebarCollapsed: !collapsed } })}
+        data-testid="sidebar-toggle"
+      >
+        {collapsed ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
+      </button>
     </aside>
   )
 }
