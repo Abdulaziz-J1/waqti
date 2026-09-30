@@ -1,8 +1,22 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 import { invoke, launch, shown } from './helpers'
+
+/** How far each slider's knob sits from the end of its fill, in pixels (0 = on it). */
+async function knobOffsets(win: Page): Promise<number[]> {
+  await win.waitForTimeout(600) // let the springs settle
+  return win.evaluate(() => {
+    const rtl = document.documentElement.dir === 'rtl'
+    return Array.from(document.querySelectorAll('[role="slider"]')).map((slider) => {
+      const fill = slider.firstElementChild!.firstElementChild!.getBoundingClientRect()
+      const knob = slider.lastElementChild!.firstElementChild!.getBoundingClientRect()
+      const end = rtl ? fill.left : fill.right
+      return Math.round(Math.abs(knob.left + knob.width / 2 - end))
+    })
+  })
+}
 
 test('language: English turns the whole app left to right, and back', async () => {
   const { app, win } = await launch()
@@ -21,6 +35,14 @@ test('language: English turns the whole app left to right, and back', async () =
   const aside = await win.locator('aside').boundingBox()
   expect(aside!.x).toBeLessThan(10)
 
+  // Sliders fill from the left and their knob rides the end of the fill.
+  await win.locator('[data-testid="nav-prayer"]').click()
+  await win.locator('#prayer-lock-screen').scrollIntoViewIfNeeded()
+  const offsets = await knobOffsets(win)
+  expect(offsets.length).toBeGreaterThanOrEqual(3)
+  for (const o of offsets) expect(o).toBeLessThanOrEqual(2)
+  await win.locator('[data-testid="nav-settings"]').click()
+
   // The lock window follows the language too.
   const lockWin = app.waitForEvent('window', { predicate: (w) => w.url().includes('kind=lock') })
   await invoke(win, 'debug:simulatePrayer', { prayer: 'asr' })
@@ -37,6 +59,9 @@ test('language: English turns the whole app left to right, and back', async () =
   await win.locator('[data-testid="lang-ar"]').click()
   await expect(win.locator('html')).toHaveAttribute('dir', 'rtl')
   await expect(win.locator('[data-testid="nav-today"]')).toHaveText('اليوم')
+  await win.locator('[data-testid="nav-prayer"]').click()
+  await win.locator('#prayer-lock-screen').scrollIntoViewIfNeeded()
+  for (const o of await knobOffsets(win)) expect(o).toBeLessThanOrEqual(2)
   await app.close()
 })
 

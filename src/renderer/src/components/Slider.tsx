@@ -102,11 +102,12 @@ export function Slider({
           transition={spring.snappy}
         />
       </div>
-      {/* The lane spans the track; translating it by a share of its own width moves the knob with transforms only. */}
+      {/* The lane spans the track; translating it by a share of its own width
+          moves the knob with transforms only, toward the reading end. */}
       <motion.div
         className={s.lane}
         initial={false}
-        animate={{ x: `${-ratio * 100}%` }}
+        animate={{ x: `${(rtl() ? -ratio : ratio) * 100}%` }}
         transition={spring.snappy}
       >
         <span className={s.knob} />

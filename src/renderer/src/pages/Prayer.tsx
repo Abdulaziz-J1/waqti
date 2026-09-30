@@ -323,27 +323,39 @@ export function PrayerPage(): React.JSX.Element {
               onChange={(v) => void updateSettings({ snooze: { enabled: v } })}
             />
             {settings.snooze.enabled ? (
-              <SettingRow label={t.snoozeDefault}>
-                <Stepper
+              <div className={s.sliderRow}>
+                <div className={s.sliderLabel}>
+                  <span>{t.snoozeDefault}</span>
+                  <span className={`${s.sliderValue} num`}>
+                    {fmt.minutes(settings.snooze.minutes)}
+                  </span>
+                </div>
+                <Slider
                   label={t.snoozeDefault}
                   value={settings.snooze.minutes}
                   min={1}
                   max={15}
-                  format={(v) => fmt.minutes(v)}
+                  valueText={(v) => fmt.minutes(v)}
                   onChange={(v) => void updateSettings({ snooze: { minutes: v } })}
                 />
-              </SettingRow>
+              </div>
             ) : null}
-            <SettingRow label={t.emergencyHold}>
-              <Stepper
+            <div className={s.sliderRow}>
+              <div className={s.sliderLabel}>
+                <span>{t.emergencyHold}</span>
+                <span className={`${s.sliderValue} num`}>
+                  {t.seconds(fmt.num(settings.emergencyHoldSeconds))}
+                </span>
+              </div>
+              <Slider
                 label={t.emergencyHold}
                 value={settings.emergencyHoldSeconds}
                 min={3}
                 max={10}
-                format={(v) => t.seconds(fmt.num(v))}
+                valueText={(v) => t.seconds(fmt.num(v))}
                 onChange={(v) => void updateSettings({ emergencyHoldSeconds: v })}
               />
-            </SettingRow>
+            </div>
             <Toggle
               label={t.muteDuringLock}
               hint={t.muteDuringLockHint}
