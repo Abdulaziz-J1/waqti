@@ -89,12 +89,12 @@ npm run dev
 | `npm test`                           | اختبارات الوحدات مع التغطية                |
 | `npm run test:e2e`                   | اختبارات التطبيق الكامل (Playwright)       |
 
-الملفات المهمة: [ARCHITECTURE.md](ARCHITECTURE.md) (هيكل التطبيق)، [DECISIONS.md](DECISIONS.md) (قرارات التصميم بالعربي)، [TESTING.md](TESTING.md) (دليل الاختبار اليدوي)، [PROGRESS.md](PROGRESS.md) (سجل العمل والأداء).
+الملفات المهمة: [ARCHITECTURE.md](ARCHITECTURE.md) (هيكل التطبيق)، [DECISIONS.md](DECISIONS.md) (قرارات التصميم بالعربي)، [TESTING.md](TESTING.md) (دليل الاختبار اليدوي)، وقياسات الأداء في آخر ARCHITECTURE.md.
 
 ## قيود معروفة (بصراحة)
 
 - **إيقاف الفيديو والصوت وقت القفل** يشتغل مع البرامج اللي تسجّل نفسها عند ويندوز (المتصفحات ومشغّل الوسائط وغيرها). البرامج اللي ما تسجّل (مثل VLC 3) تكمل، وشاشة القفل تغطيها.
-- **الذاكرة والنافذة مفتوحة:** حوالي ٢٩٠ ميجا على صفحة اليوم (نافذة Electron الفاضية لحالها ١٣٣ ميجا). في الخلفية وهو الاستخدام المعتاد: حوالي ١٤٠ ميجا. التفاصيل في PROGRESS.md.
+- **الذاكرة والنافذة مفتوحة:** حوالي ٢٩٠ ميجا على صفحة اليوم (نافذة Electron الفاضية لحالها ١٣٣ ميجا). في الخلفية وهو الاستخدام المعتاد: حوالي ١٤٠ ميجا. التفاصيل في قسم الأداء في ARCHITECTURE.md.
 - **المثبّت غير موقّع**، فيطلع تحذير SmartScreen أول مرة.
 - **ويندوز فقط.** الكود ما ينهار على الأنظمة الثانية، لكن التتبع والقفل مصممين لويندوز.
 - **ما يعرف الموقع داخل المتصفح إلا من عنوان النافذة.** إذا كان عنوان الصفحة ما يذكر الموقع، ينحسب الوقت للمتصفح نفسه.
@@ -153,7 +153,7 @@ npm run dev
 
 `npm run dist` builds the installer at `dist/Waqti-Setup-1.0.0.exe`. Other scripts: `typecheck`, `lint`, `test` (Vitest with a coverage gate), `test:e2e` (Playwright driving the real Electron app), `bench`, `perf`, `screenshots`.
 
-Documentation: [ARCHITECTURE.md](ARCHITECTURE.md) (processes, the lock/focus state machine with Mermaid diagrams, data model), [DECISIONS.md](DECISIONS.md) (design decisions, in Arabic), [TESTING.md](TESTING.md) (manual test checklist, in Arabic), [PROGRESS.md](PROGRESS.md) (build log and measured performance).
+Documentation: [ARCHITECTURE.md](ARCHITECTURE.md) (processes, the lock/focus state machine with Mermaid diagrams, data model), [DECISIONS.md](DECISIONS.md) (design decisions, in Arabic), [TESTING.md](TESTING.md) (manual test checklist, in Arabic), plus measured performance at the end of ARCHITECTURE.md.
 
 ## Honest limitations
 

@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "وقتي — يعرف وين يروح وقتك على الكمبيوتر، يساعدك تركّز، ويوقف كل شي وقت الصلاة.",
   "main": "./out/main/index.js",
-  "author": "Waqti",
+  "author": "Abdulaziz Almutairi",
   "license": "MIT",
   "private": true,
   "engines": {

@@ -1,7 +1,7 @@
 appId: com.waqti.desktop
 productName: وقتي
 executableName: Waqti
-copyright: Copyright © 2026 Waqti contributors
+copyright: Copyright © 2026 Abdulaziz Almutairi
 directories:
   output: dist
   buildResources: build

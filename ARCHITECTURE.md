@@ -233,3 +233,17 @@ sequenceDiagram
 | Timezone change                            | checked every minute (V8 re-detects the host zone) → schedule rebuilt                             |
 | City / adjustments change                  | schedule rebuilt immediately                                                                      |
 | Debug clock offset                         | same path as a clock change                                                                       |
+
+## Performance
+
+Measured on a Windows 11 machine (12 logical cores, 125 % display scaling) with the production build via `node scripts/perf.mjs` (Electron launched directly, no test harness) and `npm run bench`.
+
+| Metric                                                                                    | Budget   | Measured                                               | Status               |
+| ----------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------ | -------------------- |
+| Cold start to interactive (first Today render with data)                                  | < 2 s    | 476–523 ms                                             | within               |
+| CPU with the window hidden (tray), average over 60 s                                      | < 1 %    | 0.00 % of the machine (0.03–0.04 % of one core)        | within               |
+| Memory, typical use (running in the tray; the window is released 60 s after it is closed) | < 250 MB | 138–141 MB private (212 MB working set)                | within               |
+| Memory with the window open on Today                                                      | < 250 MB | 282–301 MB private (working set ~400 MB)               | **over — see below** |
+| Report queries on 1 year of data (93 290 intervals)                                       | < 100 ms | day 1.2 ms · week 1.2 ms · month 5.2 ms · Today 1.1 ms | within               |
+
+**The gap with the window open:** an empty Electron 44 window of the same size already uses 133 MB private (65 MB of it in the GPU process). With Today open the GPU process holds ~155 MB; experiments showed ~25 MB of that comes from the Sky Arc hero and ~20 MB from the sun/moon glow — the signature element of the design, so it stays. Chromium switches (`--disable-gpu-compositing`, `--disable-gpu-rasterization`, GPU memory caps, V8 lite mode) did not reduce the total reliably and cost CPU. What ships instead: the window only exists while it is open or for 60 s after closing to the tray, so the app spends almost the whole day at ~140 MB; the Onboarding screen measures 209 MB.
