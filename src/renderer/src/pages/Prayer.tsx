@@ -59,7 +59,8 @@ export function PrayerPage(): React.JSX.Element {
     : null
   const friday = bundle?.today.isFriday ?? false
 
-  const setPrayer = (p: PrayerId, patch: Partial<(typeof settings.prayers)[PrayerId]>): void => {
+  type PrayerKey = keyof typeof settings.prayers
+  const setPrayer = (p: PrayerKey, patch: Partial<(typeof settings.prayers)[PrayerKey]>): void => {
     void updateSettings({ prayers: { [p]: patch } })
   }
 
@@ -91,53 +92,66 @@ export function PrayerPage(): React.JSX.Element {
               <span role="columnheader">{t.lockFor}</span>
               <span role="columnheader">{t.adjust}</span>
             </div>
-            {(['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'] as const).map((slot) => {
-              const at = bundle.today.times[slot]
-              const isNext = next?.slot === slot && next.day === bundle.today.day
-              if (slot === 'sunrise') {
+            {(['fajr', 'sunrise', 'dhuhr', 'jumuah', 'asr', 'maghrib', 'isha'] as const).map(
+              (slot) => {
+                if (slot === 'sunrise') {
+                  return (
+                    <div key={slot} className={s.row} role="row" data-muted>
+                      <span className={s.name} role="cell">
+                        <span className={s.prayer}>{prayerNames.sunrise}</span>
+                        <span className={`${s.time} num`}>
+                          {fmt.clock(bundle.today.times.sunrise)}
+                        </span>
+                      </span>
+                      <span className={s.note} role="cell">
+                        {t.sunriseNote}
+                      </span>
+                    </div>
+                  )
+                }
+                // Jumu'ah is Friday's Dhuhr with its own settings: on Fridays it takes
+                // Dhuhr's place (Dhuhr's row rests), other days it waits for Friday.
+                const isJumuah = slot === 'jumuah'
+                const prayer: PrayerId = isJumuah ? 'dhuhr' : slot
+                const resting = isJumuah ? !friday : slot === 'dhuhr' && friday
+                const p = settings.prayers[slot]
+                const name = prayerNames[slot]
+                const isNext =
+                  !resting &&
+                  next?.slot === prayer &&
+                  next.isJumuah === isJumuah &&
+                  next.day === bundle.today.day
                 return (
-                  <div key={slot} className={s.row} role="row" data-muted>
+                  <div
+                    key={slot}
+                    className={s.row}
+                    role="row"
+                    data-next={isNext || undefined}
+                    data-resting={resting || undefined}
+                  >
                     <span className={s.name} role="cell">
-                      <span className={s.prayer}>{prayerNames.sunrise}</span>
-                      <span className={`${s.time} num`}>{fmt.clock(at)}</span>
+                      <span className={s.prayer}>
+                        {name}
+                        {isNext ? <span className={s.nextTag}>{t.nextTag}</span> : null}
+                      </span>
+                      {isJumuah && !friday ? (
+                        <span className={s.time}>{t.everyFriday}</span>
+                      ) : (
+                        <span className={`${s.time} num`}>
+                          {fmt.clock(bundle.today.times[prayer])}
+                        </span>
+                      )}
                     </span>
-                    <span className={s.note} role="cell">
-                      {t.sunriseNote}
+                    <span role="cell">
+                      <Switch
+                        checked={p.lock}
+                        label={`${t.lock} ${name}`}
+                        onChange={(v) => setPrayer(slot, { lock: v })}
+                      />
                     </span>
-                  </div>
-                )
-              }
-              const p = settings.prayers[slot]
-              const jumuah = slot === 'dhuhr' && friday
-              const lockOn = jumuah ? settings.friday.lock : p.lock
-              const lockMinutes = jumuah ? settings.friday.lockMinutes : p.lockMinutes
-              return (
-                <div key={slot} className={s.row} role="row" data-next={isNext || undefined}>
-                  <span className={s.name} role="cell">
-                    <span className={s.prayer}>
-                      {prayerLabel({ prayer: slot, isJumuah: jumuah })}
-                      {isNext ? <span className={s.nextTag}>{t.nextTag}</span> : null}
-                    </span>
-                    <span className={`${s.time} num`}>{fmt.clock(at)}</span>
-                  </span>
-                  <span role="cell">
-                    <Switch
-                      checked={lockOn}
-                      label={`${t.lock} ${prayerNames[slot]}`}
-                      onChange={(v) =>
-                        jumuah
-                          ? void updateSettings({ friday: { lock: v } })
-                          : setPrayer(slot, { lock: v })
-                      }
-                    />
-                  </span>
-                  <span role="cell" className={lockOn ? undefined : s.dim}>
-                    {jumuah ? (
-                      // The Friday prayer always locks with its adhan (see the Friday card).
-                      <span className={s.fixed}>{t.withAdhan}</span>
-                    ) : (
+                    <span role="cell" className={p.lock ? undefined : s.dim}>
                       <Stepper
-                        label={`${t.lockAfter} ${prayerNames[slot]}`}
+                        label={`${t.lockAfter} ${name}`}
                         value={p.lockDelayMinutes}
                         min={0}
                         max={30}
@@ -145,38 +159,36 @@ export function PrayerPage(): React.JSX.Element {
                         format={delayText}
                         onChange={(v) => setPrayer(slot, { lockDelayMinutes: v })}
                       />
-                    )}
-                  </span>
-                  <span role="cell" className={lockOn ? undefined : s.dim}>
-                    <Stepper
-                      label={`${t.lockFor} ${prayerNames[slot]}`}
-                      value={lockMinutes}
-                      min={5}
-                      max={60}
-                      step={5}
-                      format={(v) => fmt.minutes(v)}
-                      onChange={(v) =>
-                        jumuah
-                          ? void updateSettings({ friday: { lockMinutes: v } })
-                          : setPrayer(slot, { lockMinutes: v })
-                      }
-                    />
-                  </span>
-                  <span role="cell">
-                    <Stepper
-                      label={`${t.adjust} ${prayerNames[slot]}`}
-                      value={p.adjust}
-                      min={-15}
-                      max={15}
-                      format={(v) => <Signed v={v} fmt={fmt} />}
-                      onChange={(v) => setPrayer(slot, { adjust: v })}
-                    />
-                  </span>
-                </div>
-              )
-            })}
+                    </span>
+                    <span role="cell" className={p.lock ? undefined : s.dim}>
+                      <Stepper
+                        label={`${t.lockFor} ${name}`}
+                        value={p.lockMinutes}
+                        min={5}
+                        max={60}
+                        step={5}
+                        format={(v) => fmt.minutes(v)}
+                        onChange={(v) => setPrayer(slot, { lockMinutes: v })}
+                      />
+                    </span>
+                    <span role="cell">
+                      <Stepper
+                        label={`${t.adjust} ${name}`}
+                        value={p.adjust}
+                        min={-15}
+                        max={15}
+                        format={(v) => <Signed v={v} fmt={fmt} />}
+                        onChange={(v) => setPrayer(slot, { adjust: v })}
+                      />
+                    </span>
+                  </div>
+                )
+              }
+            )}
             <p className={s.footnote}>
               {t.lockAfterHint}
+              <br />
+              {t.jumuahHint}
               <br />
               {t.adjustHint}
             </p>
@@ -256,55 +268,9 @@ export function PrayerPage(): React.JSX.Element {
               onChange={(v) => void updateSettings({ chime: v })}
             />
           </Panel>
-
-          <Panel title={t.smart} id="prayer-smart">
-            <Toggle
-              label={t.skipAway}
-              hint={t.skipAwayHint}
-              checked={settings.smart.skipWhenAway}
-              onChange={(v) => void updateSettings({ smart: { skipWhenAway: v } })}
-            />
-            <Toggle
-              label={t.deferMeetings}
-              hint={t.deferMeetingsHint}
-              checked={settings.smart.deferInMeetings}
-              onChange={(v) => void updateSettings({ smart: { deferInMeetings: v } })}
-            />
-          </Panel>
         </div>
 
         <div className={s.column}>
-          <Panel title={t.friday} id="prayer-friday">
-            <p className={s.lead}>{t.fridayLead}</p>
-            <Toggle
-              label={t.lock}
-              checked={settings.friday.lock}
-              onChange={(v) => void updateSettings({ friday: { lock: v } })}
-            />
-            <SettingRow label={t.fridayReminder}>
-              <Stepper
-                label={t.fridayReminder}
-                value={settings.friday.reminderMinutes}
-                min={0}
-                max={120}
-                step={5}
-                format={(v) => (v === 0 ? t.reminderOff : fmt.minutes(v))}
-                onChange={(v) => void updateSettings({ friday: { reminderMinutes: v } })}
-              />
-            </SettingRow>
-            <SettingRow label={t.fridayLock}>
-              <Stepper
-                label={t.fridayLock}
-                value={settings.friday.lockMinutes}
-                min={5}
-                max={60}
-                step={5}
-                format={(v) => fmt.minutes(v)}
-                onChange={(v) => void updateSettings({ friday: { lockMinutes: v } })}
-              />
-            </SettingRow>
-          </Panel>
-
           <Panel title={t.lockScreen} id="prayer-lock-screen">
             <div className={s.sliderRow}>
               <div className={s.sliderLabel}>
@@ -375,6 +341,21 @@ export function PrayerPage(): React.JSX.Element {
               hint={t.pauseMediaHint}
               checked={settings.pauseMedia}
               onChange={(v) => void updateSettings({ pauseMedia: v })}
+            />
+          </Panel>
+
+          <Panel title={t.smart} id="prayer-smart">
+            <Toggle
+              label={t.skipAway}
+              hint={t.skipAwayHint}
+              checked={settings.smart.skipWhenAway}
+              onChange={(v) => void updateSettings({ smart: { skipWhenAway: v } })}
+            />
+            <Toggle
+              label={t.deferMeetings}
+              hint={t.deferMeetingsHint}
+              checked={settings.smart.deferInMeetings}
+              onChange={(v) => void updateSettings({ smart: { deferInMeetings: v } })}
             />
           </Panel>
         </div>

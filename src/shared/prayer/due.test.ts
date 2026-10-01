@@ -88,14 +88,11 @@ describe('due events', () => {
     ])
   })
 
-  it('locks Jumuah with its adhan, after the Friday reminder', () => {
+  it('locks Jumuah with its adhan by default, like a prayer with no gap before the iqama', () => {
     const dhuhr = friday.times.dhuhr
-    const r = dueBetween([friday], s, dhuhr - 46 * MINUTE, dhuhr)
-    expect(r.map((e) => [e.kind, e.fireAt === dhuhr - 45 * MINUTE || e.fireAt === dhuhr])).toEqual([
-      ['pre', true],
-      ['prayer', true]
-    ])
-    const lock = r[1]!
+    const r = dueBetween([friday], s, dhuhr - 60 * MINUTE, dhuhr)
+    expect(r.map((e) => [e.kind, e.fireAt === dhuhr])).toEqual([['prayer', true]])
+    const lock = r[0]!
     if (lock.kind !== 'prayer') throw new Error(lock.kind)
     expect(lock.ref.isJumuah).toBe(true)
   })
@@ -113,10 +110,10 @@ describe('due events', () => {
     expect(at(applyPatch(s, { sunrise: { notice: false } }))).toEqual([])
   })
 
-  it('skips the Friday reminder set to 0, and empty windows', () => {
-    const none = applyPatch(s, { friday: { reminderMinutes: 0 } })
+  it("gives Jumu'ah the adhan notice and a later lock when it has a gap", () => {
+    const gap = applyPatch(s, { prayers: { jumuah: { lockDelayMinutes: 25 } } })
     const dhuhr = friday.times.dhuhr
-    expect(kinds(dhuhr - 46 * MINUTE, dhuhr - 44 * MINUTE, none, friday)).toEqual([])
+    expect(kinds(dhuhr - 1000, dhuhr + 25 * MINUTE, gap, friday)).toEqual(['adhan', 'prayer'])
     expect(dueBetween([sunday], s, sunday.times.asr, sunday.times.asr)).toEqual([])
   })
 

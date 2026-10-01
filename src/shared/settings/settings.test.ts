@@ -9,7 +9,6 @@ import {
   lockDelayMinutesFor,
   lockPlanFor,
   machineConfigOf,
-  reminderMinutesFor,
   snoozeChoices
 } from './plan'
 import { MINUTE } from '../time'
@@ -27,7 +26,12 @@ describe('settings schema', () => {
     expect(s.ramadanLockDelay).toEqual({ fajr: 20, maghrib: 15 })
     expect(s.adhanNotice).toBe(true)
     expect(s.pauseMedia).toBe(true)
-    expect(s.friday).toEqual({ lock: true, reminderMinutes: 45, lockMinutes: 40 })
+    expect(s.prayers.jumuah).toEqual({
+      lock: true,
+      lockMinutes: 40,
+      lockDelayMinutes: 0,
+      adjust: 0
+    })
     expect(s.minUnlockMinutes).toBe(5)
     expect(s.distractions.sites).toContain('youtube')
     expect(s.general).toMatchObject({ digits: 'arab', clock: '12h', closeToTray: true })
@@ -88,6 +92,24 @@ describe('settings migrations', () => {
     expect(r.settings.version).toBe(SETTINGS_VERSION)
   })
 
+  it("moves the old Friday card into the prayers as Jumu'ah (version 1 → 2)", () => {
+    const r = migrateSettings({
+      version: 1,
+      onboarded: true,
+      prayers: { dhuhr: { adjust: 3 } },
+      friday: { lock: false, reminderMinutes: 30, lockMinutes: 25 }
+    })
+    expect(r.status).toBe('migrated')
+    expect(r.settings.prayers.jumuah).toEqual({
+      lock: false,
+      lockMinutes: 25,
+      lockDelayMinutes: 0,
+      adjust: 3
+    })
+    expect('friday' in r.settings).toBe(false)
+    expect(r.settings.prayers.dhuhr.adjust).toBe(3)
+  })
+
   it('runs every migration in order from the stored version', () => {
     const calls: number[] = []
     const migrations = {
@@ -138,7 +160,7 @@ describe('plan resolution', () => {
       snooze: true
     })
     expect(lockPlanFor(s, 'dhuhr', true)?.lockMs).toBe(40 * MINUTE)
-    const off = applyPatch(s, { prayers: { asr: { lock: false } }, friday: { lock: false } })
+    const off = applyPatch(s, { prayers: { asr: { lock: false }, jumuah: { lock: false } } })
     expect(lockPlanFor(off, 'asr', false)).toBeNull()
     expect(lockPlanFor(off, 'dhuhr', true)).toBeNull()
     expect(forcedLockPlan(off, 'asr', false).lockMs).toBe(15 * MINUTE)
@@ -152,6 +174,9 @@ describe('plan resolution', () => {
     expect(lockDelayMinutesFor(s, 'maghrib', false, true)).toBe(15)
     expect(lockDelayMinutesFor(s, 'isha', false, true)).toBe(20)
     expect(lockDelayMinutesFor(s, 'dhuhr', true, false)).toBe(0)
+    // Jumu'ah has its own delay, like the other prayers (and no Ramadan change).
+    const later = applyPatch(s, { prayers: { jumuah: { lockDelayMinutes: 25 } } })
+    expect(lockDelayMinutesFor(later, 'dhuhr', true, true)).toBe(25)
     const custom = applyPatch(s, {
       prayers: { asr: { lockDelayMinutes: 5 } },
       ramadanLockDelay: { fajr: 10 }
@@ -176,11 +201,9 @@ describe('plan resolution', () => {
     expect(applyPatch(s, { emergencyHoldSeconds: 10 }).emergencyHoldSeconds).toBe(10)
   })
 
-  it('resolves reminders, adjustments and machine config', () => {
-    // Only Jumu'ah has a reminder; the other prayers have the adhan notice.
-    expect(reminderMinutesFor(s, false)).toBe(0)
-    expect(reminderMinutesFor(s, true)).toBe(45)
+  it('resolves adjustments and machine config', () => {
     expect(adjustmentsOf(applyPatch(s, { prayers: { isha: { adjust: -3 } } })).isha).toBe(-3)
+    expect(adjustmentsOf(applyPatch(s, { prayers: { jumuah: { adjust: 7 } } })).jumuah).toBe(7)
     const cfg = machineConfigOf(applyPatch(s, { smart: { skipWhenAway: false } }))
     expect(cfg.skipWhenAway).toBe(false)
     expect(cfg.deferInMeetings).toBe(true)

@@ -114,7 +114,8 @@ describe('Ramadan', () => {
       dhuhr: 0,
       asr: 0,
       maghrib: 0,
-      isha: 5
+      isha: 5,
+      jumuah: 0
     })
     expect((s.times.isha - s.times.maghrib) / MINUTE).toBe(125)
   })
@@ -128,6 +129,18 @@ describe('Friday', () => {
     expect(events.find((e) => e.slot === 'dhuhr')?.isJumuah).toBe(true)
     expect(events.filter((e) => e.isJumuah)).toHaveLength(1)
   })
+
+  it("moves Friday's Dhuhr by the Jumu'ah adjustment only", () => {
+    const adj = { fajr: 0, dhuhr: 4, asr: 0, maghrib: 0, isha: 0, jumuah: -10 }
+    const fri = buildDaySchedule('2026-10-02', RIYADH)
+    const sun = buildDaySchedule('2026-09-27', RIYADH)
+    expect(buildDaySchedule('2026-10-02', RIYADH, adj).times.dhuhr - fri.times.dhuhr).toBe(
+      -10 * MINUTE
+    )
+    expect(buildDaySchedule('2026-09-27', RIYADH, adj).times.dhuhr - sun.times.dhuhr).toBe(
+      4 * MINUTE
+    )
+  })
 })
 
 describe('manual adjustments', () => {
@@ -138,7 +151,8 @@ describe('manual adjustments', () => {
       dhuhr: 3,
       asr: 15,
       maghrib: -15,
-      isha: 1
+      isha: 1,
+      jumuah: 0
     })
     expect((adj.times.fajr - base.times.fajr) / MINUTE).toBe(-5)
     expect((adj.times.dhuhr - base.times.dhuhr) / MINUTE).toBe(3)

@@ -178,3 +178,28 @@ test('smart rules: away skips the lock, meetings defer it', async () => {
   expect(snap.machine.prayer.kind).toBe('meetingDeferred')
   await app.close()
 })
+
+test("jumu'ah: its own row in the prayer table, and its lock follows that row's settings", async () => {
+  const { app, win } = await launch()
+  await invoke(win, 'onboarding:complete', { launchAtStartup: false })
+  await invoke(win, 'settings:update', {
+    smart: { skipWhenAway: false },
+    prayers: { jumuah: { lockMinutes: 25 } }
+  })
+
+  await win.locator('[data-testid="nav-prayer"]').click()
+  const table = win.locator('#prayer-times [role="table"]')
+  const row = table.locator('[role="row"]').filter({ hasText: 'الجمعة' })
+  await expect(row).toHaveCount(1)
+  await expect(row.getByRole('switch', { name: /الجمعة/ })).toHaveAttribute('aria-checked', 'true')
+  await expect(win.locator('#prayer-friday')).toHaveCount(0)
+
+  await invoke(win, 'debug:simulatePrayer', { prayer: 'jumuah' })
+  const overlay = await overlayWindow(app)
+  await expect(overlay.locator('h1')).toContainText('الجمعة')
+  const p = (await invoke(win, 'app:snapshot')).machine.prayer
+  if (p.kind !== 'locked') throw new Error(`not locked: ${p.kind}`)
+  expect(p.ref.isJumuah).toBe(true)
+  expect(p.plan.lockMs).toBe(25 * 60_000)
+  await app.close()
+})

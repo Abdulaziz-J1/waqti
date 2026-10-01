@@ -17,27 +17,32 @@ export function adjustmentsOf(s: Settings): Adjustments {
     dhuhr: s.prayers.dhuhr.adjust,
     asr: s.prayers.asr.adjust,
     maghrib: s.prayers.maghrib.adjust,
-    isha: s.prayers.isha.adjust
+    isha: s.prayers.isha.adjust,
+    jumuah: s.prayers.jumuah.adjust
   }
 }
 
-/** How a prayer locks, or null when its lock is off. Friday Dhuhr uses the Friday settings. */
+/** The settings a prayer uses: Friday's Dhuhr has its own (Jumu'ah). */
+function prayerSettingsOf(s: Settings, prayer: PrayerId, isJumuah: boolean) {
+  return isJumuah ? s.prayers.jumuah : s.prayers[prayer]
+}
+
+/** How a prayer locks, or null when its lock is off. */
 export function lockPlanFor(s: Settings, prayer: PrayerId, isJumuah: boolean): LockPlan | null {
-  const minUnlockMs = s.minUnlockMinutes * MINUTE
-  const snooze = s.snooze.enabled
-  if (isJumuah) {
-    if (!s.friday.lock) return null
-    return { lockMs: s.friday.lockMinutes * MINUTE, minUnlockMs, chime: s.chime, snooze }
-  }
-  const p = s.prayers[prayer]
+  const p = prayerSettingsOf(s, prayer, isJumuah)
   if (!p.lock) return null
-  return { lockMs: p.lockMinutes * MINUTE, minUnlockMs, chime: s.chime, snooze }
+  return {
+    lockMs: p.lockMinutes * MINUTE,
+    minUnlockMs: s.minUnlockMinutes * MINUTE,
+    chime: s.chime,
+    snooze: s.snooze.enabled
+  }
 }
 
 /**
  * Minutes from the adhan to the lock (the iqama). Ramadan has its own values
- * for Fajr and Maghrib; the Friday prayer locks with its adhan, as the khutbah
- * starts then.
+ * for Fajr and Maghrib; Jumu'ah has its own (with the adhan by default, as the
+ * khutbah starts then).
  */
 export function lockDelayMinutesFor(
   s: Settings,
@@ -45,7 +50,7 @@ export function lockDelayMinutesFor(
   isJumuah: boolean,
   isRamadan: boolean
 ): number {
-  if (isJumuah) return 0
+  if (isJumuah) return s.prayers.jumuah.lockDelayMinutes
   if (isRamadan && prayer === 'fajr') return s.ramadanLockDelay.fajr
   if (isRamadan && prayer === 'maghrib') return s.ramadanLockDelay.maghrib
   return s.prayers[prayer].lockDelayMinutes
@@ -66,15 +71,6 @@ export function forcedLockPlan(s: Settings, prayer: PrayerId, isJumuah: boolean)
 /** Snooze lengths the lock screen offers: the common ones plus the configured default. */
 export function snoozeChoices(defaultMinutes: number): number[] {
   return [...new Set([1, 2, 3, 5, 10, 15, defaultMinutes])].sort((a, b) => a - b)
-}
-
-/**
- * Minutes before the adhan for a reminder toast; 0 = none. Only Jumu'ah has
- * one: it locks with its adhan, so there is no adhan notice before that lock.
- * The other prayers have the adhan notice, which is enough.
- */
-export function reminderMinutesFor(s: Settings, isJumuah: boolean): number {
-  return isJumuah ? s.friday.reminderMinutes : 0
 }
 
 export function machineConfigOf(s: Settings): MachineConfig {

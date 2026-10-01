@@ -3,7 +3,7 @@ import { DEFAULT_FOCUS_SECONDS, MAX_FOCUS_SECONDS, MIN_FOCUS_SECONDS } from '../
 import { DEFAULT_CITY_ID } from '../prayer/cities'
 import { PRESET_DISTRACTION_SITES } from '../tracking/detect'
 
-export const SETTINGS_VERSION = 1
+export const SETTINGS_VERSION = 2
 
 const int = (min: number, max: number, fallback: number) =>
   z.number().int().min(min).max(max).catch(fallback)
@@ -47,7 +47,12 @@ export const settingsSchema = section({
     dhuhr: prayerSettings(15, 20),
     asr: prayerSettings(15, 20),
     maghrib: prayerSettings(10, 10),
-    isha: prayerSettings(15, 20)
+    isha: prayerSettings(15, 20),
+    /**
+     * Friday's Dhuhr. Locks with its adhan by default, as the khutbah starts
+     * then; its own adjustment moves the Friday time only.
+     */
+    jumuah: prayerSettings(40, 0)
   }),
   /** In Ramadan the iqama moves for Fajr (earlier) and Maghrib (later). */
   ramadanLockDelay: section({
@@ -60,11 +65,6 @@ export const settingsSchema = section({
   sunrise: section({
     notice: bool(true),
     minutesBefore: int(0, 60, 15)
-  }),
-  friday: section({
-    lock: bool(true),
-    reminderMinutes: int(0, 120, 45),
-    lockMinutes: int(5, 60, 40)
   }),
   chime: bool(true),
   /** Pause whatever is playing (video, audio) when a lock starts. */

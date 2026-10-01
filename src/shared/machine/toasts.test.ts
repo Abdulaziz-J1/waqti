@@ -13,17 +13,6 @@ const JUMUAH: PrayerRef = {
 }
 
 describe('toasts', () => {
-  it('renders the pre-reminder in Arabic', () => {
-    expect(renderToast({ kind: 'preReminder', ref: ASR, minutesBefore: 10 }, 'arab')).toEqual({
-      title: 'صلاة العصر',
-      body: 'باقي ١٠ دقائق على صلاة العصر',
-      action: 'open'
-    })
-    expect(renderToast({ kind: 'preReminder', ref: JUMUAH, minutesBefore: 45 }, 'latn').body).toBe(
-      'باقي 45 دقيقة على صلاة الجمعة'
-    )
-  })
-
   it('labels Friday Dhuhr as الجمعة', () => {
     expect(prayerLabel(JUMUAH)).toBe('الجمعة')
     expect(prayerLabel(ASR)).toBe('العصر')

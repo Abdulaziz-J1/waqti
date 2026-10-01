@@ -37,7 +37,6 @@ export const CHANNELS = [
   'data:deleteAll',
   'data:counts',
   'debug:simulatePrayer',
-  'debug:simulateJumuahReminder',
   'debug:simulateSunrise',
   'debug:simulateAdhan',
   'debug:mediaSessions',

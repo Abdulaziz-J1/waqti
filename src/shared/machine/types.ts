@@ -50,7 +50,6 @@ export interface PrayerLogEntry {
 
 export type PrayerState =
   | { kind: 'idle' }
-  | { kind: 'reminding'; ref: PrayerRef; remindedAt: number }
   | {
       kind: 'locked'
       ref: PrayerRef
@@ -150,7 +149,6 @@ export interface PlannedPrayer {
 
 export type MachineEvent =
   | { type: 'TICK'; now: number; ctx: TickContext }
-  | { type: 'PRE_REMINDER_DUE'; now: number; ref: PrayerRef; minutesBefore: number }
   /** The adhan time came; `locks` says whether a lock follows at `ref.at`. */
   | { type: 'ADHAN_DUE'; now: number; ref: PrayerRef; locks: boolean; chime: boolean }
   /** Shortly before sunrise (or at it): the last of Fajr's time. */
@@ -178,7 +176,6 @@ export type MachineEvent =
   | { type: 'GUARD_SNOOZE'; now: number }
 
 export type ToastSpec =
-  | { kind: 'preReminder'; ref: PrayerRef; minutesBefore: number }
   | { kind: 'meeting'; ref: PrayerRef }
   | { kind: 'meetingFinal'; ref: PrayerRef }
   | { kind: 'resumeReminder'; ref: PrayerRef; agoMs: number }

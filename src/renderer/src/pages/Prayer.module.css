@@ -75,6 +75,12 @@
   color: var(--text-3);
 }
 
+/* Dhuhr on Fridays and Jumu'ah on other days: settings stay editable, the name rests. */
+.row[data-resting] .prayer,
+.row[data-resting] .time {
+  color: var(--text-3);
+}
+
 .name {
   display: flex;
   align-items: baseline;

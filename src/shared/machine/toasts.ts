@@ -1,4 +1,4 @@
-import { type Digits, fmtDuration, minutesPhrase } from '../format'
+import { type Digits, fmtDuration } from '../format'
 import { prayerNames, toasts } from '../strings'
 import type { PrayerRef, ToastSpec } from './types'
 
@@ -17,14 +17,6 @@ export function prayerLabel(ref: Pick<PrayerRef, 'prayer' | 'isJumuah'>): string
 /** Turns a semantic toast from the state machine into Arabic text. */
 export function renderToast(spec: ToastSpec, digits: Digits): RenderedToast {
   switch (spec.kind) {
-    case 'preReminder': {
-      const name = prayerLabel(spec.ref)
-      return {
-        title: toasts.preReminderTitle(name),
-        body: toasts.preReminderBody(minutesPhrase(spec.minutesBefore, digits), name),
-        action: 'open'
-      }
-    }
     case 'meeting':
       return { title: toasts.meetingTitle, body: toasts.meetingBody, action: 'open' }
     case 'meetingFinal':

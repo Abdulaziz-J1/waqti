@@ -1,9 +1,9 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import type { DebugReadout } from '@shared/ipc'
+import type { DebugReadout, SimulatedPrayer } from '@shared/ipc'
 import { statusName } from '@shared/media'
-import { PRAYERS, type PrayerId } from '@shared/prayer/schedule'
+import { PRAYERS } from '@shared/prayer/schedule'
 import { common, debug as t, prayerNames } from '@shared/strings'
 import { siteLabel } from '@shared/tracking/sites'
 import { api } from '../lib/api'
@@ -16,6 +16,8 @@ import { Stepper } from './Stepper'
 import { Toggle } from './Toggle'
 import s from './DebugPanel.module.css'
 
+const SIMULATED: SimulatedPrayer[] = [...PRAYERS.slice(0, 2), 'jumuah', ...PRAYERS.slice(2)]
+
 /**
  * Hidden test panel (Ctrl+Shift+D), available in production builds but not
  * linked in the UI. Everything here drives the real services.
@@ -24,7 +26,9 @@ export function DebugPanel(): React.JSX.Element {
   const [open, setOpen] = useState(false)
   const snap = useSnapshot()
   const fmt = useFmt()
-  const [prayer, setPrayer] = useState<PrayerId>('asr')
+  const [prayer, setPrayer] = useState<SimulatedPrayer>('asr')
+  // Jumu'ah is Friday's Dhuhr: the clock jumps to Dhuhr's time.
+  const jumpPrayer = prayer === 'jumuah' ? 'dhuhr' : prayer
   const [offset, setOffset] = useState(Math.round(snap.debug.offsetMs / 60_000))
   const [readout, setReadout] = useState<DebugReadout | null>(null)
   const [message, setMessage] = useState<string | null>(null)
@@ -100,12 +104,12 @@ export function DebugPanel(): React.JSX.Element {
 
           <section className={s.section}>
             <h3>{t.simulate}</h3>
-            <Segmented<PrayerId>
+            <Segmented<SimulatedPrayer>
               label={t.simulate}
               size="sm"
               value={prayer}
               onChange={setPrayer}
-              options={PRAYERS.map((p) => ({ value: p, label: prayerNames[p] }))}
+              options={SIMULATED.map((p) => ({ value: p, label: prayerNames[p] }))}
             />
             <div className={s.row}>
               <Button
@@ -122,9 +126,6 @@ export function DebugPanel(): React.JSX.Element {
                 data-testid="debug-simulate-adhan"
               >
                 {t.adhanNow}
-              </Button>
-              <Button size="sm" onClick={() => run(api.invoke('debug:simulateJumuahReminder'))}>
-                {t.jumuahReminder}
               </Button>
               <Button
                 size="sm"
@@ -223,13 +224,17 @@ export function DebugPanel(): React.JSX.Element {
             <div className={s.row}>
               <Button
                 size="sm"
-                onClick={() => run(api.invoke('debug:jumpBefore', { prayer, minutes: 1 }))}
+                onClick={() =>
+                  run(api.invoke('debug:jumpBefore', { prayer: jumpPrayer, minutes: 1 }))
+                }
               >
                 {t.jumpBefore}
               </Button>
               <Button
                 size="sm"
-                onClick={() => run(api.invoke('debug:jumpBefore', { prayer, minutes: -3 }))}
+                onClick={() =>
+                  run(api.invoke('debug:jumpBefore', { prayer: jumpPrayer, minutes: -3 }))
+                }
               >
                 {t.jumpAfter}
               </Button>

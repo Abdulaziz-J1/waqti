@@ -161,6 +161,9 @@ export interface DataCounts {
 // ---------------------------------------------------------------------------
 
 const prayerId = z.enum(['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'])
+/** The test panel can also try Jumu'ah (Friday's Dhuhr) on any day. */
+const simulatedPrayer = z.enum(['fajr', 'dhuhr', 'jumuah', 'asr', 'maghrib', 'isha'])
+export type SimulatedPrayer = z.infer<typeof simulatedPrayer>
 const dayKeySchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
 const locationSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('city'), cityId: z.string().min(1).max(40) }),
@@ -227,10 +230,9 @@ export const requestSchemas = {
   'data:import': z.undefined(),
   'data:deleteAll': z.object({ confirm: z.literal('DELETE') }),
   'data:counts': z.undefined(),
-  'debug:simulatePrayer': z.object({ prayer: prayerId }),
-  'debug:simulateJumuahReminder': z.undefined(),
+  'debug:simulatePrayer': z.object({ prayer: simulatedPrayer }),
   'debug:simulateSunrise': z.undefined(),
-  'debug:simulateAdhan': z.object({ prayer: prayerId }),
+  'debug:simulateAdhan': z.object({ prayer: simulatedPrayer }),
   'debug:mediaSessions': z.undefined(),
   'debug:setIdle': z.object({ on: z.boolean() }),
   'debug:setMeeting': z.object({ on: z.boolean() }),
@@ -279,7 +281,6 @@ export interface ResponseMap {
   'data:deleteAll': null
   'data:counts': DataCounts
   'debug:simulatePrayer': null
-  'debug:simulateJumuahReminder': null
   'debug:simulateSunrise': null
   'debug:simulateAdhan': null
   'debug:mediaSessions': MediaSessionInfo[]

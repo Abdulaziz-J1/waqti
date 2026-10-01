@@ -3,12 +3,34 @@ import { SETTINGS_VERSION, type Settings, settingsSchema } from './schema'
 /** Upgrades raw settings from version N to N + 1. */
 export type Migration = (raw: Record<string, unknown>) => Record<string, unknown>
 
+function isObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === 'object' && v !== null && !Array.isArray(v)
+}
+
 /**
- * Registry of migrations keyed by the version they upgrade *from*. Version 1 is
- * the first released schema, so the registry starts empty; add `1: (raw) => …`
+ * Registry of migrations keyed by the version they upgrade *from*; add one
  * together with bumping SETTINGS_VERSION when the schema changes.
  */
-export const MIGRATIONS: Readonly<Record<number, Migration>> = {}
+export const MIGRATIONS: Readonly<Record<number, Migration>> = {
+  /**
+   * 1 → 2: Jumu'ah moved from its own Friday card into the prayers, with the
+   * same settings as the others. Its lock and length carry over; it keeps
+   * locking with the adhan and starts from Dhuhr's time adjustment.
+   */
+  1: (raw) => {
+    const { friday, ...rest } = raw
+    const prayers = isObject(rest['prayers']) ? rest['prayers'] : {}
+    if (!isObject(friday) || isObject(prayers['jumuah'])) return rest
+    const dhuhr = isObject(prayers['dhuhr']) ? prayers['dhuhr'] : {}
+    const jumuah = {
+      lock: friday['lock'],
+      lockMinutes: friday['lockMinutes'],
+      lockDelayMinutes: 0,
+      adjust: dhuhr['adjust']
+    }
+    return { ...rest, prayers: { ...prayers, jumuah } }
+  }
+}
 
 export type MigrationStatus = 'ok' | 'migrated' | 'reset' | 'newer'
 

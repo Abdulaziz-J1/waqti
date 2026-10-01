@@ -63,23 +63,18 @@ The state has two parallel regions: **prayer** and **focus**.
 
 ### Adhan and iqama
 
-A `PrayerRef` carries two times: `adhanAt`, the prayer's scheduled time, and `at`, when it locks: the adhan plus that prayer's delay (the iqama; 25/20/20/10/20 minutes by default, 20 for Fajr and 15 for Maghrib in Ramadan, 0 for Jumuah). `dueBetween` turns them into three events: `pre` (the reminder, before the adhan), `adhan` (the 10-second notice, left out when the lock itself comes with the adhan) and `prayer` (the lock). Everything that concerns the lock window — the away and meeting rules, the startup offer, missed prayers after sleep — counts from `at`; the log's `scheduledAt` and the "the adhan was N minutes ago" texts use `adhanAt`.
+A `PrayerRef` carries two times: `adhanAt`, the prayer's scheduled time, and `at`, when it locks: the adhan plus that prayer's delay (the iqama; 25/20/20/10/20 minutes by default, 20 for Fajr and 15 for Maghrib in Ramadan, 0 for Jumuah). Jumu'ah is Friday's Dhuhr with its own row in the settings (lock, delay, length, adjustment), so on Fridays `lockPlanFor` and `lockDelayMinutesFor` read `prayers.jumuah` instead of `prayers.dhuhr`. `dueBetween` turns each prayer into two events: `adhan` (the 10-second notice, left out when the lock itself comes with the adhan) and `prayer` (the lock), plus a `sunrise` notice before sunrise. Everything that concerns the lock window — the away and meeting rules, the startup offer, missed prayers after sleep — counts from `at`; the log's `scheduledAt` and the "the adhan was N minutes ago" texts use `adhanAt`.
 
 ### Prayer region
 
 ```mermaid
 stateDiagram-v2
   [*] --> idle
-  idle --> reminding: PRE_REMINDER_DUE (Jumu'ah only) / toast «باقي ٤٥ دقيقة…»
-  reminding --> idle: TICK (5 min after the lock time)
   idle --> idle: ADHAN_DUE / showAdhan (10 s notice; never over a lock or while asleep)
   idle --> idle: PRAYER_DUE, no lock (the adhan notice announced it)
-  reminding --> idle: PRAYER_DUE, away (screen locked, or idle ≥ 5 min with no media playing) / log skipped:away
-  idle --> idle: PRAYER_DUE, away / log skipped:away
+  idle --> idle: PRAYER_DUE, away (screen locked, or idle ≥ 5 min with no media playing) / log skipped:away
   idle --> meetingDeferred: PRAYER_DUE, in a meeting / toast «أنت في اجتماع…»
-  reminding --> meetingDeferred: PRAYER_DUE, in a meeting
   idle --> locked: PRAYER_DUE / showLock, pause focus
-  reminding --> locked: PRAYER_DUE / showLock
   meetingDeferred --> meetingDeferred: TICK every 60 s, still in the meeting (< 30 min)
   meetingDeferred --> locked: meeting ended or 30 min passed, inside the lock window
   meetingDeferred --> idle: window already over / final reminder, log skipped:meeting

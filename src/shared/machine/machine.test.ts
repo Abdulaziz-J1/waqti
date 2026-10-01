@@ -93,48 +93,6 @@ const shown = (now = T0): MachineEvent => ({ type: 'LOCK_SHOWN', now })
 /** A lock whose window appeared at once (its countdown runs from T0). */
 const locked = (): MachineState => run(INITIAL_STATE, due(), shown()).state
 
-describe('pre-reminder', () => {
-  it('idle → reminding with a toast', () => {
-    const r = reduce(INITIAL_STATE, {
-      type: 'PRE_REMINDER_DUE',
-      now: T0 - 10 * MINUTE,
-      ref: ASR,
-      minutesBefore: 10
-    })
-    expect(r.state.prayer.kind).toBe('reminding')
-    expect(toastKinds(r.effects)).toEqual(['preReminder'])
-  })
-
-  it('is ignored when already past the prayer or busy', () => {
-    expect(
-      reduce(INITIAL_STATE, { type: 'PRE_REMINDER_DUE', now: T0 + 1, ref: ASR, minutesBefore: 10 })
-        .effects
-    ).toEqual([])
-    expect(
-      reduce(locked(), { type: 'PRE_REMINDER_DUE', now: T0, ref: MAGHRIB, minutesBefore: 10 })
-        .effects
-    ).toEqual([])
-  })
-
-  it('reminding → locked at prayer time', () => {
-    const r = run(
-      INITIAL_STATE,
-      { type: 'PRE_REMINDER_DUE', now: T0 - 10 * MINUTE, ref: ASR, minutesBefore: 10 },
-      due()
-    )
-    expect(r.state.prayer.kind).toBe('locked')
-  })
-
-  it('a stale reminder returns to idle', () => {
-    const r = run(
-      INITIAL_STATE,
-      { type: 'PRE_REMINDER_DUE', now: T0 - 10 * MINUTE, ref: ASR, minutesBefore: 10 },
-      tick(T0 + 6 * MINUTE)
-    )
-    expect(r.state.prayer.kind).toBe('idle')
-  })
-})
-
 describe('prayer time → lock', () => {
   it('idle → locked with overlay, anchored to the prayer time', () => {
     const r = reduce(INITIAL_STATE, due(T0 + 2 * SECOND))
@@ -575,17 +533,6 @@ describe('adhan notice', () => {
     expect(reduce(locked(), adhanDue(true)).effects).toEqual([])
     const asleep = reduce(INITIAL_STATE, { type: 'SUSPEND', now: ADHAN - MINUTE }).state
     expect(reduce(asleep, adhanDue(true)).effects).toEqual([])
-  })
-
-  it('a reminder before the adhan still leads to the lock at the iqama', () => {
-    const r = run(
-      INITIAL_STATE,
-      { type: 'PRE_REMINDER_DUE', now: ADHAN - 10 * MINUTE, ref: ASR_IQAMA, minutesBefore: 10 },
-      adhanDue(true),
-      tick(T0 - MINUTE),
-      due(T0, {}, PLAN, ASR_IQAMA)
-    )
-    expect(r.state.prayer.kind).toBe('locked')
   })
 })
 

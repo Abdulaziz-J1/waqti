@@ -30,7 +30,9 @@ import type {
   EventName,
   OverlayKind,
   OverlayState,
-  Page
+  Page,
+  ScheduleBundle,
+  SimulatedPrayer
 } from '../shared/ipc'
 import {
   DEFAULT_MACHINE_CONFIG,
@@ -57,8 +59,7 @@ import {
   forcedLockPlan,
   lockDelayMinutesFor,
   lockPlanFor,
-  machineConfigOf,
-  reminderMinutesFor
+  machineConfigOf
 } from '../shared/settings/plan'
 import type { Settings } from '../shared/settings/schema'
 import { PALETTES, skyAt, tintOf } from '../shared/sky'
@@ -389,14 +390,7 @@ export class WaqtiCore {
       this.dispatch({ type: 'RESUME', now, missed: due.missed })
     } else {
       for (const e of due.events) {
-        if (e.kind === 'pre') {
-          this.dispatch({
-            type: 'PRE_REMINDER_DUE',
-            now,
-            ref: e.ref,
-            minutesBefore: e.minutesBefore
-          })
-        } else if (e.kind === 'adhan') {
+        if (e.kind === 'adhan') {
           this.dispatch({
             type: 'ADHAN_DUE',
             now,
@@ -842,23 +836,29 @@ export class WaqtiCore {
   // Debug panel
   // ---------------------------------------------------------------------------
 
-  simulatePrayer(prayer: PrayerId): void {
+  /** A ref for `prayer` today; 'jumuah' is Friday's Dhuhr on any day (to try it out). */
+  private simRef(b: ScheduleBundle, prayer: SimulatedPrayer, at: number): PrayerRef {
+    if (prayer === 'jumuah') return { ...refForToday(b.today, 'dhuhr', at), isJumuah: true }
+    return refForToday(b.today, prayer, at)
+  }
+
+  simulatePrayer(prayer: SimulatedPrayer): void {
     const b = this.scheduler.bundle()
     if (!b) return
-    const ref = refForToday(b.today, prayer, this.clock.now())
-    this.prayerDue(ref, forcedLockPlan(this.s, prayer, ref.isJumuah), this.ctx())
+    const ref = this.simRef(b, prayer, this.clock.now())
+    this.prayerDue(ref, forcedLockPlan(this.s, ref.prayer, ref.isJumuah), this.ctx())
   }
 
   /** Shows the adhan notice now, with the lock time this prayer would get. */
-  simulateAdhan(prayer: PrayerId): void {
+  simulateAdhan(prayer: SimulatedPrayer): void {
     const b = this.scheduler.bundle()
     if (!b) return
     const now = this.clock.now()
     const s = this.s
-    const isJumuah = prayer === 'dhuhr' && b.today.isFriday
-    const locks = lockPlanFor(s, prayer, isJumuah) !== null
-    const delay = locks ? lockDelayMinutesFor(s, prayer, isJumuah, b.today.isRamadan) : 0
-    const ref = { ...refForToday(b.today, prayer, now), at: now + delay * MINUTE }
+    const base = this.simRef(b, prayer, now)
+    const locks = lockPlanFor(s, base.prayer, base.isJumuah) !== null
+    const delay = locks ? lockDelayMinutesFor(s, base.prayer, base.isJumuah, b.today.isRamadan) : 0
+    const ref = { ...base, at: now + delay * MINUTE }
     this.dispatch({ type: 'ADHAN_DUE', now, ref, locks, chime: s.chime })
   }
 
@@ -867,16 +867,6 @@ export class WaqtiCore {
     const now = this.clock.now()
     const sunriseAt = now + this.s.sunrise.minutesBefore * MINUTE
     this.dispatch({ type: 'SUNRISE_DUE', now, sunriseAt, chime: this.s.chime })
-  }
-
-  /** The Jumu'ah reminder, now (any day: the ref is marked as Jumu'ah). */
-  simulateJumuahReminder(): void {
-    const b = this.scheduler.bundle()
-    if (!b) return
-    const now = this.clock.now()
-    const minutes = reminderMinutesFor(this.s, true) || 45
-    const ref = { ...refForToday(b.today, 'dhuhr', now + minutes * MINUTE), isJumuah: true }
-    this.dispatch({ type: 'PRE_REMINDER_DUE', now, ref, minutesBefore: minutes })
   }
 
   setOffset(ms: number): void {

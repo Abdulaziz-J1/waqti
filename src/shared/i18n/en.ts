@@ -49,8 +49,6 @@ export const en: Strings = {
     dusk: 'Sunset'
   },
   toasts: {
-    preReminderTitle: (prayer: string) => `${prayer} prayer`,
-    preReminderBody: (duration: string, prayer: string) => `${duration} until ${prayer}`,
     appTitle: 'Waqti',
     meetingTitle: "You're in a meeting",
     meetingBody: "You're in a meeting. We'll remind you when it's over",
@@ -363,15 +361,13 @@ export const en: Strings = {
     adjustHint:
       'Time adjustment: if your mosque calls the adhan before or after the calculated time',
     sunriseNote: 'Shown only',
+    everyFriday: 'Every Friday',
+    jumuahHint:
+      "Jumu'ah: on Fridays it takes Dhuhr's place with its own settings, and by default it locks with the adhan because the khutbah starts then",
     ramadan: 'Iqama in Ramadan',
     ramadanLead:
       'In Ramadan the iqama changes for Fajr and Maghrib; the other prayers stay the same',
     ramadanActive: 'Active now',
-    friday: 'Friday',
-    fridayLead:
-      "On Friday, Dhuhr becomes Jumu'ah, and the lock starts with the adhan because the sermon starts then",
-    fridayReminder: "Reminder before Jumu'ah",
-    fridayLock: "Jumu'ah lock length",
     reminders: 'Reminders',
     lockScreen: 'Lock screen',
     snooze: 'Snooze button',
@@ -382,7 +378,6 @@ export const en: Strings = {
     muteDuringLock: 'Mute the sound during the lock',
     muteDuringLockHint:
       'Like game sound. It comes back as it was when the lock ends, is snoozed or you exit',
-    reminderOff: 'No reminder',
     adhanNotice: 'Adhan notice',
     adhanNoticeHint: 'A 10-second notice you can close sooner',
     sunriseNotice: 'Sunrise notice',
@@ -531,7 +526,6 @@ export const en: Strings = {
     simulate: 'Simulate',
     prayerNow: 'Lock now',
     adhanNow: 'Adhan notice',
-    jumuahReminder: "Jumu'ah reminder",
     sunriseNow: 'Sunrise notice',
     idle: 'Simulate being away',
     meeting: 'Simulate a meeting in front',

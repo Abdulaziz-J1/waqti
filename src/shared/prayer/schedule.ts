@@ -15,10 +15,17 @@ export interface LatLng {
   lng: number
 }
 
-/** Manual per-prayer adjustment in minutes, clamped to −15…+15. */
-export type Adjustments = Record<PrayerId, number>
+/** Manual per-prayer adjustment in minutes, clamped to −15…+15 (Jumu'ah moves Friday's Dhuhr). */
+export type Adjustments = Record<PrayerId | 'jumuah', number>
 
-export const ZERO_ADJUSTMENTS: Adjustments = { fajr: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0 }
+export const ZERO_ADJUSTMENTS: Adjustments = {
+  fajr: 0,
+  dhuhr: 0,
+  asr: 0,
+  maghrib: 0,
+  isha: 0,
+  jumuah: 0
+}
 
 /** Umm al-Qura: add 30 minutes to Isha during Ramadan (adhan documentation). */
 export const RAMADAN_ISHA_OFFSET_MIN = 30
@@ -68,7 +75,7 @@ export function buildDaySchedule(
   params.adjustments = {
     fajr: clampAdjustment(adjustments.fajr),
     sunrise: 0,
-    dhuhr: clampAdjustment(adjustments.dhuhr),
+    dhuhr: clampAdjustment(isFriday(day) ? adjustments.jumuah : adjustments.dhuhr),
     asr: clampAdjustment(adjustments.asr),
     maghrib: clampAdjustment(adjustments.maghrib),
     isha: clampAdjustment(adjustments.isha) + (ramadan ? RAMADAN_ISHA_OFFSET_MIN : 0)

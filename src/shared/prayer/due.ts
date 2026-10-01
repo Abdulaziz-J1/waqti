@@ -1,11 +1,10 @@
 import type { PlannedPrayer, PrayerRef } from '../machine/types'
-import { lockDelayMinutesFor, lockPlanFor, reminderMinutesFor } from '../settings/plan'
+import { lockDelayMinutesFor, lockPlanFor } from '../settings/plan'
 import type { Settings } from '../settings/schema'
 import { MINUTE } from '../time'
 import { type DaySchedule, flattenSchedules, isPrayerId } from './schedule'
 
 export type DueEvent =
-  | { kind: 'pre'; fireAt: number; ref: PrayerRef; minutesBefore: number }
   | { kind: 'adhan'; fireAt: number; ref: PrayerRef }
   | { kind: 'prayer'; fireAt: number; ref: PrayerRef }
   | { kind: 'sunrise'; fireAt: number; sunriseAt: number }
@@ -35,7 +34,7 @@ function prayerRefs(schedules: DaySchedule[], settings: Settings): PrayerRef[] {
 }
 
 /**
- * Reminders, adhans and locks that fall in the half-open window (from, to].
+ * Adhans, the sunrise notice and locks that fall in the half-open window (from, to].
  * The scheduler calls this every tick with the previous and current time, so
  * each event fires exactly once even if a tick is late. The adhan notice is
  * left out when the lock itself comes with the adhan.
@@ -50,11 +49,6 @@ export function dueBetween(
   if (to <= from) return out
   const inWindow = (t: number): boolean => t > from && t <= to
   for (const ref of prayerRefs(schedules, settings)) {
-    const rem = reminderMinutesFor(settings, ref.isJumuah)
-    if (rem > 0) {
-      const preAt = ref.adhanAt - rem * MINUTE
-      if (inWindow(preAt)) out.push({ kind: 'pre', fireAt: preAt, ref, minutesBefore: rem })
-    }
     const lockWithAdhan =
       ref.at === ref.adhanAt && lockPlanFor(settings, ref.prayer, ref.isJumuah) !== null
     if (settings.adhanNotice && !lockWithAdhan && inWindow(ref.adhanAt)) {

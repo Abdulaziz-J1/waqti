@@ -272,7 +272,7 @@ function onPrayerDue(
   effects: Effect[]
 ): MachineState {
   const current = activeRef(s.prayer)
-  if (current && sameRef(current, e.ref) && s.prayer.kind !== 'reminding') return s
+  if (current && sameRef(current, e.ref)) return s
   let base: MachineState = { ...s, prayer: IDLE }
   if (current && !sameRef(current, e.ref)) {
     supersede(s.prayer, e.now, effects)
@@ -352,10 +352,6 @@ function onTick(
         effects.push(log(p.ref, 'skipped', 'late-start', false, now))
         next = { ...s, prayer: IDLE }
       }
-      break
-    case 'reminding':
-      // A reminder never outlives its prayer by more than a few minutes.
-      if (now >= p.ref.at + 5 * MINUTE) next = { ...s, prayer: IDLE }
       break
     default:
       break
@@ -514,16 +510,6 @@ export function reduce(
   switch (e.type) {
     case 'TICK':
       state = onTick(s, e, cfg, effects)
-      break
-
-    case 'PRE_REMINDER_DUE':
-      if (s.prayer.kind === 'idle' && e.now < e.ref.at) {
-        effects.push({
-          type: 'toast',
-          toast: { kind: 'preReminder', ref: e.ref, minutesBefore: e.minutesBefore }
-        })
-        state = { ...s, prayer: { kind: 'reminding', ref: e.ref, remindedAt: e.now } }
-      }
       break
 
     case 'ADHAN_DUE':
