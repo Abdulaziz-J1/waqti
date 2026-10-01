@@ -554,6 +554,7 @@ describe('adhan notice', () => {
       {
         type: 'showAdhan',
         adhan: {
+          kind: 'adhan',
           ref: ASR_IQAMA,
           lockAt: T0,
           shownAt: ADHAN,
@@ -566,7 +567,7 @@ describe('adhan notice', () => {
 
   it('has no lock time for a prayer that does not lock', () => {
     const e = reduce(INITIAL_STATE, adhanDue(false)).effects[0]
-    if (e?.type !== 'showAdhan') throw new Error()
+    if (e?.type !== 'showAdhan' || e.adhan.kind !== 'adhan') throw new Error()
     expect(e.adhan.lockAt).toBeNull()
   })
 
@@ -598,6 +599,38 @@ const startFocus = (
   id: 's1',
   seconds: minutes * 60,
   breakMinutes
+})
+
+describe('sunrise notice', () => {
+  const sunrise = (now: number): MachineEvent => ({
+    type: 'SUNRISE_DUE',
+    now,
+    sunriseAt: now + 15 * MINUTE,
+    chime: true
+  })
+
+  it('shows the short notice before sunrise, closing after 10 s', () => {
+    const r = reduce(INITIAL_STATE, sunrise(T0))
+    expect(r.state).toBe(INITIAL_STATE)
+    expect(r.effects).toEqual([
+      {
+        type: 'showAdhan',
+        adhan: {
+          kind: 'sunrise',
+          sunriseAt: T0 + 15 * MINUTE,
+          shownAt: T0,
+          until: T0 + 10 * SECOND,
+          chime: true
+        }
+      }
+    ])
+  })
+
+  it('never shows over a lock or while the device sleeps', () => {
+    expect(reduce(locked(), sunrise(T0 + MINUTE)).effects).toEqual([])
+    const asleep = reduce(INITIAL_STATE, { type: 'SUSPEND', now: T0 }).state
+    expect(reduce(asleep, sunrise(T0 + MINUTE)).effects).toEqual([])
+  })
 })
 
 describe('focus sessions', () => {

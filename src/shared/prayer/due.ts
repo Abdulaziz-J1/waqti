@@ -8,6 +8,7 @@ export type DueEvent =
   | { kind: 'pre'; fireAt: number; ref: PrayerRef; minutesBefore: number }
   | { kind: 'adhan'; fireAt: number; ref: PrayerRef }
   | { kind: 'prayer'; fireAt: number; ref: PrayerRef }
+  | { kind: 'sunrise'; fireAt: number; sunriseAt: number }
 
 /**
  * Every prayer in the schedules. `at` is when it locks: the adhan plus the
@@ -60,6 +61,12 @@ export function dueBetween(
       out.push({ kind: 'adhan', fireAt: ref.adhanAt, ref })
     }
     if (inWindow(ref.at)) out.push({ kind: 'prayer', fireAt: ref.at, ref })
+  }
+  if (settings.sunrise.notice) {
+    for (const day of schedules) {
+      const fireAt = day.times.sunrise - settings.sunrise.minutesBefore * MINUTE
+      if (inWindow(fireAt)) out.push({ kind: 'sunrise', fireAt, sunriseAt: day.times.sunrise })
+    }
   }
   return out.sort((a, b) => a.fireAt - b.fireAt)
 }

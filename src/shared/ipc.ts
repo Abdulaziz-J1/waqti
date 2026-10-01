@@ -228,7 +228,8 @@ export const requestSchemas = {
   'data:deleteAll': z.object({ confirm: z.literal('DELETE') }),
   'data:counts': z.undefined(),
   'debug:simulatePrayer': z.object({ prayer: prayerId }),
-  'debug:simulatePre': z.object({ prayer: prayerId }),
+  'debug:simulateJumuahReminder': z.undefined(),
+  'debug:simulateSunrise': z.undefined(),
   'debug:simulateAdhan': z.object({ prayer: prayerId }),
   'debug:mediaSessions': z.undefined(),
   'debug:setIdle': z.object({ on: z.boolean() }),
@@ -278,7 +279,8 @@ export interface ResponseMap {
   'data:deleteAll': null
   'data:counts': DataCounts
   'debug:simulatePrayer': null
-  'debug:simulatePre': null
+  'debug:simulateJumuahReminder': null
+  'debug:simulateSunrise': null
   'debug:simulateAdhan': null
   'debug:mediaSessions': MediaSessionInfo[]
   'debug:setIdle': null

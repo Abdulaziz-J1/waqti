@@ -220,8 +220,12 @@ export function registerIpc(core: WaqtiCore): void {
       core.simulatePrayer(prayer)
       return null
     },
-    'debug:simulatePre': ({ prayer }) => {
-      core.simulatePreReminder(prayer)
+    'debug:simulateSunrise': () => {
+      core.simulateSunrise()
+      return null
+    },
+    'debug:simulateJumuahReminder': () => {
+      core.simulateJumuahReminder()
       return null
     },
     'debug:mediaSessions': () => core.media.sessions(),

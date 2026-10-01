@@ -27,7 +27,6 @@ describe('settings schema', () => {
     expect(s.ramadanLockDelay).toEqual({ fajr: 20, maghrib: 15 })
     expect(s.adhanNotice).toBe(true)
     expect(s.pauseMedia).toBe(true)
-    expect(s.reminderMinutes).toBe(10)
     expect(s.friday).toEqual({ lock: true, reminderMinutes: 45, lockMinutes: 40 })
     expect(s.minUnlockMinutes).toBe(5)
     expect(s.distractions.sites).toContain('youtube')
@@ -38,14 +37,14 @@ describe('settings schema', () => {
 
   it('replaces invalid fields with defaults instead of failing', () => {
     const s = settingsSchema.parse({
-      reminderMinutes: 999,
+      emergencyHoldSeconds: 999,
       minUnlockMinutes: -3,
       prayers: { fajr: { adjust: 40, lock: 'yes' } },
       general: { digits: 'roman' },
       location: { kind: 'custom', lat: 200, lng: 0 },
       tracking: { retentionDays: 7 }
     })
-    expect(s.reminderMinutes).toBe(10)
+    expect(s.emergencyHoldSeconds).toBe(3)
     expect(s.minUnlockMinutes).toBe(5)
     expect(s.prayers.fajr).toEqual({ lock: true, lockMinutes: 15, lockDelayMinutes: 25, adjust: 0 })
     expect(s.general.digits).toBe('arab')
@@ -98,15 +97,15 @@ describe('settings migrations', () => {
       },
       1: (raw: Record<string, unknown>) => {
         calls.push(1)
-        return { ...raw, reminderMinutes: Number(raw['reminder']) }
+        return { ...raw, minUnlockMinutes: Number(raw['unlockAfter']) }
       }
     }
-    const r = migrateSettings({ firstRunDone: true, reminder: 15 }, migrations, 2)
+    const r = migrateSettings({ firstRunDone: true, unlockAfter: 12 }, migrations, 2)
     expect(calls).toEqual([0, 1])
     expect(r.status).toBe('migrated')
     expect(r.from).toBe(0)
     expect(r.settings.onboarded).toBe(true)
-    expect(r.settings.reminderMinutes).toBe(15)
+    expect(r.settings.minUnlockMinutes).toBe(12)
     expect(r.settings.version).toBe(2)
   })
 
@@ -178,7 +177,8 @@ describe('plan resolution', () => {
   })
 
   it('resolves reminders, adjustments and machine config', () => {
-    expect(reminderMinutesFor(s, false)).toBe(10)
+    // Only Jumu'ah has a reminder; the other prayers have the adhan notice.
+    expect(reminderMinutesFor(s, false)).toBe(0)
     expect(reminderMinutesFor(s, true)).toBe(45)
     expect(adjustmentsOf(applyPatch(s, { prayers: { isha: { adjust: -3 } } })).isha).toBe(-3)
     const cfg = machineConfigOf(applyPatch(s, { smart: { skipWhenAway: false } }))

@@ -532,8 +532,25 @@ export function reduce(
         effects.push({
           type: 'showAdhan',
           adhan: {
+            kind: 'adhan',
             ref: e.ref,
             lockAt: e.locks ? e.ref.at : null,
+            shownAt: e.now,
+            until: e.now + cfg.adhanNoticeMs,
+            chime: e.chime
+          }
+        })
+      }
+      break
+
+    case 'SUNRISE_DUE':
+      // The same short notice as the adhan's; never over a lock or while asleep.
+      if (s.prayer.kind !== 'locked' && !s.asleep) {
+        effects.push({
+          type: 'showAdhan',
+          adhan: {
+            kind: 'sunrise',
+            sunriseAt: e.sunriseAt,
             shownAt: e.now,
             until: e.now + cfg.adhanNoticeMs,
             chime: e.chime

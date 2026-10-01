@@ -123,8 +123,15 @@ export function DebugPanel(): React.JSX.Element {
               >
                 {t.adhanNow}
               </Button>
-              <Button size="sm" onClick={() => run(api.invoke('debug:simulatePre', { prayer }))}>
-                {t.preReminder}
+              <Button size="sm" onClick={() => run(api.invoke('debug:simulateJumuahReminder'))}>
+                {t.jumuahReminder}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => run(api.invoke('debug:simulateSunrise'))}
+                data-testid="debug-simulate-sunrise"
+              >
+                {t.sunriseNow}
               </Button>
               <Button size="sm" onClick={() => run(api.invoke('debug:startupOffer'))}>
                 {t.startup}

@@ -1,6 +1,6 @@
 import { motion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
-import { fmtClock } from '@shared/format'
+import { fmtClock, fmtDuration } from '@shared/format'
 import type { OverlayState } from '@shared/ipc'
 import { prayerLabel } from '@shared/machine/toasts'
 import { adhan as t } from '@shared/strings'
@@ -10,8 +10,8 @@ import { playChime } from '../lib/chime'
 import s from './AdhanNotice.module.css'
 
 /**
- * The short notice at the adhan: the prayer, when the lock follows (the
- * iqama), and a close button. It never takes focus; a thin bar drains over
+ * The short notice at the adhan (the prayer, and when the lock follows at the
+ * iqama) or before sunrise (the last of Fajr's time), with a close button. It never takes focus; a thin bar drains over
  * the notice's lifetime and the main process closes it at `until`.
  */
 export function AdhanNotice({ state }: { state: OverlayState }): React.JSX.Element | null {
@@ -46,10 +46,28 @@ export function AdhanNotice({ state }: { state: OverlayState }): React.JSX.Eleme
       >
         <LogoMark className={s.glyph} />
         <div className={s.text}>
-          <p className={s.title}>{t.title(prayerLabel(view.ref))}</p>
-          {view.lockAt !== null ? (
-            <p className={s.sub}>{t.lockAt(fmtClock(view.lockAt, prefs))}</p>
-          ) : null}
+          {view.kind === 'adhan' ? (
+            <>
+              <p className={s.title}>{t.title(prayerLabel(view.ref))}</p>
+              {view.lockAt !== null ? (
+                <p className={s.sub}>{t.lockAt(fmtClock(view.lockAt, prefs))}</p>
+              ) : null}
+            </>
+          ) : view.sunriseAt - view.shownAt >= 30_000 ? (
+            <>
+              <p className={s.title}>
+                {t.sunriseIn(
+                  fmtDuration(view.sunriseAt - view.shownAt, state.digits, { round: 'round' })
+                )}
+              </p>
+              <p className={s.sub}>{t.sunriseSub(fmtClock(view.sunriseAt, prefs))}</p>
+            </>
+          ) : (
+            <>
+              <p className={s.title}>{t.sunriseNow}</p>
+              <p className={s.sub}>{t.sunriseEnded}</p>
+            </>
+          )}
         </div>
         <button
           type="button"

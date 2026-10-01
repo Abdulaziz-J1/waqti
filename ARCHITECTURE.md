@@ -70,7 +70,7 @@ A `PrayerRef` carries two times: `adhanAt`, the prayer's scheduled time, and `at
 ```mermaid
 stateDiagram-v2
   [*] --> idle
-  idle --> reminding: PRE_REMINDER_DUE / toast «باقي ١٠ دقائق…»
+  idle --> reminding: PRE_REMINDER_DUE (Jumu'ah only) / toast «باقي ٤٥ دقيقة…»
   reminding --> idle: TICK (5 min after the lock time)
   idle --> idle: ADHAN_DUE / showAdhan (10 s notice; never over a lock or while asleep)
   idle --> idle: PRAYER_DUE, no lock (the adhan notice announced it)

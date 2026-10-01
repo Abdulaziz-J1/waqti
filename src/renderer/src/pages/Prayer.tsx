@@ -224,23 +224,31 @@ export function PrayerPage(): React.JSX.Element {
           </Panel>
 
           <Panel title={t.reminders} id="prayer-reminders">
-            <SettingRow label={t.reminderBefore}>
-              <Stepper
-                label={t.reminderBefore}
-                value={settings.reminderMinutes}
-                min={0}
-                max={60}
-                step={5}
-                format={(v) => (v === 0 ? t.reminderOff : fmt.minutes(v))}
-                onChange={(v) => void updateSettings({ reminderMinutes: v })}
-              />
-            </SettingRow>
             <Toggle
               label={t.adhanNotice}
               hint={t.adhanNoticeHint}
               checked={settings.adhanNotice}
               onChange={(v) => void updateSettings({ adhanNotice: v })}
             />
+            <Toggle
+              label={t.sunriseNotice}
+              hint={t.sunriseNoticeHint}
+              checked={settings.sunrise.notice}
+              onChange={(v) => void updateSettings({ sunrise: { notice: v } })}
+            />
+            {settings.sunrise.notice ? (
+              <SettingRow label={t.sunriseBefore}>
+                <Stepper
+                  label={t.sunriseBefore}
+                  value={settings.sunrise.minutesBefore}
+                  min={0}
+                  max={60}
+                  step={5}
+                  format={(v) => (v === 0 ? t.atSunrise : fmt.minutes(v))}
+                  onChange={(v) => void updateSettings({ sunrise: { minutesBefore: v } })}
+                />
+              </SettingRow>
+            ) : null}
             <Toggle
               label={t.chime}
               hint={t.chimeHint}

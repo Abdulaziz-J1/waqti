@@ -13,7 +13,7 @@ const kinds = (from: number, to: number, settings = s, day = sunday): string[] =
   dueBetween([day], settings, from, to).map((e) => e.kind)
 
 describe('due events', () => {
-  it('fires the reminder before the adhan, the notice at the adhan and the lock at the iqama', () => {
+  it('fires the notice at the adhan and the lock at the iqama, with no reminder before', () => {
     const asr = sunday.times.asr
     const ref = {
       prayer: 'asr',
@@ -22,10 +22,7 @@ describe('due events', () => {
       adhanAt: asr,
       isJumuah: false
     }
-    expect(dueBetween([sunday], s, asr - 10 * MINUTE - 1000, asr - 10 * MINUTE)).toEqual([
-      { kind: 'pre', fireAt: asr - 10 * MINUTE, ref, minutesBefore: 10 }
-    ])
-    expect(dueBetween([sunday], s, asr - 10 * MINUTE, asr - 10 * MINUTE + 1000)).toEqual([])
+    expect(dueBetween([sunday], s, asr - 60 * MINUTE, asr - 1000)).toEqual([])
     expect(dueBetween([sunday], s, asr - 1000, asr)).toEqual([{ kind: 'adhan', fireAt: asr, ref }])
     expect(dueBetween([sunday], s, asr, asr + 20 * MINUTE - 1000)).toEqual([])
     expect(dueBetween([sunday], s, asr + 20 * MINUTE - 1000, asr + 20 * MINUTE)).toEqual([
@@ -85,8 +82,10 @@ describe('due events', () => {
     expect(m.find((e) => e.kind === 'prayer')?.fireAt).toBe(ramadanDay.times.maghrib + 20 * MINUTE)
   })
 
-  it('never fires sunrise', () => {
-    expect(kinds(sunday.times.sunrise - 20 * MINUTE, sunday.times.sunrise + MINUTE)).toEqual([])
+  it('never locks at sunrise: only its notice', () => {
+    expect(kinds(sunday.times.sunrise - 20 * MINUTE, sunday.times.sunrise + MINUTE)).toEqual([
+      'sunrise'
+    ])
   })
 
   it('locks Jumuah with its adhan, after the Friday reminder', () => {
@@ -96,14 +95,29 @@ describe('due events', () => {
       ['pre', true],
       ['prayer', true]
     ])
-    expect(r[1]!.ref.isJumuah).toBe(true)
+    const lock = r[1]!
+    if (lock.kind !== 'prayer') throw new Error(lock.kind)
+    expect(lock.ref.isJumuah).toBe(true)
   })
 
-  it('skips reminders set to 0 and empty windows', () => {
-    const none = applyPatch(s, { reminderMinutes: 0 })
-    const asr = sunday.times.asr
-    expect(kinds(asr - 11 * MINUTE, asr - 9 * MINUTE, none)).toEqual([])
-    expect(dueBetween([sunday], s, asr, asr)).toEqual([])
+  it('gives notice before sunrise, the end of Fajr, as configured', () => {
+    const sunrise = sunday.times.sunrise
+    const at = (settings = s) =>
+      dueBetween([sunday], settings, sunrise - 61 * MINUTE, sunrise).filter(
+        (e) => e.kind === 'sunrise'
+      )
+    // 15 minutes before by default.
+    expect(at()).toEqual([{ kind: 'sunrise', fireAt: sunrise - 15 * MINUTE, sunriseAt: sunrise }])
+    // At sunrise itself, or not at all.
+    expect(at(applyPatch(s, { sunrise: { minutesBefore: 0 } }))[0]?.fireAt).toBe(sunrise)
+    expect(at(applyPatch(s, { sunrise: { notice: false } }))).toEqual([])
+  })
+
+  it('skips the Friday reminder set to 0, and empty windows', () => {
+    const none = applyPatch(s, { friday: { reminderMinutes: 0 } })
+    const dhuhr = friday.times.dhuhr
+    expect(kinds(dhuhr - 46 * MINUTE, dhuhr - 44 * MINUTE, none, friday)).toEqual([])
+    expect(dueBetween([sunday], s, sunday.times.asr, sunday.times.asr)).toEqual([])
   })
 
   it('returns events in chronological order over a long window', () => {

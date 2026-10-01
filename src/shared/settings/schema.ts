@@ -54,10 +54,13 @@ export const settingsSchema = section({
     fajr: int(0, 30, 20),
     maghrib: int(0, 30, 15)
   }),
-  /** Minutes before each prayer's adhan for the toast; 0 disables. */
-  reminderMinutes: int(0, 60, 10),
   /** A 10-second notice when the adhan time comes (the lock follows at the iqama). */
   adhanNotice: bool(true),
+  /** A short notice before sunrise, the last of Fajr's time; 0 minutes = at sunrise. */
+  sunrise: section({
+    notice: bool(true),
+    minutesBefore: int(0, 60, 15)
+  }),
   friday: section({
     lock: bool(true),
     reminderMinutes: int(0, 120, 45),

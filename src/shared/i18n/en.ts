@@ -108,6 +108,10 @@ export const en: Strings = {
   adhan: {
     title: (prayer: string) => `It's time for the ${prayer} adhan`,
     lockAt: (time: string) => `The screen locks at the iqama, ${time}`,
+    sunriseIn: (d: string) => `Sunrise in ${d}`,
+    sunriseNow: "It's sunrise",
+    sunriseSub: (time: string) => `Fajr can be prayed until ${time}`,
+    sunriseEnded: 'The time for Fajr has ended',
     close: 'Close'
   },
   guard: {
@@ -378,10 +382,13 @@ export const en: Strings = {
     muteDuringLock: 'Mute the sound during the lock',
     muteDuringLockHint:
       'Like game sound. It comes back as it was when the lock ends, is snoozed or you exit',
-    reminderBefore: 'Reminder before the adhan',
     reminderOff: 'No reminder',
     adhanNotice: 'Adhan notice',
     adhanNoticeHint: 'A 10-second notice you can close sooner',
+    sunriseNotice: 'Sunrise notice',
+    sunriseNoticeHint: 'A short notice before sunrise, the last of the time for Fajr',
+    sunriseBefore: 'Notice before sunrise',
+    atSunrise: 'At sunrise',
     pauseMedia: 'Pause video and audio during the lock',
     pauseMediaHint: "Pauses what's playing in the browser and in apps, and never starts anything",
     chime: 'Soft chime at prayer time',
@@ -524,7 +531,8 @@ export const en: Strings = {
     simulate: 'Simulate',
     prayerNow: 'Lock now',
     adhanNow: 'Adhan notice',
-    preReminder: 'Early reminder',
+    jumuahReminder: "Jumu'ah reminder",
+    sunriseNow: 'Sunrise notice',
     idle: 'Simulate being away',
     meeting: 'Simulate a meeting in front',
     startup: 'Simulate opening the app after the iqama',

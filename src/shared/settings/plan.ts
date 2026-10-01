@@ -68,9 +68,13 @@ export function snoozeChoices(defaultMinutes: number): number[] {
   return [...new Set([1, 2, 3, 5, 10, 15, defaultMinutes])].sort((a, b) => a - b)
 }
 
-/** Minutes before the prayer's adhan for the reminder toast; 0 = no reminder. */
+/**
+ * Minutes before the adhan for a reminder toast; 0 = none. Only Jumu'ah has
+ * one: it locks with its adhan, so there is no adhan notice before that lock.
+ * The other prayers have the adhan notice, which is enough.
+ */
 export function reminderMinutesFor(s: Settings, isJumuah: boolean): number {
-  return isJumuah ? s.friday.reminderMinutes : s.reminderMinutes
+  return isJumuah ? s.friday.reminderMinutes : 0
 }
 
 export function machineConfigOf(s: Settings): MachineConfig {

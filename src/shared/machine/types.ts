@@ -153,6 +153,8 @@ export type MachineEvent =
   | { type: 'PRE_REMINDER_DUE'; now: number; ref: PrayerRef; minutesBefore: number }
   /** The adhan time came; `locks` says whether a lock follows at `ref.at`. */
   | { type: 'ADHAN_DUE'; now: number; ref: PrayerRef; locks: boolean; chime: boolean }
+  /** Shortly before sunrise (or at it): the last of Fajr's time. */
+  | { type: 'SUNRISE_DUE'; now: number; sunriseAt: number; chime: boolean }
   | { type: 'PRAYER_DUE'; now: number; ref: PrayerRef; plan: LockPlan | null; ctx: TickContext }
   | { type: 'PRAYED'; now: number }
   /** The lock is fully on screen: its countdown starts now. */
@@ -205,15 +207,22 @@ export interface GuardView {
 }
 
 /** What the short adhan notice shows. */
-export interface AdhanView {
-  ref: PrayerRef
-  /** When the lock follows (the iqama), or null when this prayer does not lock. */
-  lockAt: number | null
+interface NoticeTiming {
   shownAt: number
   /** It closes itself at this time unless the user closes it first. */
   until: number
   chime: boolean
 }
+
+/** The short notice: a prayer's adhan, or the sunrise (the end of Fajr's time). */
+export type AdhanView =
+  | (NoticeTiming & {
+      kind: 'adhan'
+      ref: PrayerRef
+      /** When the lock follows (the iqama), or null when this prayer does not lock. */
+      lockAt: number | null
+    })
+  | (NoticeTiming & { kind: 'sunrise'; sunriseAt: number })
 
 export type Effect =
   | { type: 'toast'; toast: ToastSpec }

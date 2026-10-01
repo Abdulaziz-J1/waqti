@@ -404,6 +404,8 @@ export class WaqtiCore {
             locks: lockPlanFor(s, e.ref.prayer, e.ref.isJumuah) !== null,
             chime: s.chime
           })
+        } else if (e.kind === 'sunrise') {
+          this.dispatch({ type: 'SUNRISE_DUE', now, sunriseAt: e.sunriseAt, chime: s.chime })
         } else {
           this.prayerDue(e.ref, lockPlanFor(s, e.ref.prayer, e.ref.isJumuah), ctx)
         }
@@ -860,13 +862,20 @@ export class WaqtiCore {
     this.dispatch({ type: 'ADHAN_DUE', now, ref, locks, chime: s.chime })
   }
 
-  simulatePreReminder(prayer: PrayerId): void {
+  /** The sunrise notice, now, as the configured minutes before sunrise. */
+  simulateSunrise(): void {
+    const now = this.clock.now()
+    const sunriseAt = now + this.s.sunrise.minutesBefore * MINUTE
+    this.dispatch({ type: 'SUNRISE_DUE', now, sunriseAt, chime: this.s.chime })
+  }
+
+  /** The Jumu'ah reminder, now (any day: the ref is marked as Jumu'ah). */
+  simulateJumuahReminder(): void {
     const b = this.scheduler.bundle()
     if (!b) return
     const now = this.clock.now()
-    const isJumuah = prayer === 'dhuhr' && b.today.isFriday
-    const minutes = reminderMinutesFor(this.s, isJumuah) || 10
-    const ref = refForToday(b.today, prayer, now + minutes * MINUTE)
+    const minutes = reminderMinutesFor(this.s, true) || 45
+    const ref = { ...refForToday(b.today, 'dhuhr', now + minutes * MINUTE), isJumuah: true }
     this.dispatch({ type: 'PRE_REMINDER_DUE', now, ref, minutesBefore: minutes })
   }
 
