@@ -75,11 +75,67 @@
 
 ١. نزّل `Waqti-Setup-1.0.0.exe` من [صفحة الإصدارات](https://github.com/Abdulaziz-J1/waqti/releases/latest).
 
-٢. شغّله واختر اللغة. المثبّت **غير موقّع رقمياً**، فويندوز بيعرض «Windows protected your PC». اضغط **More info** ثم **Run anyway**.
+٢. شغّله واختر اللغة. إذا طلع لك تحذير من المتصفح أو ويندوز، هذا متوقع وطريقة تجاوزه [تحت](#install-warnings).
 
 ٣. يتثبّت لحسابك بس وما يحتاج صلاحيات مدير. أول تشغيل يمشي معك خطوات بسيطة: اللغة، مدينتك، القفل، والمشتتات.
 
 وقتي يشتغل من الأيقونة جنب الساعة، وإغلاق النافذة ما يوقفه. وإلغاء التثبيت من إعدادات ويندوز ← التطبيقات، ويسألك إذا تبي تحتفظ ببياناتك.
+
+<a id="install-warnings"></a>
+
+### طلع لك تحذير؟ لا تقلق، وهذا السبب
+
+وقتي برنامج جديد ومجاني، وما عليه **توقيع رقمي** (شهادة مدفوعة يشتريها المطوّر كل سنة). ويندوز والمتصفحات وبرامج الحماية يثقون بالبرامج الموقّعة أو اللي نزّلها ناس كثير من قبل، وأي برنامج جديد غير موقّع يحتاطون منه. التحذير معناه «ما نعرف هذا البرنامج بعد»، مو «لقينا فيه شي». وكل ما زاد اللي ينزّلونه تخف التحذيرات.
+
+وبرامج الحماية بالذات تشك في البرامج الجديدة اللي تسوي أشياء حساسة، ووقتي فعلاً يسوي أشياء تشبهها: يشوف وش النافذة اللي قدامك عشان يحسب وقتك، ويقفل الشاشة وقت الصلاة، ويوقف الفيديو ويكتم الصوت. كل هذا يصير على جهازك بس: وقتي ما يتصل بالإنترنت أبداً، وما يرسل أي شي لأي مكان. والكود كله مفتوح هنا لأي أحد يراجعه، والمثبّت مبني منه.
+
+<details>
+<summary><b>المتصفح يقول إن الملف «غير شائع التنزيل»</b></summary>
+
+<br />
+
+افتح قائمة التنزيلات في المتصفح (Ctrl+J)، واضغط على النقاط الثلاث جنب الملف واختر **الاحتفاظ** (Keep). في Edge يسألك مرة ثانية: اضغط **إظهار المزيد** (Show more) ثم **الاحتفاظ على أي حال** (Keep anyway).
+
+</details>
+
+<details>
+<summary><b>ويندوز يقول «Windows protected your PC»</b></summary>
+
+<br />
+
+هذي شاشة SmartScreen الزرقاء. اضغط **More info** (مزيد من المعلومات)، ويطلع تحتها زر **Run anyway** (تشغيل على أي حال). اضغطه ويكمل التثبيت عادي. تطلع مرة وحدة بس، وقت التثبيت.
+
+</details>
+
+<details>
+<summary><b>برنامج الحماية حذف الملف أو حجزه</b></summary>
+
+<br />
+
+أغلب برامج الحماية ما تحذف الملف، تحطه في «العزل» (Quarantine) وتقدر ترجعه:
+
+- **Avast أو AVG:** افتح البرنامج ← القائمة ← **العزل** (Quarantine)، اختر ملف وقتي، ومن النقاط الثلاث اختر **استعادة وإضافة استثناء** (Restore and add exception).
+- **أمان Windows:** افتح «أمان Windows» ← الحماية من الفيروسات والمخاطر ← **محفوظات الحماية** (Protection history)، اختر العنصر ← الإجراءات ← **سماح على الجهاز** (Allow on device).
+- **برامج ثانية:** دوّر على «العزل» أو Quarantine، واختر استعادة مع استثناء.
+
+بعدها شغّل المثبّت من جديد. وإذا كان وقتي مثبّت وبطّل يفتح، نفس الخطوات ترجّعه.
+
+</details>
+
+<details>
+<summary><b>كيف أتأكد إن الملف اللي نزّلته سليم؟</b></summary>
+
+<br />
+
+في [صفحة الإصدار](https://github.com/Abdulaziz-J1/waqti/releases/latest)، جنب ملف المثبّت مكتوب بصمته (sha256). افتح PowerShell واكتب:
+
+```powershell
+Get-FileHash "$HOME\Downloads\Waqti-Setup-1.0.0.exe"
+```
+
+إذا الرقم اللي يطلع نفس الرقم اللي في الصفحة، فالملف هو نفسه اللي نشرته بدون أي تعديل.
+
+</details>
 
 ## أشياء لازم تعرفها
 
@@ -152,8 +208,14 @@ Many of us spend the whole day at the computer, working or gaming, and a prayer 
 ## Install
 
 1. Download `Waqti-Setup-1.0.0.exe` from [Releases](https://github.com/Abdulaziz-J1/waqti/releases/latest) and run it. It asks for a language first.
-2. The installer is **not code-signed**, so SmartScreen shows "Windows protected your PC". Click **More info**, then **Run anyway**.
-3. It installs for your user only (no admin rights). The uninstaller asks whether to keep your data.
+2. It installs for your user only (no admin rights). The uninstaller asks whether to keep your data.
+
+**Seeing a warning?** Waqti is new, free and not code-signed, so Windows, browsers and antivirus programs don't know it yet. A warning means "we haven't seen this before", not "we found something", and it fades as more people download it. Antivirus heuristics are also wary of new apps that watch the active window, lock the screen and pause media, which is exactly what Waqti does, all on your machine: it never connects to the internet.
+
+- **Browser says the file "isn't commonly downloaded":** open Downloads (Ctrl+J), click ⋯ next to the file and choose **Keep** (in Edge, then **Show more** → **Keep anyway**).
+- **"Windows protected your PC":** click **More info**, then **Run anyway**. It only appears once, at install.
+- **Antivirus quarantined it:** restore it from the quarantine and add an exception (Avast/AVG: Menu → Quarantine → ⋯ → **Restore and add exception**; Windows Security: Virus & threat protection → Protection history → Actions → **Allow on device**), then run the installer again.
+- **Check the file:** run `Get-FileHash "$HOME\Downloads\Waqti-Setup-1.0.0.exe"` in PowerShell and compare it with the sha256 shown next to the file on the release page.
 
 ## Build from source
 
