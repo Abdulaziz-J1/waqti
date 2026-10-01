@@ -168,7 +168,7 @@
 | `npm run test:e2e`                 | يبني التطبيق ويشغّل اختبارات Playwright على التطبيق الحقيقي      |
 | `npm run bench`                    | سرعة استعلامات التقارير على بيانات سنة                           |
 | `npm run perf`                     | زمن التشغيل والذاكرة والمعالج على نسخة الإنتاج                   |
-| `npm run screenshots`              | صور كل الشاشات نهاراً وليلاً في `docs/screenshots`               |
+| `npm run screenshots`              | صور README في `docs/screenshots` (بإطار وظل)                     |
 | `node scripts/verify-packaged.mjs` | يتأكد إن النسخة المبنية (`dist\win-unpacked`) تشتغل              |
 
 ## ١٣. اللغة الإنجليزية

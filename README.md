@@ -1,108 +1,118 @@
 <div dir="rtl">
 
-# وقتي
+<p align="center">
+  <img src="build/icon.png" width="96" alt="" />
+</p>
 
-**وقتي يعرف وين يروح وقتك على الكمبيوتر، يساعدك تركّز، ويوقف كل شي وقت الصلاة.**
+<h1 align="center">وقتي</h1>
 
-تطبيق لويندوز ١٠ و١١، بالعربي بالكامل، يشتغل بدون إنترنت، وكل بياناتك تبقى على جهازك.
+<p align="center">
+  <b>يعرف وين يروح وقتك على الكمبيوتر، يساعدك تركّز، ويوقف كل شي وقت الصلاة.</b>
+  <br />
+  تطبيق لويندوز ١٠ و١١، بالعربي والإنجليزي، يشتغل بدون إنترنت، وبياناتك ما تطلع من جهازك.
+</p>
 
-![صفحة اليوم وقت الظهر](docs/screenshots/day-today.png)
+<p align="center">
+  <a href="https://github.com/Abdulaziz-J1/waqti/releases/latest"><b>تحميل وقتي</b></a>
+  &nbsp;·&nbsp;
+  <a href="#waqti-english">English</a>
+</p>
 
-## ليش وقتي؟
+![صفحة اليوم: قوس السماء والعد التنازلي للصلاة الجاية، ووقتك اليوم حسب التصنيف](docs/screenshots/today.png)
 
-كثير منا طلاب وموظفين نقعد ساعات على الكمبيوتر، ونكتشف آخر اليوم إن نصه راح بين يوتيوب ووسائل التواصل، أو إن الصلاة دخلت ونحن مندمجين. وقتي يحل الثلاث مشاكل مع بعض:
+## ليش سويته
 
-- **يعرف وين يروح وقتك:** يسجّل تلقائياً التطبيقات والمواقع اللي تستخدمها، ويصنّفها (دراسة وعمل، تواصل، ترفيه، أخرى)، ويعطيك تقارير يومية وأسبوعية وشهرية.
-- **يساعدك تركّز:** جلسات تركيز بأي مدة تختارها من ساعة مثل مؤقت المطبخ. لو فتحت تطبيق أو موقع يشتتك، يطلع لك تذكير لطيف ترجع لشغلك.
-- **يوقف كل شي وقت الصلاة:** بتقويم أم القرى. وقت الأذان يجيك تنبيه قصير، وقبل الشروق تنبيه إن وقت الفجر بيخلص، ووقت الإقامة تنقفل الشاشة بهدوء على كل الشاشات ويوقف الفيديو والصوت الشغّال، مع دائرة تنفّس والوقت المتبقي. وتقدر تطلع متى ما احتجت.
+كثير منا صار يومه كله على الجهاز، إما شغل أو لعب، وتدخل الصلاة وتطوف وهو ما درى عنها. وآخر اليوم ما يعرف وين راح وقته أصلاً.
 
-## المميزات
+سويت وقتي عشان يكون معك وأنت على الجهاز: ينبهك وقت الأذان، ويوقف كل شي وقت الإقامة لين تصلي، ويوريك بوضوح وين راح يومك، ويساعدك تركّز على اللي يهمك. كله بالعربي، وبدون حساب ولا إنترنت.
 
-- مواقيت أم القرى لـ ١٩ مدينة سعودية أو أي إحداثيات، مع تعديل دقائق لكل صلاة، وإضافة ٣٠ دقيقة للعشاء في رمضان، وإعدادات خاصة للجمعة.
-- القفل وقت الإقامة: تحدد المدة بين الأذان والإقامة لكل صلاة (الافتراضي: الفجر ٢٥، الظهر والعصر والعشاء ٢٠، المغرب ١٠ دقائق)، وللفجر والمغرب قيم خاصة في رمضان.
-- قفل ذكي: ما يقفل إذا كنت بعيد عن الجهاز (وإذا فيه فيديو أو صوت شغّال يعتبرك موجود)، ويأجّل إذا كنت في اجتماع (Teams وZoom وWebex وGoogle Meet وعرض PowerPoint)، ويذكّرك إذا صحّى الجهاز من النوم بعد الأذان.
-- زر «صلّيت» بعد وقت أدنى، وتأجيل مرة وحدة تختار مدته من شاشة القفل (من دقيقة إلى ١٥، وتقدر تطفيه)، وخروج طارئ بالضغط المطوّل (٣ إلى ١٠ ثواني حسب إعدادك).
-- وقت القفل يوقف كل الفيديوهات والأصوات الشغّالة ويكتم الصوت، ويرجّع الصوت زي ما كان إذا انتهى القفل أو أجّلته أو خرجت.
-- التركيز: ساعة تسحب حلقتها مثل مؤقت المطبخ (كل لفّة ساعة)، أو − و + بخمس دقائق (اضغط مطوّل وتسرع)، أو تضغط على الوقت `٠٠:٣٠:٠٠` وتختار الساعات والدقائق والثواني من قائمة. تبدأ بـ ٣٠ دقيقة، وتتذكّر آخر مدة.
-- أثناء الجلسة: − و + يقدّمون نهايتها أو يأخرونها، وأيقونة وقتي في شريط المهام تتعبّى مع الجلسة.
-- إذا كانت صلاة بتجي في نص الجلسة يقولك، ويعطيك زر «خلها تخلص مع أذان …».
-- المشتتات شرائح تشغّلها وتطفيها بضغطة (المواقع والتطبيقات والكلمات)، والقلم جنب العنوان يحذف أي وحدة منها، حتى يوتيوب وسناب. تضيف أي تطبيق أو موقع، ويقولك «تمت الإضافة» أو «في القائمة من قبل» بدون ما تطلع من النافذة.
-- تصميم «سماء اليوم»: ألوان التطبيق تتبع وقت اليوم من الفجر لليل، حتى الأزرار والمفاتيح والشرائح ورموز القائمة وشاشة القفل (ذهبي بالليل، وردي وقت الفجر والمغرب، أزرق بالنهار، كهرماني وقت العصر)، وقوس في صفحة اليوم فيه الشمس والقمر ومواقيت الصلاة.
-- القائمة الجانبية تنطوي لشريط رموز (الزر على طرفها أو Ctrl+B)، ويبقى فيها اللوغو ومفتاح التتبع مع لمبته: خضراء وقت التتبع وحمراء إذا وقّفته.
-- لوغو واحد في كل مكان: الأيقونة في شريط المهام، والاختصار، وجنب الساعة، وداخل التطبيق.
-- عربي وإنجليزي: تختار اللغة وقت التثبيت أو في أول شاشة، وتقدر تغيّرها من الإعدادات. مع الإنجليزي ينقلب التطبيق كله من اليسار لليمين (القائمة، الرسوم، قوس السماء، شاشة القفل).
-- خصوصية كاملة: إيقاف التتبع، استثناء تطبيقات، عدم حفظ عناوين النوافذ، مدة احتفاظ، تصدير (JSON وCSV)، وحذف كل شي.
+## الصلاة قبل كل شي
+
+وقت الأذان يطلع لك تنبيه صغير يقولك بعد كم بتنقفل الشاشة. ووقت الإقامة تنقفل الشاشة بهدوء على كل الشاشات، ويوقف الفيديو والصوت الشغّال، مع دائرة تنفّس والوقت المتبقي. زر «صلّيت» يفتح بعد دقايق، وفيه تأجيل مرة وحدة وخروج طارئ بالضغط المطوّل، فما تحس إنك محبوس.
+
+![شاشة القفل وقت صلاة المغرب](docs/screenshots/lock.png)
 
 <table>
 <tr>
-<td><img src="docs/screenshots/night-today.png" alt="صفحة اليوم في الليل" /></td>
-<td><img src="docs/screenshots/day-lock.png" alt="شاشة قفل صلاة العصر" /></td>
-</tr>
-<tr>
-<td><img src="docs/screenshots/night-reports.png" alt="التقارير" /></td>
-<td><img src="docs/screenshots/day-prayer.png" alt="صفحة الصلاة" /></td>
-</tr>
-<tr>
-<td><img src="docs/screenshots/day-focus.png" alt="صفحة التركيز" /></td>
-<td><img src="docs/screenshots/night-lock.png" alt="شاشة قفل صلاة العشاء" /></td>
+<td width="50%"><img src="docs/screenshots/adhan.png" alt="تنبيه أذان العصر: الشاشة بتنقفل بعد ٢٠ دقيقة" /></td>
+<td width="50%"><img src="docs/screenshots/prayer.png" alt="صفحة الصلاة: القفل والمدة والتعديل لكل صلاة" /></td>
 </tr>
 </table>
 
-## التثبيت
+- مواقيت أم القرى لـ ١٩ مدينة سعودية أو أي إحداثيات، وتعدّل وقت كل صلاة بالدقائق إذا مسجدك يختلف.
+- لكل صلاة تحدد متى تنقفل بعد الأذان وكم مدة القفل، والجمعة لها صفها وإعداداتها، ورمضان له إقامته.
+- ما يقفل إذا كنت بعيد عن الجهاز، ويتأجّل إذا كنت في اجتماع (Teams وZoom وGoogle Meet وغيرها).
+- يكتم الصوت وقت القفل ويرجّعه زي ما كان، وفيه تنبيه قبل الشروق إن وقت الفجر بيخلص.
 
-١. نزّل `Waqti-Setup-1.0.0.exe` من صفحة الإصدارات (Releases).
+## اعرف وين راح يومك
 
-٢. شغّله. أول شي يسألك عن اللغة (العربية أو English)، والتطبيق يفتح بنفس اللغة. المثبّت **غير موقّع رقمياً**، فويندوز بيعرض رسالة «Windows protected your PC» (SmartScreen). اضغط **More info (مزيد من المعلومات)** ثم **Run anyway (تشغيل على أي حال)**.
+وقتي يسجّل التطبيقات والمواقع اللي تستخدمها تلقائياً ويصنّفها: دراسة وعمل، تواصل، ترفيه. تشوف يومك وأسبوعك وشهرك، ومقارنة بالفترة اللي قبلها، وكم مرة صدّيت عن المشتتات. وإذا صنّف تطبيق غلط، تغيّره بضغطة ويتعدّل السجل كله.
 
-٣. التثبيت للمستخدم الحالي فقط (ما يحتاج صلاحيات مدير)، ويضيف اختصار على سطح المكتب وفي قائمة ابدأ.
+![التقارير: الأسبوع حسب التصنيف](docs/screenshots/reports.png)
 
-٤. أول تشغيل يمشي معك ٥ خطوات: الترحيب (وفيه اختيار اللغة)، مدينتك، قفل الصلاة، المشتتات، والتشغيل مع ويندوز.
+## ركّز، ووقتي يحرسك
 
-**إلغاء التثبيت:** من إعدادات ويندوز ← التطبيقات. بيسألك إذا تبي تحذف بياناتك أو تحتفظ فيها.
+تختار المدة من ساعة تسحبها مثل مؤقت المطبخ، وتحدد وش يشتتك: يوتيوب، تيك توك، أي موقع أو تطبيق، أو كلمة في عنوان الصفحة. إذا فتحت واحد منها وأنت في جلسة، يطلع لك تذكير لطيف ترجع لشغلك. وإذا الصلاة بتدخل في نص الجلسة، يقولك من البداية ويعطيك خيار تخلص الجلسة مع الأذان.
 
-## الاستخدام
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/focus.png" alt="صفحة التركيز: ساعة المدة والمشتتات" /></td>
+<td width="50%"><img src="docs/screenshots/guard.png" alt="حارس التركيز لما تفتح يوتيوب وأنت في جلسة" /></td>
+</tr>
+</table>
 
-- **اليوم:** وقتك اليوم حسب التصنيف، أكثر التطبيقات، وشريط يومك ساعة بساعة، والعد التنازلي للصلاة الجاية.
-- **التركيز:** حدد المدة (اسحب الحلقة، أو − و +، أو اضغط على الوقت) واضغط «ابدأ التركيز». شغّل أو طفّ المشتتات من شرائحها، والقلم جنب «مواقع» أو «تطبيقات» يحذف.
-- **التقارير:** يوم / أسبوع / شهر، مع مقارنة بالفترة السابقة. اضغط على تصنيف أي تطبيق لتغييره، والتغيير يطبق على كل السجل.
-- **الصلاة:** المواقيت، القفل ومدته لكل صلاة، التعديل (والجمعة صف مثل باقي الصلوات)، تنبيه الأذان والشروق، القواعد الذكية، وسجل الأسبوع.
-- **الإعدادات:** الأرقام (٠١٢ أو 012)، نظام الساعة، السمة، تقليل الحركة، الخصوصية، التصنيفات، والبيانات.
-- وقتي يشتغل من الأيقونة جنب الساعة. إغلاق النافذة ما يوقفه.
+## يتلوّن مع سماء يومك
+
+ألوان التطبيق تمشي مع وقت اليوم: أزرق بالنهار، كهرماني وقت العصر، وردي وقت المغرب، وذهبي بالليل. حتى شاشة القفل والتنبيهات تاخذ لون وقتها.
+
+![صفحة اليوم وقت الظهر والعصر والمغرب والليل](docs/screenshots/sky.png)
+
+## خصوصيتك لك
+
+ما فيه حساب ولا إنترنت، وما يطلع أي شي من جهازك. تقدر توقف التتبع، وتستثني تطبيقات، وتمنعه من حفظ عناوين النوافذ، وتحدد كم يحتفظ بالبيانات، وتصدّرها (JSON وCSV)، أو تحذف كل شي.
+
+## التحميل والتثبيت
+
+١. نزّل `Waqti-Setup-1.0.0.exe` من [صفحة الإصدارات](https://github.com/Abdulaziz-J1/waqti/releases/latest).
+
+٢. شغّله واختر اللغة. المثبّت **غير موقّع رقمياً**، فويندوز بيعرض «Windows protected your PC». اضغط **More info** ثم **Run anyway**.
+
+٣. يتثبّت لحسابك بس وما يحتاج صلاحيات مدير. أول تشغيل يمشي معك خطوات بسيطة: اللغة، مدينتك، القفل، والمشتتات.
+
+وقتي يشتغل من الأيقونة جنب الساعة، وإغلاق النافذة ما يوقفه. وإلغاء التثبيت من إعدادات ويندوز ← التطبيقات، ويسألك إذا تبي تحتفظ ببياناتك.
+
+## أشياء لازم تعرفها
+
+- **إيقاف الفيديو وقت القفل** يشتغل مع البرامج اللي تسجّل نفسها عند ويندوز (المتصفحات ومشغّل الوسائط وغيرها). البرامج اللي ما تسجّل (مثل VLC 3) تكمل خلف شاشة القفل.
+- **المواقع تُعرف من عنوان النافذة.** إذا عنوان الصفحة ما يذكر الموقع، ينحسب الوقت للمتصفح نفسه.
+- **الاجتماع يُعرف من النافذة اللي قدامك.** لو كان Teams في الخلفية ما يعتبره اجتماع، والقائمة تتعدّل من `%APPDATA%\Waqti\meeting-apps.json`.
+- **ويندوز فقط**، والمثبّت غير موقّع فيطلع تحذير SmartScreen أول مرة.
 
 ## للمطوّرين
 
-المتطلبات: Node.js 22.12 أو أحدث على ويندوز x64. ما تحتاج أدوات بناء C++ لأن كل المكتبات الأصلية جاهزة.
+مبني بـ Electron وReact وTypeScript، والبيانات في SQLite، والمواقيت بمكتبة [adhan](https://github.com/batoulapps/adhan-js). منطق القفل والتركيز آلة حالات (state machine) صافية ومختبرة بالكامل، والتطبيق نفسه له اختبارات تشغّله فعلياً بـ Playwright. يحتاج Node.js 22.12 أو أحدث على ويندوز x64، وما يحتاج أدوات بناء C++.
 
 ```bash
 npm install
 npm run dev
 ```
 
-**الخط:** الواجهة بخط ثمانية: Serif Display للعناوين والأرقام الكبيرة، وSerif Text لباقي النصوص. ترخيصه يمنع إعادة توزيع ملفاته، فهي مو موجودة في المستودع. نزّله من [font.thmanyah.com](https://font.thmanyah.com) لمجلد التنزيلات، وبعدين شغّل `npm run fonts` مرة وحدة. بدونه يشتغل التطبيق بالخطوط الاحتياطية، لكن `npm run dist` يرفض يبني المثبّت.
+**الخط:** الواجهة بخط ثمانية، وترخيصه يمنع إعادة توزيع ملفاته فهي مو في المستودع. نزّله من [font.thmanyah.com](https://font.thmanyah.com) لمجلد التنزيلات وشغّل `npm run fonts` مرة وحدة. بدونه يشتغل التطبيق بالخطوط الاحتياطية، لكن `npm run dist` ما يبني المثبّت.
 
 | الأمر                                | الوظيفة                                    |
 | ------------------------------------ | ------------------------------------------ |
 | `npm run dev`                        | تشغيل التطبيق للتطوير                      |
-| `npm run build`                      | بناء نسخة الإنتاج في `out/`                |
 | `npm run dist`                       | بناء المثبّت: `dist/Waqti-Setup-1.0.0.exe` |
 | `npm run typecheck` / `npm run lint` | فحص الأنواع والتنسيق                       |
 | `npm test`                           | اختبارات الوحدات مع التغطية                |
-| `npm run test:e2e`                   | اختبارات التطبيق الكامل (Playwright)       |
+| `npm run test:e2e`                   | اختبارات التطبيق الكامل                    |
+| `npm run screenshots`                | صور هذي الصفحة                             |
 
-الملفات المهمة: [ARCHITECTURE.md](ARCHITECTURE.md) (هيكل التطبيق)، [DECISIONS.md](DECISIONS.md) (قرارات التصميم بالعربي)، [TESTING.md](TESTING.md) (دليل الاختبار اليدوي)، وقياسات الأداء في آخر ARCHITECTURE.md.
-
-## قيود معروفة (بصراحة)
-
-- **إيقاف الفيديو والصوت وقت القفل** يشتغل مع البرامج اللي تسجّل نفسها عند ويندوز (المتصفحات ومشغّل الوسائط وغيرها). البرامج اللي ما تسجّل (مثل VLC 3) تكمل، وشاشة القفل تغطيها.
-- **الذاكرة والنافذة مفتوحة:** حوالي ٢٩٠ ميجا على صفحة اليوم (نافذة Electron الفاضية لحالها ١٣٣ ميجا). في الخلفية وهو الاستخدام المعتاد: حوالي ١٤٠ ميجا. التفاصيل في قسم الأداء في ARCHITECTURE.md.
-- **المثبّت غير موقّع**، فيطلع تحذير SmartScreen أول مرة.
-- **ويندوز فقط.** الكود ما ينهار على الأنظمة الثانية، لكن التتبع والقفل مصممين لويندوز.
-- **ما يعرف الموقع داخل المتصفح إلا من عنوان النافذة.** إذا كان عنوان الصفحة ما يذكر الموقع، ينحسب الوقت للمتصفح نفسه.
-- **الاجتماع يُعرف من التطبيق اللي في الواجهة فقط.** لو كنت في اجتماع Teams والنافذة في الخلفية، ما يعتبره اجتماع. القائمة قابلة للتعديل في `%APPDATA%\Waqti\meeting-apps.json`.
+التفاصيل في [ARCHITECTURE.md](ARCHITECTURE.md) (هيكل التطبيق وآلة الحالات وقياسات الأداء)، و[DECISIONS.md](DECISIONS.md) (ليش اخترت كل قرار)، و[TESTING.md](TESTING.md) (دليل الاختبار اليدوي).
 
 ## اقتراحات ومشاكل
 
-عندك فكرة أو واجهتك مشكلة؟ افتح [بلاغ جديد](https://github.com/Abdulaziz-J1/waqti/issues/new/choose)، أو من داخل التطبيق: الإعدادات ← عن وقتي ← «اقترح فكرة» أو «بلّغ عن مشكلة». الزرين يفتحون الصفحة في متصفحك ورقم الإصدار ونسخة ويندوز معبّأة، ووقتي نفسه ما يرسل شي.
+عندك فكرة أو واجهتك مشكلة؟ افتح [بلاغ جديد](https://github.com/Abdulaziz-J1/waqti/issues/new/choose)، أو من داخل التطبيق: الإعدادات ← عن وقتي ← «اقترح فكرة» أو «بلّغ عن مشكلة». وإذا فادك وقتي، نجمة للمستودع تفرق معي.
 
 ## الترخيص
 
@@ -116,62 +126,52 @@ MIT — انظر [LICENSE](LICENSE). خط الواجهة «خط ثمانية» �
 
 **Waqti knows where your computer time goes, helps you focus, and pauses everything at prayer time.**
 
-A Windows 10/11 desktop app in Arabic (right to left) and English (left to right). It works completely offline and keeps every byte of data on your machine.
+Waqti is built in Arabic first; the English interface is for everyone in Saudi Arabia who doesn't read Arabic. It runs on Windows 10/11, works fully offline, needs no account, and your data never leaves your machine. [Download it from Releases](https://github.com/Abdulaziz-J1/waqti/releases/latest).
 
-<table>
-<tr>
-<td><img src="docs/screenshots/en-today.png" alt="Today in English" /></td>
-<td><img src="docs/screenshots/en-focus.png" alt="Focus in English" /></td>
-</tr>
-</table>
+![Today: the sky arc with the next prayer, and your time by category](docs/screenshots/en-today.png)
 
-## Why it exists
+## Why I built it
 
-Students and office workers in Saudi Arabia spend hours a day on a PC. Waqti answers three questions in one place: where did my time go, how do I stay focused, and how do I make sure work never runs over a prayer.
+Many of us spend the whole day at the computer, working or gaming, and a prayer comes and goes without us noticing; by evening we can't say where the time went. Waqti stays with you while you work: it tells you at the adhan, pauses everything at the iqama until you've prayed, shows you clearly where your day went, and helps you focus on what matters.
 
 ## What it does
 
-- **Automatic time tracking** — the foreground app is sampled once a second, merged into intervals, and grouped into categories (study & work, communication, entertainment, other, plus your own). Browser sites (YouTube, Netflix, …) are recognised from window titles. Re-categorising an app updates all history because rules are applied at query time.
-- **Focus sessions** — any length up to 23:59:59 on a kitchen-timer dial (drag the ring, one turn an hour; − / + by five minutes, hold to repeat; or pick hours, minutes and seconds from the clock face). 30 minutes at first, then the last length. During a session − / + move its end and the taskbar button fills with it. A prayer that would fall inside the session is announced, with a one-click length that ends at its adhan. Distractions are on/off chips (edit mode removes the added ones). Distractions are apps, known sites, any other site by name, and title keywords. If a distracting app or site comes to the foreground, a dimmed Focus Guard asks you to get back to work (it can minimise the distracting window) or allows a recorded 5-minute snooze. Sessions pause for prayer and end with a short summary.
-- **Prayer reminders and lock** — Umm al-Qura times (Shafi Asr, +30 min Isha in Ramadan, Friday handled as Jumuah, ±15 min per-prayer adjustment) for 19 Saudi cities or custom coordinates. Jumu'ah has its own row like any other prayer (lock, delay, length, adjustment). A 10-second notice at the adhan, a notice before sunrise when Fajr's time is ending, and at the iqama — a per-prayer delay after the adhan (Fajr 25, Dhuhr/Asr/Isha 20, Maghrib 10 minutes by default, with Ramadan values for Fajr and Maghrib; Jumuah locks with its adhan) — a calm full-screen lock on every display with a breathing circle and the time remaining, which also pauses any video or audio that is playing. "صلّيت" unlocks after a minimum time; one snooze whose length (1–15 minutes) is chosen on the lock screen and which can be turned off; and a press-and-hold emergency exit (3–10 seconds) that is always available. The sound is muted while locked and restored exactly afterwards. It never locks when you are away (no input for 5 minutes and nothing playing, or Windows locked), defers during meetings (Teams, Zoom, Webex, Google Meet, PowerPoint slideshows), reminds you after waking from sleep, and has a hard 60-minute safety limit.
-- **Arabic and English** — chosen in the installer or on the first screen, and changeable in Settings. English turns the whole app left to right (sidebar, charts, the Sky Arc, the lock screen); numbers, dates, plurals and durations follow the language.
-- **Reports** — day/week/month with stacked bars (time flows in the reading direction), a category donut, top apps and sites, focus statistics and a comparison with the previous period.
-- **Privacy** — pause tracking, exclude apps, don't store window titles, retention (30/90/365 days or forever), JSON/CSV export, JSON import, delete everything.
+- **Prayer first.** A small notice at the adhan tells you when the screen will lock. At the iqama a calm full-screen lock covers every display, pauses whatever video or audio is playing and mutes the sound until you're back. "I prayed" opens after a few minutes; there is one snooze and a press-and-hold emergency exit. Umm al-Qura times for 19 Saudi cities or any coordinates, a per-prayer delay and lock length (Jumu'ah has its own row), Ramadan iqama times, a notice before sunrise, no lock when you're away, and a delay during meetings (Teams, Zoom, Google Meet and others).
+- **Know where your day went.** Apps and sites are tracked automatically and grouped into study & work, social and entertainment, with day/week/month reports and a comparison with the previous period. Fix a category once and all history follows.
+- **Focus, guarded.** Set a length on a kitchen-timer dial and pick your distractions (YouTube, TikTok, any app, site or title keyword). Open one during a session and a gentle guard asks you to get back to work. A prayer that falls inside the session is announced up front, with a one-click length that ends at its adhan.
+- **Colours that follow the sky**: blue by day, amber at Asr, rose at Maghrib, gold at night, down to the lock screen.
+- **Private by design**: pause tracking, exclude apps, skip window titles, choose retention, export JSON/CSV or delete everything.
+
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/en-focus.png" alt="Focus: the dial and the distraction chips" /></td>
+<td width="50%"><img src="docs/screenshots/en-lock.png" alt="The lock screen at Isha" /></td>
+</tr>
+</table>
 
 ## Install
 
-1. Download `Waqti-Setup-1.0.0.exe` from Releases and run it. It first asks for a language (Arabic or English); Waqti opens in that language.
-2. The installer is **not code-signed**, so Windows SmartScreen shows "Windows protected your PC". Click **More info**, then **Run anyway**.
-3. It installs per-user (no admin rights), with desktop and Start menu shortcuts. The uninstaller asks whether to keep your data.
+1. Download `Waqti-Setup-1.0.0.exe` from [Releases](https://github.com/Abdulaziz-J1/waqti/releases/latest) and run it. It asks for a language first.
+2. The installer is **not code-signed**, so SmartScreen shows "Windows protected your PC". Click **More info**, then **Run anyway**.
+3. It installs for your user only (no admin rights). The uninstaller asks whether to keep your data.
 
 ## Build from source
 
-Requirements: Node.js ≥ 22.12 on Windows x64. No C++ toolchain is needed — every native module ships an N-API prebuild.
+Electron, React and TypeScript, with SQLite for storage and [adhan](https://github.com/batoulapps/adhan-js) for prayer times. The lock and focus logic is a pure, fully tested state machine, and end-to-end tests drive the real app with Playwright. Requires Node.js ≥ 22.12 on Windows x64; no C++ toolchain.
 
 ```bash
 npm install
 npm run dev
 ```
 
-**Font:** the interface uses the thmanyah typeface: Serif Display for headings and big numbers, Serif Text for everything else. Its licence forbids redistributing the font files, so they are not in the repository: download the family from [font.thmanyah.com](https://font.thmanyah.com) into your Downloads folder and run `npm run fonts` once (or `npm run fonts -- path/to/Thmanyah-Font-Family.zip`). The build inlines the fonts into the CSS bundle, so they never ship as separate files. Without them the app runs on the bundled fallback fonts, and `npm run dist` refuses to build.
+The interface uses the thmanyah typeface, whose licence forbids redistributing the font files, so they are not in the repository: download the family from [font.thmanyah.com](https://font.thmanyah.com) into your Downloads folder and run `npm run fonts` once. Without it the app runs on the bundled fallback fonts, and `npm run dist` refuses to build the installer.
 
-`npm run dist` builds the installer at `dist/Waqti-Setup-1.0.0.exe`. Other scripts: `typecheck`, `lint`, `test` (Vitest with a coverage gate), `test:e2e` (Playwright driving the real Electron app), `bench`, `perf`, `screenshots`.
-
-Documentation: [ARCHITECTURE.md](ARCHITECTURE.md) (processes, the lock/focus state machine with Mermaid diagrams, data model), [DECISIONS.md](DECISIONS.md) (design decisions, in Arabic), [TESTING.md](TESTING.md) (manual test checklist, in Arabic), plus measured performance at the end of ARCHITECTURE.md.
-
-## Honest limitations
-
-- **Media pause at the lock covers apps that report to Windows' media controls** (browsers, Media Player and others). It pauses only sessions that are playing, through the official Global System Media Transport Controls (WinRT called with koffi in a separate utility process) — never blind media keys. Apps that don't report (e.g. VLC 3) keep playing behind the lock.
-- **Memory with the window open** is ~290 MB on the Today screen (an empty Electron window alone uses 133 MB). In typical use Waqti lives in the tray, releases its window after 60 seconds, and idles at ~140 MB with ~0 % CPU.
-- **Unsigned installer** — SmartScreen warns on first run.
-- **Windows only.** The code does not crash elsewhere, but tracking and the lock are built for Windows.
-- **Sites are derived from window titles**; pages whose titles don't name the site count towards the browser.
-- **Meetings are detected from the foreground window**; the list lives in `%APPDATA%\Waqti\meeting-apps.json` and can be edited.
+More in [ARCHITECTURE.md](ARCHITECTURE.md) (processes, the state machine with Mermaid diagrams, data model, measured performance), [DECISIONS.md](DECISIONS.md) (design decisions, in Arabic) and [TESTING.md](TESTING.md) (manual test checklist, in Arabic).
 
 ## Ideas and problems
 
-Open an [issue](https://github.com/Abdulaziz-J1/waqti/issues/new/choose), or from the app: Settings → About → "Suggest an idea" / "Report a problem". Both open the issue form in your browser with the version and Windows version filled in; Waqti itself sends nothing.
+Open an [issue](https://github.com/Abdulaziz-J1/waqti/issues/new/choose) (in English or Arabic), or from the app: Settings → About → "Suggest an idea" / "Report a problem".
 
 ## License
 
-MIT — see [LICENSE](LICENSE). The interface fonts, Thmanyah Serif Display and Serif Text, are © thmanyah Publishing and Distribution and used under the [thmanyah Font License](https://font.thmanyah.com/licenses); it is embedded in the application and is not licensed for extraction or redistribution. The fallback fonts (Noto Kufi Arabic, IBM Plex Sans Arabic) are under the SIL Open Font License 1.1; all third-party licences are in [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
+MIT — see [LICENSE](LICENSE). The interface fonts, Thmanyah Serif Display and Serif Text, are © thmanyah Publishing and Distribution and used under the [thmanyah Font License](https://font.thmanyah.com/licenses); they are embedded in the application and not licensed for extraction or redistribution. The fallback fonts (Noto Kufi Arabic, IBM Plex Sans Arabic) are under the SIL Open Font License 1.1; all third-party licences are in [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
