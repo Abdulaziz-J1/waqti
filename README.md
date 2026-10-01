@@ -73,7 +73,7 @@
 
 ## التحميل والتثبيت
 
-١. نزّل `Waqti-Setup-1.0.0.exe` من [صفحة الإصدارات](https://github.com/Abdulaziz-J1/waqti/releases/latest).
+١. نزّل `Waqti-Setup.exe` من [صفحة الإصدارات](https://github.com/Abdulaziz-J1/waqti/releases/latest).
 
 ٢. شغّله واختر اللغة. إذا طلع لك تحذير من المتصفح أو ويندوز، هذا متوقع وطريقة تجاوزه [تحت](#install-warnings).
 
@@ -108,13 +108,14 @@
 </details>
 
 <details>
-<summary><b>برنامج الحماية حذف الملف أو حجزه</b></summary>
+<summary><b>برنامج الحماية حذف الملف أو حجزه، أو المثبّت قفل لحاله</b></summary>
 
 <br />
 
 أغلب برامج الحماية ما تحذف الملف، تحطه في «العزل» (Quarantine) وتقدر ترجعه:
 
 - **Avast أو AVG:** افتح البرنامج ← القائمة ← **العزل** (Quarantine)، اختر ملف وقتي، ومن النقاط الثلاث اختر **استعادة وإضافة استثناء** (Restore and add exception).
+- **Avast أو AVG قفل المثبّت نفسه** (يحلله دقيقة تقريباً بعدين يوقفه، أو يقول إنه مشبوه): افتح البرنامج ← القائمة ← **الإعدادات** ← **عام** ← **الاستثناءات** ← **إضافة استثناء**، وأضف ملف المثبّت `Waqti-Setup.exe` ومجلد التطبيق `%LOCALAPPDATA%\Programs\Waqti`، وبعدها شغّل المثبّت.
 - **أمان Windows:** افتح «أمان Windows» ← الحماية من الفيروسات والمخاطر ← **محفوظات الحماية** (Protection history)، اختر العنصر ← الإجراءات ← **سماح على الجهاز** (Allow on device).
 - **برامج ثانية:** دوّر على «العزل» أو Quarantine، واختر استعادة مع استثناء.
 
@@ -130,7 +131,7 @@
 في [صفحة الإصدار](https://github.com/Abdulaziz-J1/waqti/releases/latest)، جنب ملف المثبّت مكتوب بصمته (sha256). افتح PowerShell واكتب:
 
 ```powershell
-Get-FileHash "$HOME\Downloads\Waqti-Setup-1.0.0.exe"
+Get-FileHash "$HOME\Downloads\Waqti-Setup.exe"
 ```
 
 إذا الرقم اللي يطلع نفس الرقم اللي في الصفحة، فالملف هو نفسه اللي نشرته بدون أي تعديل.
@@ -155,14 +156,14 @@ npm run dev
 
 **الخط:** الواجهة بخط ثمانية، وترخيصه يمنع إعادة توزيع ملفاته فهي مو في المستودع. نزّله من [font.thmanyah.com](https://font.thmanyah.com) لمجلد التنزيلات وشغّل `npm run fonts` مرة وحدة. بدونه يشتغل التطبيق بالخطوط الاحتياطية، لكن `npm run dist` ما يبني المثبّت.
 
-| الأمر                                | الوظيفة                                    |
-| ------------------------------------ | ------------------------------------------ |
-| `npm run dev`                        | تشغيل التطبيق للتطوير                      |
-| `npm run dist`                       | بناء المثبّت: `dist/Waqti-Setup-1.0.0.exe` |
-| `npm run typecheck` / `npm run lint` | فحص الأنواع والتنسيق                       |
-| `npm test`                           | اختبارات الوحدات مع التغطية                |
-| `npm run test:e2e`                   | اختبارات التطبيق الكامل                    |
-| `npm run screenshots`                | صور هذي الصفحة                             |
+| الأمر                                | الوظيفة                              |
+| ------------------------------------ | ------------------------------------ |
+| `npm run dev`                        | تشغيل التطبيق للتطوير                |
+| `npm run dist`                       | بناء المثبّت: `dist/Waqti-Setup.exe` |
+| `npm run typecheck` / `npm run lint` | فحص الأنواع والتنسيق                 |
+| `npm test`                           | اختبارات الوحدات مع التغطية          |
+| `npm run test:e2e`                   | اختبارات التطبيق الكامل              |
+| `npm run screenshots`                | صور هذي الصفحة                       |
 
 التفاصيل في [ARCHITECTURE.md](ARCHITECTURE.md) (هيكل التطبيق وآلة الحالات وقياسات الأداء)، و[DECISIONS.md](DECISIONS.md) (ليش اخترت كل قرار)، و[TESTING.md](TESTING.md) (دليل الاختبار اليدوي).
 
@@ -207,7 +208,7 @@ Many of us spend the whole day at the computer, working or gaming, and a prayer 
 
 ## Install
 
-1. Download `Waqti-Setup-1.0.0.exe` from [Releases](https://github.com/Abdulaziz-J1/waqti/releases/latest) and run it. It asks for a language first.
+1. Download `Waqti-Setup.exe` from [Releases](https://github.com/Abdulaziz-J1/waqti/releases/latest) and run it. It asks for a language first.
 2. It installs for your user only (no admin rights). The uninstaller asks whether to keep your data.
 
 **Seeing a warning?** Waqti is new, free and not code-signed, so Windows, browsers and antivirus programs don't know it yet. A warning means "we haven't seen this before", not "we found something", and it fades as more people download it. Antivirus heuristics are also wary of new apps that watch the active window, lock the screen and pause media, which is exactly what Waqti does, all on your machine: it never connects to the internet.
@@ -215,7 +216,8 @@ Many of us spend the whole day at the computer, working or gaming, and a prayer 
 - **Browser says the file "isn't commonly downloaded":** open Downloads (Ctrl+J), click ⋯ next to the file and choose **Keep** (in Edge, then **Show more** → **Keep anyway**).
 - **"Windows protected your PC":** click **More info**, then **Run anyway**. It only appears once, at install.
 - **Antivirus quarantined it:** restore it from the quarantine and add an exception (Avast/AVG: Menu → Quarantine → ⋯ → **Restore and add exception**; Windows Security: Virus & threat protection → Protection history → Actions → **Allow on device**), then run the installer again.
-- **Check the file:** run `Get-FileHash "$HOME\Downloads\Waqti-Setup-1.0.0.exe"` in PowerShell and compare it with the sha256 shown next to the file on the release page.
+- **Avast/AVG stopped the installer itself** (it analyses it for about a minute, then ends it): Menu → Settings → General → Exceptions → **Add exception**, add `Waqti-Setup.exe` and the folder `%LOCALAPPDATA%\Programs\Waqti`, then run the installer.
+- **Check the file:** run `Get-FileHash "$HOME\Downloads\Waqti-Setup.exe"` in PowerShell and compare it with the sha256 shown next to the file on the release page.
 
 ## Build from source
 

@@ -1,7 +1,7 @@
 {
   "name": "waqti",
   "productName": "وقتي",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "وقتي — يعرف وين يروح وقتك على الكمبيوتر، يساعدك تركّز، ويوقف كل شي وقت الصلاة.",
   "main": "./out/main/index.js",
   "author": "Abdulaziz Almutairi",

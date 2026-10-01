@@ -17,8 +17,7 @@
 !macroend
 
 ; Uninstaller: ask whether to keep the user's data (%APPDATA%\Waqti), in the
-; installer's language. Never asked during an update (the installer runs the
-; old uninstaller silently).
+; installer's language. Never asked during an update.
 !macro customUnInstall
   ${ifNot} ${isUpdated}
     ${if} $LANGUAGE == 1033
@@ -29,4 +28,26 @@
     RMDir /r "$APPDATA\Waqti"
     waqti_keep_data:
   ${endIf}
+!macroend
+
+; Updates install over the previous version instead of running its uninstaller
+; first. That uninstaller is copied to a temp folder and run from there, which
+; antivirus sandboxes (Avast, AVG) treat as an unknown program and kill: the
+; installer then retries, says Waqti "cannot be closed" and stops, leaving a
+; half-removed copy. Installing over it replaces every file just the same, and
+; the uninstall entry is written again at the end. Defining this macro replaces
+; the default running-app check, so it runs that check itself (with what it
+; needs, which electron-builder only includes when no custom check exists).
+!include "getProcessInfo.nsh"
+Var pid
+
+!macro customCheckAppRunning
+  !insertmacro IS_POWERSHELL_AVAILABLE
+  !insertmacro _CHECK_APP_RUNNING
+  !ifndef BUILD_UNINSTALLER
+    DeleteRegValue SHELL_CONTEXT "${UNINSTALL_REGISTRY_KEY}" "UninstallString"
+    !ifdef UNINSTALL_REGISTRY_KEY_2
+      DeleteRegValue SHELL_CONTEXT "${UNINSTALL_REGISTRY_KEY_2}" "UninstallString"
+    !endif
+  !endif
 !macroend

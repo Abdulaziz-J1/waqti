@@ -35,7 +35,7 @@ win:
     - target: nsis
       arch: [x64]
   icon: build/icon.ico
-  artifactName: Waqti-Setup-${version}.${ext}
+  artifactName: Waqti-Setup.${ext}
   signAndEditExecutable: true
   verifyUpdateCodeSignature: false
 nsis:
