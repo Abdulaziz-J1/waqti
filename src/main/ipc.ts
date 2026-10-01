@@ -132,6 +132,16 @@ export function registerIpc(core: WaqtiCore): void {
       else core.dispatch({ type: 'EMERGENCY_EXIT', now })
       return null
     },
+    'lock:shown': (_req, e) => {
+      requireOverlay(e, 'lock')
+      const win = winOf(e)
+      if (!win || !core.overlays.kindOf(win)?.primary) return null
+      // Counted from when the lock is really on screen (the fade may finish first).
+      const start = (): void => core.dispatch({ type: 'LOCK_SHOWN', now: core.clock.now() })
+      if (win.isVisible()) start()
+      else win.once('show', start)
+      return null
+    },
     'guard:action': ({ action }, e) => {
       requireOverlay(e, 'guard')
       const now = core.clock.now()

@@ -38,7 +38,12 @@ export function LockOverlay({ state }: { state: OverlayState }): React.JSX.Eleme
   }, [lock, state.primary])
 
   if (!lock) return null
-  const now = wall + state.clockOffsetMs
+  // Until the lock is on screen its times stand still at their full lengths;
+  // from then on they never read more than that (the clock may lag a tick).
+  const now =
+    lock.runningSince === null
+      ? lock.startedAt
+      : Math.max(wall + state.clockOffsetMs, lock.runningSince)
   const name = prayerLabel(lock.ref)
   const remaining = Math.max(0, lock.until - now)
   const unlockIn = Math.max(0, lock.minUnlockAt - now)
@@ -59,6 +64,10 @@ export function LockOverlay({ state }: { state: OverlayState }): React.JSX.Eleme
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      onAnimationComplete={() => {
+        // Faded in: the primary display starts the countdown for every display.
+        if (state.primary && lock.runningSince === null) void api.invoke('lock:shown')
+      }}
     >
       {night ? (
         <div className={s.stars} aria-hidden>
@@ -132,7 +141,18 @@ export function LockOverlay({ state }: { state: OverlayState }): React.JSX.Eleme
               onClick={() => act('prayed')}
               data-testid="lock-prayed"
             >
-              {canPray ? t.prayed : t.prayedIn(fmtCountdown(unlockIn, state.digits))}
+              {canPray ? (
+                t.prayed
+              ) : (
+                // Rolls like the time left above, so both change on the same beat.
+                <span className={s.prayedIn}>
+                  <span>{t.prayedInLabel}</span>
+                  <Odometer
+                    value={fmtCountdown(unlockIn, state.digits)}
+                    label={t.prayedIn(fmtCountdown(unlockIn, state.digits))}
+                  />
+                </span>
+              )}
             </button>
             {lock.snoozeEnabled ? (
               <button

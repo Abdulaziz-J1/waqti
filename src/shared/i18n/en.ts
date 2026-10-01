@@ -95,6 +95,7 @@ export const en: Strings = {
     remainingLabel: 'Left',
     prayed: 'I prayed',
     prayedIn: (t: string) => `Available in ${t}`,
+    prayedInLabel: 'Available in',
     snooze: 'Snooze',
     snoozeFor: 'Snooze for',
     snoozeBack: 'Back',

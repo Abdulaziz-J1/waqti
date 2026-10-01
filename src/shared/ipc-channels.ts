@@ -19,6 +19,7 @@ export const CHANNELS = [
   'focus:stop',
   'focus:sessions',
   'lock:action',
+  'lock:shown',
   'guard:action',
   'adhan:close',
   'overlay:state',

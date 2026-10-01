@@ -48,6 +48,33 @@ test('prayer lock: overlay appears on simulate and the emergency exit closes it'
   await app.close()
 })
 
+test('prayer lock: the countdown starts once the lock is on screen, both times on the same second', async () => {
+  const { app, win } = await launch()
+  await invoke(win, 'onboarding:complete', { launchAtStartup: false })
+  await invoke(win, 'settings:update', { smart: { skipWhenAway: false } })
+  await invoke(win, 'debug:simulatePrayer', { prayer: 'asr' })
+  const overlay = await overlayWindow(app)
+  await expect(overlay.locator('h1')).toContainText('العصر')
+
+  const lock = async () => {
+    const p = (await invoke(win, 'app:snapshot')).machine.prayer
+    if (p.kind !== 'locked') throw new Error(`not locked: ${p.kind}`)
+    return p
+  }
+  // Running only after the window has faded in, well inside the 5 s fallback.
+  await expect.poll(async () => (await lock()).runningSince !== null, { timeout: 4000 }).toBe(true)
+  const p = await lock()
+  // Asr locks 15 minutes and «صلّيت» opens after 5: exactly 10 minutes apart,
+  // and the full 15 minutes counted from when it appeared, not from when it was due.
+  expect(p.until - p.minUnlockAt).toBe(10 * 60_000)
+  expect(p.until - p.startedAt).toBeGreaterThanOrEqual(15 * 60_000)
+  // The lock screen counts down from there («متاح بعد ٥:٠٠» moves on, rolling like the time left).
+  const unlockIn = overlay.locator('[data-testid="lock-prayed"] [role="timer"]')
+  await expect(unlockIn).toHaveAttribute('aria-label', /٥:٠٠/)
+  await expect(unlockIn).toHaveAttribute('aria-label', /٤:٥/, { timeout: 5000 })
+  await app.close()
+})
+
 test('prayer lock: snooze once for the chosen minutes, then صلّيت after the minimum time', async () => {
   const { app, win } = await launch()
   await invoke(win, 'onboarding:complete', { launchAtStartup: false })

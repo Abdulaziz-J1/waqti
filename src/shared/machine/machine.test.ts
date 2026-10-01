@@ -89,7 +89,9 @@ const logs = (effects: Effect[]) =>
 const toastKinds = (effects: Effect[]) =>
   effects.flatMap((e) => (e.type === 'toast' ? [e.toast.kind] : []))
 
-const locked = (): MachineState => run(INITIAL_STATE, due()).state
+const shown = (now = T0): MachineEvent => ({ type: 'LOCK_SHOWN', now })
+/** A lock whose window appeared at once (its countdown runs from T0). */
+const locked = (): MachineState => run(INITIAL_STATE, due(), shown()).state
 
 describe('pre-reminder', () => {
   it('idle → reminding with a toast', () => {
@@ -301,6 +303,52 @@ describe('lock exits', () => {
     const forced: MachineState = { ...s, prayer: { ...s.prayer, until: T0 + 120 * MINUTE } }
     const r = reduce(forced, tick(T0 + 60 * MINUTE))
     expect(logs(r.effects)[0]).toMatchObject({ outcome: 'ended', reason: 'safety' })
+  })
+})
+
+describe('lock countdown', () => {
+  const lockOf = (s: MachineState) => {
+    if (s.prayer.kind !== 'locked') throw new Error('not locked')
+    return s.prayer
+  }
+
+  it('stands still until the lock is on screen, then runs in whole seconds from there', () => {
+    // Noticed 700 ms after the iqama: the time left would be 700 ms short of «صلّيت» + 10 min.
+    const due700 = run(INITIAL_STATE, due(T0 + 700, {}, PLAN, ASR)).state
+    const before = lockOf(due700)
+    expect(before.runningSince).toBeNull()
+    expect(lockView(before).runningSince).toBeNull()
+    const shownAt = T0 + 1_900
+    const after = lockOf(reduce(due700, shown(shownAt)).state)
+    expect(after.runningSince).toBe(shownAt)
+    // The full lengths, from the moment it appeared, a whole number of seconds apart.
+    expect(after.until).toBe(shownAt + 15 * MINUTE)
+    expect(after.minUnlockAt).toBe(shownAt + 5 * MINUTE)
+    expect(after.startedAt).toBe(before.startedAt)
+    // Shown again (another display, a re-render): nothing moves.
+    expect(reduce({ ...due700, prayer: after }, shown(shownAt + 3_000)).state.prayer).toBe(after)
+  })
+
+  it('starts by itself if the window never says it is shown', () => {
+    const s = run(INITIAL_STATE, due(), tick(T0 + 4 * SECOND)).state
+    expect(lockOf(s).runningSince).toBeNull()
+    const started = lockOf(reduce(s, tick(T0 + 5 * SECOND)).state)
+    expect(started.runningSince).toBe(T0 + 5 * SECOND)
+    expect(started.until).toBe(T0 + 5 * SECOND + 15 * MINUTE)
+    expect(started.minUnlockAt).toBe(T0 + 5 * SECOND + 5 * MINUTE)
+  })
+
+  it('stands still again when a snoozed lock comes back', () => {
+    const snoozed = run(locked(), { type: 'SNOOZE', now: T0 + 2 * MINUTE, minutes: 5 }).state
+    const back = lockOf(reduce(snoozed, tick(T0 + 7 * MINUTE)).state)
+    expect(back.runningSince).toBeNull()
+    const again = lockOf(reduce({ ...snoozed, prayer: back }, shown(T0 + 7 * MINUTE + 1_500)).state)
+    expect(again.until - again.minUnlockAt).toBe(10 * MINUTE)
+    expect(again.until).toBe(T0 + 7 * MINUTE + 1_500 + 13 * MINUTE)
+  })
+
+  it('ignores a show when nothing is locked', () => {
+    expect(reduce(INITIAL_STATE, shown()).state).toBe(INITIAL_STATE)
   })
 })
 

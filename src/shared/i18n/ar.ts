@@ -89,6 +89,8 @@ export const ar = {
     remainingLabel: 'باقي',
     prayed: 'صلّيت',
     prayedIn: (t: string) => `متاح بعد ${t}`,
+    /** Before the countdown on the «صلّيت» button (the digits roll beside it). */
+    prayedInLabel: 'متاح بعد',
     snooze: 'أجّل',
     snoozeFor: 'أجّل لمدة',
     snoozeBack: 'رجوع',

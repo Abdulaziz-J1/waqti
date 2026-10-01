@@ -237,6 +237,12 @@
     background-color var(--dur-base);
 }
 
+.prayedIn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+}
+
 .prayed {
   background: linear-gradient(135deg, var(--tint), var(--tint-mid));
   color: var(--tint-fg);

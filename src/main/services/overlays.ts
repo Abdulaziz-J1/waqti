@@ -88,6 +88,11 @@ export class OverlayManager {
     }, delay)
   }
 
+  /** New times for the lock on screen (its countdown started); the windows stay. */
+  updateLock(view: LockView): void {
+    if (this.lock) this.lock = view
+  }
+
   hideLock(): void {
     this.lock = null
     if (this.safetyTimer) clearTimeout(this.safetyTimer)

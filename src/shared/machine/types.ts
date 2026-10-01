@@ -60,6 +60,12 @@ export type PrayerState =
       minUnlockAt: number
       hardUntil: number
       snoozeUsed: boolean
+      /**
+       * When the countdown started: once the lock is on screen (LOCK_SHOWN).
+       * Until then (null) the times stay whole and still, so the lock never
+       * appears already short.
+       */
+      runningSince: number | null
     }
   | {
       kind: 'snoozed'
@@ -149,6 +155,8 @@ export type MachineEvent =
   | { type: 'ADHAN_DUE'; now: number; ref: PrayerRef; locks: boolean; chime: boolean }
   | { type: 'PRAYER_DUE'; now: number; ref: PrayerRef; plan: LockPlan | null; ctx: TickContext }
   | { type: 'PRAYED'; now: number }
+  /** The lock is fully on screen: its countdown starts now. */
+  | { type: 'LOCK_SHOWN'; now: number }
   /** Minutes chosen on the lock screen (clamped to the configured range). */
   | { type: 'SNOOZE'; now: number; minutes: number }
   | { type: 'EMERGENCY_EXIT'; now: number }
@@ -182,6 +190,8 @@ export interface LockView {
   startedAt: number
   until: number
   minUnlockAt: number
+  /** Null until the lock is on screen: the times shown are the full lengths. */
+  runningSince: number | null
   hardUntil: number
   /** The snooze is turned on for this lock (it may already be used). */
   snoozeEnabled: boolean
@@ -242,6 +252,8 @@ export interface MachineConfig {
   guardGraceMs: number
   lateLockMinMs: number
   adhanNoticeMs: number
+  /** A lock whose window never reports itself shown starts counting after this. */
+  lockShowGraceMs: number
 }
 
 export interface Transition {

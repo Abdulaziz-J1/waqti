@@ -32,7 +32,8 @@ export const DEFAULT_MACHINE_CONFIG: MachineConfig = {
   guardSnoozeMs: 5 * MINUTE,
   guardGraceMs: 3 * SECOND,
   lateLockMinMs: 5 * MINUTE,
-  adhanNoticeMs: 10 * SECOND
+  adhanNoticeMs: 10 * SECOND,
+  lockShowGraceMs: 5 * SECOND
 }
 
 export const INITIAL_STATE: MachineState = {
@@ -78,6 +79,7 @@ export function lockView(p: Extract<PrayerState, { kind: 'locked' }>): LockView 
     startedAt: p.startedAt,
     until: p.until,
     minUnlockAt: p.minUnlockAt,
+    runningSince: p.runningSince,
     hardUntil: p.hardUntil,
     snoozeEnabled: p.plan.snooze,
     snoozeAvailable: p.plan.snooze && !p.snoozeUsed,
@@ -176,7 +178,29 @@ function startLock(
     until: end,
     minUnlockAt: Math.min(now + plan.minUnlockMs, end),
     hardUntil,
-    snoozeUsed
+    snoozeUsed,
+    runningSince: null
+  }
+}
+
+/**
+ * Starts a lock's countdown at `now`, when it is on screen. Both lengths are
+ * kept in whole seconds from the same instant, so the time left and
+ * «صلّيت» tick together, and the lock shows its full length when it appears
+ * (it may have been scheduled a moment before the window could show it).
+ */
+function runLock(
+  p: Extract<PrayerState, { kind: 'locked' }>,
+  now: number
+): Extract<PrayerState, { kind: 'locked' }> {
+  const whole = (ms: number): number => Math.ceil(Math.max(0, ms) / SECOND) * SECOND
+  // The 60-minute safety maximum still counts from the start and is never moved.
+  const until = Math.min(now + whole(p.until - p.startedAt), p.hardUntil)
+  return {
+    ...p,
+    runningSince: now,
+    until,
+    minUnlockAt: Math.min(now + whole(p.minUnlockAt - p.startedAt), until)
   }
 }
 
@@ -294,7 +318,10 @@ function onTick(
   switch (p.kind) {
     case 'locked':
       if (now >= p.hardUntil) next = endLock(s, p, now, 'ended', 'safety', effects)
-      else if (now >= p.until) next = endLock(s, p, now, 'ended', 'duration', effects)
+      else if (p.runningSince === null && now - p.startedAt >= cfg.lockShowGraceMs) {
+        // The window never said it was shown: count from when it should have been.
+        next = { ...s, prayer: runLock(p, p.startedAt + cfg.lockShowGraceMs) }
+      } else if (now >= p.until) next = endLock(s, p, now, 'ended', 'duration', effects)
       break
     case 'snoozed':
       if (now >= p.resumeAt) {
@@ -517,6 +544,12 @@ export function reduce(
 
     case 'PRAYER_DUE':
       state = onPrayerDue(s, e, cfg, effects)
+      break
+
+    case 'LOCK_SHOWN':
+      if (s.prayer.kind === 'locked' && s.prayer.runningSince === null) {
+        state = { ...s, prayer: runLock(s.prayer, e.now) }
+      }
       break
 
     case 'PRAYED':

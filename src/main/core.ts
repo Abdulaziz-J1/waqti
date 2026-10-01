@@ -38,6 +38,7 @@ import {
   describeState,
   focusProgress,
   focusRemaining,
+  lockView,
   reduce
 } from '../shared/machine/machine'
 import { renderToast } from '../shared/machine/toasts'
@@ -450,6 +451,9 @@ export class WaqtiCore {
     }
     if (changed) {
       this.markDirty()
+      if (state.prayer.kind === 'locked' && this.overlays.lockVisible) {
+        this.overlays.updateLock(lockView(state.prayer))
+      }
       if (this.overlays.guardVisible || this.overlays.lockVisible) this.overlays.push()
     }
   }

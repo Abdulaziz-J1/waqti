@@ -195,6 +195,8 @@ export const requestSchemas = {
     /** Snooze length chosen on the lock screen. */
     minutes: z.number().int().min(1).max(15).optional()
   }),
+  /** The primary lock window has faded in: its countdown starts now. */
+  'lock:shown': z.undefined(),
   'guard:action': z.object({ action: z.enum(['back', 'snooze']) }),
   'adhan:close': z.undefined(),
   'overlay:state': z.undefined(),
@@ -258,6 +260,7 @@ export interface ResponseMap {
   'focus:stop': null
   'focus:sessions': FocusSessionRecord[]
   'lock:action': null
+  'lock:shown': null
   'guard:action': null
   'adhan:close': null
   'overlay:state': OverlayState
