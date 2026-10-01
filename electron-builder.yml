@@ -25,6 +25,10 @@ extraResources:
   - from: THIRD_PARTY_LICENSES
     to: resources/THIRD_PARTY_LICENSES.txt
 asar: true
+# Chromium's own UI strings (context menus, dialogs) for the two languages Waqti
+# speaks; the other 53 locales were 47 MB unpacked.
+electronLanguages: [ar, en-US]
+compression: maximum
 asarUnpack:
   - '**/*.node'
 # All native modules ship N-API prebuilds; nothing needs compiling.
