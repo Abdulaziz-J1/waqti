@@ -100,7 +100,7 @@ export const ar = {
   },
   adhan: {
     title: (prayer: string) => `حان وقت أذان ${prayer}`,
-    lockAt: (time: string) => `الشاشة بتنقفل وقت الإقامة، الساعة ${time}`,
+    lockIn: (d: string, time: string) => `الشاشة بتنقفل بعد ${d}، الساعة ${time}`,
     sunriseIn: (d: string) => `الشروق بعد ${d}`,
     sunriseNow: 'حان وقت الشروق',
     sunriseSub: (time: string) => `آخر وقت لصلاة الفجر الساعة ${time}`,

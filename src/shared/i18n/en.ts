@@ -105,7 +105,7 @@ export const en: Strings = {
   },
   adhan: {
     title: (prayer: string) => `It's time for the ${prayer} adhan`,
-    lockAt: (time: string) => `The screen locks at the iqama, ${time}`,
+    lockIn: (d: string, time: string) => `The screen locks in ${d}, at ${time}`,
     sunriseIn: (d: string) => `Sunrise in ${d}`,
     sunriseNow: "It's sunrise",
     sunriseSub: (time: string) => `Fajr can be prayed until ${time}`,

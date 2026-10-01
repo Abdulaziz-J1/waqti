@@ -858,6 +858,11 @@ export class WaqtiCore {
     const base = this.simRef(b, prayer, now)
     const locks = lockPlanFor(s, base.prayer, base.isJumuah) !== null
     const delay = locks ? lockDelayMinutesFor(s, base.prayer, base.isJumuah, b.today.isRamadan) : 0
+    // A lock that comes with the adhan has no notice before it, as on a real day.
+    if (locks && delay === 0) {
+      this.simulatePrayer(prayer)
+      return
+    }
     const ref = { ...base, at: now + delay * MINUTE }
     this.dispatch({ type: 'ADHAN_DUE', now, ref, locks, chime: s.chime })
   }

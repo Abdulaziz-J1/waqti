@@ -3,7 +3,7 @@ import { invoke, launch, shown } from './helpers'
 
 const isNotice = (w: Page): boolean => w.url().includes('kind=adhan')
 
-test('adhan notice: announces the prayer and the lock at the iqama, closes by button or after 10 s', async () => {
+test('adhan notice: announces the prayer and in how long the lock follows, closes by button or after 10 s', async () => {
   const { app, win } = await launch()
   await invoke(win, 'onboarding:complete', { launchAtStartup: false })
 
@@ -12,7 +12,8 @@ test('adhan notice: announces the prayer and the lock at the iqama, closes by bu
   let notice = await shown(app, await opened)
   const card = notice.getByTestId('adhan-notice')
   await expect(card).toContainText('حان وقت أذان العصر')
-  await expect(card).toContainText('وقت الإقامة')
+  // Asr locks 20 minutes after its adhan by default.
+  await expect(card).toContainText('الشاشة بتنقفل بعد ٢٠ دقيقة، الساعة')
   // Only a notice: the lock waits for the iqama.
   expect((await invoke(win, 'app:snapshot')).machine.prayer.kind).toBe('idle')
   let closed = notice.waitForEvent('close')

@@ -4,14 +4,15 @@ import { fmtClock, fmtDuration } from '@shared/format'
 import type { OverlayState } from '@shared/ipc'
 import { prayerLabel } from '@shared/machine/toasts'
 import { adhan as t } from '@shared/strings'
+import { MINUTE } from '@shared/time'
 import { LogoMark } from '../components/NavIcons'
 import { api } from '../lib/api'
 import { playChime } from '../lib/chime'
 import s from './AdhanNotice.module.css'
 
 /**
- * The short notice at the adhan (the prayer, and when the lock follows at the
- * iqama) or before sunrise (the last of Fajr's time), with a close button. It never takes focus; a thin bar drains over
+ * The short notice at the adhan (the prayer, and in how long the lock follows,
+ * as set for that prayer) or before sunrise (the last of Fajr's time), with a close button. It never takes focus; a thin bar drains over
  * the notice's lifetime and the main process closes it at `until`.
  */
 export function AdhanNotice({ state }: { state: OverlayState }): React.JSX.Element | null {
@@ -50,7 +51,15 @@ export function AdhanNotice({ state }: { state: OverlayState }): React.JSX.Eleme
             <>
               <p className={s.title}>{t.title(prayerLabel(view.ref))}</p>
               {view.lockAt !== null ? (
-                <p className={s.sub}>{t.lockAt(fmtClock(view.lockAt, prefs))}</p>
+                <p className={s.sub}>
+                  {t.lockIn(
+                    fmtDuration(Math.max(MINUTE, view.lockAt - view.shownAt), state.digits, {
+                      gramCase: 'obl',
+                      round: 'round'
+                    }),
+                    fmtClock(view.lockAt, prefs)
+                  )}
+                </p>
               ) : null}
             </>
           ) : view.sunriseAt - view.shownAt >= 30_000 ? (

@@ -179,7 +179,7 @@ test('smart rules: away skips the lock, meetings defer it', async () => {
   await app.close()
 })
 
-test("jumu'ah: its own row in the prayer table, and its lock follows that row's settings", async () => {
+test("jumu'ah: its own row in the prayer table; it locks with its adhan, no notice before", async () => {
   const { app, win } = await launch()
   await invoke(win, 'onboarding:complete', { launchAtStartup: false })
   await invoke(win, 'settings:update', {
@@ -194,8 +194,10 @@ test("jumu'ah: its own row in the prayer table, and its lock follows that row's 
   await expect(row.getByRole('switch', { name: /الجمعة/ })).toHaveAttribute('aria-checked', 'true')
   await expect(win.locator('#prayer-friday')).toHaveCount(0)
 
-  await invoke(win, 'debug:simulatePrayer', { prayer: 'jumuah' })
+  // Its lock comes with the adhan by default, so the adhan locks at once.
+  await invoke(win, 'debug:simulateAdhan', { prayer: 'jumuah' })
   const overlay = await overlayWindow(app)
+  expect(app.windows().some((w) => w.url().includes('kind=adhan'))).toBe(false)
   await expect(overlay.locator('h1')).toContainText('الجمعة')
   const p = (await invoke(win, 'app:snapshot')).machine.prayer
   if (p.kind !== 'locked') throw new Error(`not locked: ${p.kind}`)
