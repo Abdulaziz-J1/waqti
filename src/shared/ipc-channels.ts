@@ -7,6 +7,7 @@ export const CHANNELS = [
   'app:info',
   'app:ready',
   'app:openFolder',
+  'app:feedback',
   'app:dismissNotice',
   'settings:update',
   'onboarding:complete',

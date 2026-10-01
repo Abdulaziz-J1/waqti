@@ -1,0 +1,23 @@
+name: اقتراح · Suggest an idea
+description: فكرة تخلي وقتي أفضل · An idea that would make Waqti better
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: الفكرة · The idea
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: وش تحل لك؟ · What would it solve for you?
+  - type: input
+    id: version
+    attributes:
+      label: إصدار وقتي · Waqti version
+      description: الإعدادات ← عن وقتي · Settings → About
+  - type: input
+    id: windows
+    attributes:
+      label: نسخة ويندوز · Windows version

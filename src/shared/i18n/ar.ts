@@ -480,6 +480,12 @@ export const ar = {
     openData: 'افتح مجلد البيانات',
     openLogs: 'افتح مجلد السجلات',
     licenses: 'التراخيص',
+    feedbackTitle: 'اقتراح أو مشكلة',
+    feedbackLead:
+      'عندك فكرة أو واجهتك مشكلة؟ تنفتح لك صفحة في متصفحك فيها رقم الإصدار ونسخة ويندوز بس، وتشوف كل شي قبل ما ترسله.',
+    suggestIdea: 'اقترح فكرة',
+    reportProblem: 'بلّغ عن مشكلة',
+    feedbackFailed: 'ما انفتح المتصفح. تقدر تفتح الصفحة بنفسك:',
     debugHint: 'لوحة الاختبار: Ctrl+Shift+D'
   },
   onboarding: {

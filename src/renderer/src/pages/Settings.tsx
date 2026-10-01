@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react'
-import { Download, FolderOpen, Plus, Trash2, Upload, X } from 'lucide-react'
+import { Bug, Download, FolderOpen, Lightbulb, Plus, Trash2, Upload, X } from 'lucide-react'
 import { useState } from 'react'
+import { REPO_URL, type FeedbackKind } from '@shared/feedback'
 import type { Settings } from '@shared/settings/schema'
 import { common, settingsPage as t } from '@shared/strings'
 import { friendlyAppName } from '@shared/tracking/apps'
@@ -489,7 +490,12 @@ function Data(): React.JSX.Element {
 function About(): React.JSX.Element {
   const info = useData(() => api.invoke('app:info'), [])
   const [licenses, setLicenses] = useState(false)
+  const [feedbackFailed, setFeedbackFailed] = useState(false)
   const i = info.data
+  const feedback = (kind: FeedbackKind): void => {
+    setFeedbackFailed(false)
+    api.invoke('app:feedback', { kind }).catch(() => setFeedbackFailed(true))
+  }
   return (
     <Panel title={t.sections.about}>
       <p className={s.offline}>{t.offline}</p>
@@ -532,6 +538,29 @@ function About(): React.JSX.Element {
         <pre className={s.licenses} dir="ltr" tabIndex={0}>
           {i.licenses}
         </pre>
+      ) : null}
+
+      <h3 className={s.subTitle}>{t.feedbackTitle}</h3>
+      <p className={s.hint}>{t.feedbackLead}</p>
+      <div className={s.actions}>
+        <Button
+          icon={<Lightbulb size={16} />}
+          onClick={() => feedback('idea')}
+          data-testid="feedback-idea"
+        >
+          {t.suggestIdea}
+        </Button>
+        <Button icon={<Bug size={16} />} onClick={() => feedback('bug')} data-testid="feedback-bug">
+          {t.reportProblem}
+        </Button>
+      </div>
+      {feedbackFailed ? (
+        <p className={s.hint} role="alert">
+          {t.feedbackFailed}{' '}
+          <bdi className={s.link} dir="ltr">
+            {REPO_URL}/issues
+          </bdi>
+        </p>
       ) : null}
       <p className={s.hint}>{t.debugHint}</p>
     </Panel>

@@ -1,0 +1,44 @@
+name: بلاغ عن مشكلة · Report a problem
+description: شي ما اشتغل زي المتوقع · Something didn't work as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: وش صار؟ · What happened?
+      description: اللي صار، واللي كنت متوقعه · What happened, and what you expected instead
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: كيف تتكرر؟ · How can it be repeated?
+      placeholder: |
+        1.
+        2.
+        3.
+  - type: input
+    id: version
+    attributes:
+      label: إصدار وقتي · Waqti version
+      description: الإعدادات ← عن وقتي · Settings → About
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: نسخة ويندوز · Windows version
+  - type: dropdown
+    id: language
+    attributes:
+      label: لغة الواجهة · Interface language
+      options:
+        - العربية
+        - English
+  - type: textarea
+    id: extra
+    attributes:
+      label: صور أو سجل · Screenshots or logs
+      description: >-
+        اسحب الصور هنا. السجلات من الإعدادات ← عن وقتي ← «افتح مجلد السجلات»، وما فيها عناوين نوافذك ·
+        Drop screenshots here. Logs are under Settings → About → "Open the logs folder"; they never include window titles.

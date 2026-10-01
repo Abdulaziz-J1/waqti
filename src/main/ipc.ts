@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { BrowserWindow, app, ipcMain, shell, type IpcMainInvokeEvent } from 'electron'
@@ -13,6 +14,7 @@ import {
   type ResponseMap,
   requestSchemas
 } from '../shared/ipc'
+import { feedbackUrl } from '../shared/feedback'
 import { CHANNELS } from '../shared/ipc-channels'
 import { buildDaySchedule } from '../shared/prayer/schedule'
 import { coordsOf } from '../shared/settings/plan'
@@ -73,6 +75,13 @@ export function registerIpc(core: WaqtiCore): void {
     'app:openFolder': async ({ which }) => {
       await shell.openPath(which === 'logs' ? paths.logs : paths.userData)
       return null
+    },
+    'app:feedback': async ({ kind }) => {
+      const url = feedbackUrl(kind, { version: app.getVersion(), osRelease: os.release() })
+      // A test profile never opens the real browser.
+      if (!process.env['WAQTI_USER_DATA']) await shell.openExternal(url)
+      log.info('opened the feedback page', { kind })
+      return { url }
     },
     'app:dismissNotice': () => {
       core.notice = null

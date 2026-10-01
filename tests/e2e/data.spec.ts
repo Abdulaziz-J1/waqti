@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { expect, test } from '@playwright/test'
-import { invoke, launch } from './helpers'
+import { invoke, launch, readLog } from './helpers'
 
 test('settings: digits, recategorize, export, import and delete all', async () => {
   const { app, win, dataDir } = await launch()
@@ -69,5 +69,23 @@ test('settings: digits, recategorize, export, import and delete all', async () =
   const imported = await invoke(win, 'data:import')
   expect(imported.error).toBeNull()
   expect(imported.imported?.sessions).toBe(1)
+  await app.close()
+})
+
+test('about: suggest and report open the GitHub issue forms with the version filled in', async () => {
+  const { app, win, dataDir } = await launch()
+  await invoke(win, 'onboarding:complete', { launchAtStartup: false })
+  await win.locator('[data-testid="nav-settings"]').click()
+  await win.getByRole('radio', { name: 'عن وقتي' }).click()
+  await win.locator('[data-testid="feedback-bug"]').click()
+  await expect.poll(() => readLog(dataDir)).toContain('opened the feedback page')
+  await expect(win.getByRole('alert')).toHaveCount(0)
+
+  const { url } = await invoke(win, 'app:feedback', { kind: 'idea' })
+  const u = new URL(url)
+  expect(`${u.origin}${u.pathname}`).toBe('https://github.com/Abdulaziz-J1/waqti/issues/new')
+  expect(u.searchParams.get('template')).toBe('idea.yml')
+  expect(u.searchParams.get('version')).toBe(await app.evaluate(({ app }) => app.getVersion()))
+  expect(u.searchParams.get('windows')).toMatch(/^Windows 1[01] \(10\.0\.\d+\)$/)
   await app.close()
 })

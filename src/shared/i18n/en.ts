@@ -492,6 +492,12 @@ export const en: Strings = {
     openData: 'Open the data folder',
     openLogs: 'Open the logs folder',
     licenses: 'Licenses',
+    feedbackTitle: 'Ideas and problems',
+    feedbackLead:
+      'Have an idea, or ran into a problem? A page opens in your browser with only the version and your Windows version filled in, and you see everything before you send it.',
+    suggestIdea: 'Suggest an idea',
+    reportProblem: 'Report a problem',
+    feedbackFailed: "The browser didn't open. You can open the page yourself:",
     debugHint: 'Test panel: Ctrl+Shift+D'
   },
   onboarding: {

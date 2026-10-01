@@ -180,6 +180,7 @@ export const requestSchemas = {
   'app:info': z.undefined(),
   'app:ready': z.object({ at: z.number() }),
   'app:openFolder': z.object({ which: z.enum(['data', 'logs']) }),
+  'app:feedback': z.object({ kind: z.enum(['bug', 'idea']) }),
   'app:dismissNotice': z.undefined(),
   'settings:update': z.record(z.string(), z.unknown()),
   'onboarding:complete': z.object({ launchAtStartup: z.boolean() }),
@@ -251,6 +252,8 @@ export interface ResponseMap {
   'app:info': AppInfo
   'app:ready': null
   'app:openFolder': null
+  /** The issue page opened in the browser. */
+  'app:feedback': { url: string }
   'app:dismissNotice': null
   'settings:update': Settings
   'onboarding:complete': null

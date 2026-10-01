@@ -100,6 +100,10 @@ npm run dev
 - **ما يعرف الموقع داخل المتصفح إلا من عنوان النافذة.** إذا كان عنوان الصفحة ما يذكر الموقع، ينحسب الوقت للمتصفح نفسه.
 - **الاجتماع يُعرف من التطبيق اللي في الواجهة فقط.** لو كنت في اجتماع Teams والنافذة في الخلفية، ما يعتبره اجتماع. القائمة قابلة للتعديل في `%APPDATA%\Waqti\meeting-apps.json`.
 
+## اقتراحات ومشاكل
+
+عندك فكرة أو واجهتك مشكلة؟ افتح [بلاغ جديد](https://github.com/Abdulaziz-J1/waqti/issues/new/choose)، أو من داخل التطبيق: الإعدادات ← عن وقتي ← «اقترح فكرة» أو «بلّغ عن مشكلة». الزرين يفتحون الصفحة في متصفحك ورقم الإصدار ونسخة ويندوز معبّأة، ووقتي نفسه ما يرسل شي.
+
 ## الترخيص
 
 MIT — انظر [LICENSE](LICENSE). خط الواجهة «خط ثمانية» © ثمانية للنشر والتوزيع، مستخدم حسب [ترخيص خط ثمانية](https://font.thmanyah.com/licenses)، وهو مضمّن داخل التطبيق ومو مرخّص لاستخراجه أو إعادة توزيعه. الخطوط الاحتياطية (Noto Kufi Arabic وIBM Plex Sans Arabic) بترخيص SIL OFL 1.1، وتراخيص كل المكتبات في [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
@@ -163,6 +167,10 @@ Documentation: [ARCHITECTURE.md](ARCHITECTURE.md) (processes, the lock/focus sta
 - **Windows only.** The code does not crash elsewhere, but tracking and the lock are built for Windows.
 - **Sites are derived from window titles**; pages whose titles don't name the site count towards the browser.
 - **Meetings are detected from the foreground window**; the list lives in `%APPDATA%\Waqti\meeting-apps.json` and can be edited.
+
+## Ideas and problems
+
+Open an [issue](https://github.com/Abdulaziz-J1/waqti/issues/new/choose), or from the app: Settings → About → "Suggest an idea" / "Report a problem". Both open the issue form in your browser with the version and Windows version filled in; Waqti itself sends nothing.
 
 ## License
 

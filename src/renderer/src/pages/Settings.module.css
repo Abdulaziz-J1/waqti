@@ -306,6 +306,12 @@
   color: var(--text-1);
 }
 
+/* A link to copy when the browser cannot be opened. */
+.link {
+  color: var(--tint-text);
+  user-select: text;
+}
+
 .licenses {
   max-block-size: 320px;
   overflow: auto;
