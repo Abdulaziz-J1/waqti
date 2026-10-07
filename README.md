@@ -83,11 +83,9 @@
 
 <a id="install-warnings"></a>
 
-### طلع لك تحذير؟ لا تقلق، وهذا السبب
+### طلع لك تحذير؟ هذا طبيعي
 
-وقتي برنامج جديد ومجاني، وما عليه **توقيع رقمي** (شهادة مدفوعة يشتريها المطوّر كل سنة). ويندوز والمتصفحات وبرامج الحماية يثقون بالبرامج الموقّعة أو اللي نزّلها ناس كثير من قبل، وأي برنامج جديد غير موقّع يحتاطون منه. التحذير معناه «ما نعرف هذا البرنامج بعد»، مو «لقينا فيه شي». وكل ما زاد اللي ينزّلونه تخف التحذيرات.
-
-وبرامج الحماية بالذات تشك في البرامج الجديدة اللي تسوي أشياء حساسة، ووقتي فعلاً يسوي أشياء تشبهها: يشوف وش النافذة اللي قدامك عشان يحسب وقتك، ويقفل الشاشة وقت الصلاة، ويوقف الفيديو ويكتم الصوت. كل هذا يصير على جهازك بس: وقتي ما يتصل بالإنترنت أبداً، وما يرسل أي شي لأي مكان. والكود كله مفتوح هنا لأي أحد يراجعه، والمثبّت مبني منه.
+وقتي برنامج جديد ومجاني، وما عليه **توقيع رقمي** (شهادة مدفوعة تتجدد كل سنة). فممكن المتصفح أو ويندوز يحتاطون منه أول مرة لأنهم «ما يعرفونه بعد»، مو لأنهم لقوا فيه شي، وكل ما زاد اللي ينزّلونه تخف هالتحذيرات. ووقتي ما يتصل بالإنترنت أبداً، والكود كله مفتوح هنا، والمثبّت مبني منه.
 
 <details>
 <summary><b>المتصفح يقول إن الملف «غير شائع التنزيل»</b></summary>
@@ -108,18 +106,11 @@
 </details>
 
 <details>
-<summary><b>برنامج الحماية حذف الملف أو حجزه، أو المثبّت قفل لحاله</b></summary>
+<summary><b>برنامج الحماية اعترض عليه</b></summary>
 
 <br />
 
-أغلب برامج الحماية ما تحذف الملف، تحطه في «العزل» (Quarantine) وتقدر ترجعه:
-
-- **Avast أو AVG:** افتح البرنامج ← القائمة ← **العزل** (Quarantine)، اختر ملف وقتي، ومن النقاط الثلاث اختر **استعادة وإضافة استثناء** (Restore and add exception).
-- **Avast أو AVG قفل المثبّت نفسه** (يحلله دقيقة تقريباً بعدين يوقفه، أو يقول إنه مشبوه): افتح البرنامج ← القائمة ← **الإعدادات** ← **عام** ← **الاستثناءات** ← **إضافة استثناء**، وأضف ملف المثبّت `Waqti-Setup.exe` ومجلد التطبيق `%LOCALAPPDATA%\Programs\Waqti`، وبعدها شغّل المثبّت.
-- **أمان Windows:** افتح «أمان Windows» ← الحماية من الفيروسات والمخاطر ← **محفوظات الحماية** (Protection history)، اختر العنصر ← الإجراءات ← **سماح على الجهاز** (Allow on device).
-- **برامج ثانية:** دوّر على «العزل» أو Quarantine، واختر استعادة مع استثناء.
-
-بعدها شغّل المثبّت من جديد. وإذا كان وقتي مثبّت وبطّل يفتح، نفس الخطوات ترجّعه.
+كل إصدار نرسله لـ Avast وAVG يفحصونه ويعتمدونه قبل ما ننشره، فما المفروض يعترضون. وإذا برنامج حماية ثاني حجز الملف، رجّعه من «العزل» (Quarantine) وشغّل المثبّت من جديد. في «أمان Windows»: الحماية من الفيروسات والمخاطر ← **محفوظات الحماية** ← اختر العنصر ← الإجراءات ← **سماح على الجهاز**. و[بلّغنا](https://github.com/Abdulaziz-J1/waqti/issues/new/choose) باسم برنامج الحماية عشان نراسلهم.
 
 </details>
 
@@ -211,12 +202,11 @@ Many of us spend the whole day at the computer, working or gaming, and a prayer 
 1. Download `Waqti-Setup.exe` from [Releases](https://github.com/Abdulaziz-J1/waqti/releases/latest) and run it. It asks for a language first.
 2. It installs for your user only (no admin rights). The uninstaller asks whether to keep your data.
 
-**Seeing a warning?** Waqti is new, free and not code-signed, so Windows, browsers and antivirus programs don't know it yet. A warning means "we haven't seen this before", not "we found something", and it fades as more people download it. Antivirus heuristics are also wary of new apps that watch the active window, lock the screen and pause media, which is exactly what Waqti does, all on your machine: it never connects to the internet.
+**Seeing a warning?** Waqti is new, free and not code-signed, so your browser or Windows may be cautious the first time: it means "we haven't seen this before", not "we found something", and it fades as more people download it. Waqti never connects to the internet, and the installer is built from the code here.
 
 - **Browser says the file "isn't commonly downloaded":** open Downloads (Ctrl+J), click ⋯ next to the file and choose **Keep** (in Edge, then **Show more** → **Keep anyway**).
 - **"Windows protected your PC":** click **More info**, then **Run anyway**. It only appears once, at install.
-- **Antivirus quarantined it:** restore it from the quarantine and add an exception (Avast/AVG: Menu → Quarantine → ⋯ → **Restore and add exception**; Windows Security: Virus & threat protection → Protection history → Actions → **Allow on device**), then run the installer again.
-- **Avast/AVG stopped the installer itself** (it analyses it for about a minute, then ends it): Menu → Settings → General → Exceptions → **Add exception**, add `Waqti-Setup.exe` and the folder `%LOCALAPPDATA%\Programs\Waqti`, then run the installer.
+- **Antivirus:** every release is checked and cleared by Avast and AVG before it is published. If another antivirus quarantines it, restore it and run the installer again (Windows Security: Virus & threat protection → Protection history → Actions → **Allow on device**), and [let us know](https://github.com/Abdulaziz-J1/waqti/issues/new/choose) which one so we can report it.
 - **Check the file:** run `Get-FileHash "$HOME\Downloads\Waqti-Setup.exe"` in PowerShell and compare it with the sha256 shown next to the file on the release page.
 
 ## Build from source
